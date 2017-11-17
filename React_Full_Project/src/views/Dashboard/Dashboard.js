@@ -32,6 +32,7 @@ import {
 import classnames from 'classnames';
 import ReactTable from 'react-table'
 import 'react-table/react-table.css'
+import './Dashboard.css'
 
 function getDate(input)
 { //converts the JSON's string date into an array of ints, [year, month, day]
@@ -364,9 +365,21 @@ class SearchBar extends React.Component {
 
         locationDropDownOpen: false,
 
-          arrayOfSelectedLocations: []
+          arrayOfSelectedLocations: [],
+
+          leftClickingDropDownCheckboxes: false,
+
+          classDropDownOpen: false,
+
+          arrayOfSelectedClasses: []
+
+          //TODO: TEST
+
+          //serverLocationDropDown: []
 
       };
+      //this.getFromServer = this.getFromServer.bind(this);
+
       this.handleChange = this.handleChange.bind(this);
       this.handleSubmitQuickSearch = this.handleSubmitQuickSearch.bind(this);
       this.handleSubmitFullTextSearch = this.handleSubmitFullTextSearch.bind(this);
@@ -390,8 +403,14 @@ class SearchBar extends React.Component {
          this.toggleLocationDropdown = this.toggleLocationDropdown.bind(this);
          this.toggleLocationCheckbox = this.toggleLocationCheckbox.bind(this);
 
-         this.locationDropDownItems = this.locationDropDownItems.bind(this);
+         this.toggleClassDropdown = this.toggleClassDropdown.bind(this);
+         this.toggleClassCheckbox = this.toggleClassCheckbox.bind(this);
+    }
 
+    //fetch from server from the very beginning:
+    componentWillMount() {
+         this.getLocationFromServerThenTransformToHtml();
+         this.getClassFromServerThenTransformToHtml();
     }
 
 
@@ -415,108 +434,116 @@ class SearchBar extends React.Component {
 
     handleSubmitFullTextSearch(event) {
 
-        var arrayOfFilters =
-            [
-                (this.state.typeId != '' ? {name:"typeId",type:"EQ",value:this.state.typeId} : undefined),
-                //locationName used splice(1,0,val)
-                (this.state.classification != '' ? {name:"classification",type:"EQ",value:this.state.classification} : undefined),
-
-                //for: createdAt
-                //first case: one date
-                (this.state.collapseCreated
-                && this.state.createdyyyy != ""
-                && this.state.createdmm != ""
-                && this.state.createddd != ""
-                    ? {name:"createdAt",type:"EQ",value:[this.state.createdyyyy, this.state.createdmm, this.state.createddd]} : undefined),
-
-                //second case: from beginning to date
-
-                (!this.state.collapseCreated
-                && this.state.collapseCreatedTill
-                && this.state.createdTillyyyy != ""
-                && this.state.createdTillmm != ""
-                && this.state.createdTilldd != ""
-                    ? {name:"createdAt",type:"LT",value:[this.state.createdTillyyyy, this.state.createdTillmm, this.state.createdTilldd]} : undefined),
-
-                //third case: from date to beginning
-
-                (!this.state.collapseCreated
-                && this.state.collapseCreatedFrom
-                && this.state.createdFromyyyy != ""
-                && this.state.createdFrommm != ""
-                && this.state.createdFromdd != ""
-                    ? {name:"createdAt",type:"GT",value:[this.state.createdFromyyyy, this.state.createdFrommm, this.state.createdFromdd]} : undefined),
-
-                //for: updatedAt
-                //first case: one date
-                (this.state.collapseUpdated
-                && this.state.updatedyyyy != ""
-                && this.state.updatedmm != ""
-                && this.state.updateddd != ""
-                    ? {name:"updatedAt",type:"EQ",value:[this.state.updatedyyyy, this.state.updatedmm, this.state.updateddd]} : undefined),
-
-                //second case: from beginning to date
-
-                (!this.state.collapseUpdated
-                && this.state.collapseUpdatedTill
-                && this.state.updatedTillyyyy != ""
-                && this.state.updatedTillmm != ""
-                && this.state.updatedTilldd != ""
-                    ? {name:"updatedAt",type:"LT",value:[this.state.updatedTillyyyy, this.state.updatedTillmm, this.state.updatedTilldd]} : undefined),
-
-                //third case: from date to beginning
-
-                (!this.state.collapseUpdated
-                && this.state.collapseUpdatedFrom
-                && this.state.updatedFromyyyy != ""
-                && this.state.updatedFrommm != ""
-                && this.state.updatedFromdd != ""
-                    ? {name:"updatedAt",type:"GT",value:[this.state.updatedFromyyyy, this.state.updatedFrommm, this.state.updatedFromdd]} : undefined),
+        var arrayOfFilters = [];
 
 
-                //TODO: closedAt
+        //push into array of filter one by one would be easier I guess
+//result[1]['filter']
+        arrayOfFilters.push(this.state.typeId != '' ? {name:"typeId",type:"EQ",value:this.state.typeId} : undefined);
 
-                (this.state.collapseClosed
-                && this.state.closedyyyy != ""
-                && this.state.closedmm != ""
-                && this.state.closeddd != ""
-                    ? {name:"closedAt",type:"EQ",value:[this.state.closedyyyy, this.state.closedmm, this.state.closeddd]} : undefined),
+        for (var i = 0; i < this.state.arrayOfSelectedLocations.length; i++) {
+            arrayOfFilters.push({name: "locationName", type: "EQ", value: this.state.arrayOfSelectedLocations[i]});
+        }
 
-                //second case: from beginning to date
+        for (var i = 0; i < this.state.arrayOfSelectedClasses.length; i++) {
+            arrayOfFilters.push({name: "className", type: "EQ", value: this.state.arrayOfSelectedClasses[i]});
+        }
 
-                (!this.state.collapseClosed
-                && this.state.collapseClosedTill
-                && this.state.closedTillyyyy != ""
-                && this.state.closedTillmm != ""
-                && this.state.closedTilldd != ""
-                    ? {name:"closedAt",type:"LT",value:[this.state.closedTillyyyy, this.state.closedTillmm, this.state.closedTilldd]} : undefined),
+        arrayOfFilters.push(
+            //for: createdAt
+            //first case: one date
+            (this.state.collapseCreated
+            && this.state.createdyyyy != ""
+            && this.state.createdmm != ""
+            && this.state.createddd != ""
+                ? {name:"createdAt",type:"EQ",value:[this.state.createdyyyy, this.state.createdmm, this.state.createddd]} : undefined),
 
-                (!this.state.collapseClosed
-                && this.state.collapseClosedFrom
-                && this.state.closedFromyyyy != ""
-                && this.state.closedFrommm != ""
-                && this.state.closedFromdd != ""
-                    ? {name:"closedAt",type:"GT",value:[this.state.closedFromyyyy, this.state.closedFrommm, this.state.closedFromdd]} : undefined),
+            //second case: from beginning to date
 
-                (this.state.stateId != '' ? {name:"stateId",type:"EQ",value:this.state.stateId} : undefined),
-                (this.state.retentionSchedules != '' ? {name:"retentionSchedules",type:"EQ",value:this.state.retentionSchedules} : undefined),
-            ];
+            (!this.state.collapseCreated
+            && this.state.collapseCreatedTill
+            && this.state.createdTillyyyy != ""
+            && this.state.createdTillmm != ""
+            && this.state.createdTilldd != ""
+                ? {name:"createdAt",type:"LT",value:[this.state.createdTillyyyy, this.state.createdTillmm, this.state.createdTilldd]} : undefined),
 
+            //third case: from date to beginning
+
+            (!this.state.collapseCreated
+            && this.state.collapseCreatedFrom
+            && this.state.createdFromyyyy != ""
+            && this.state.createdFrommm != ""
+            && this.state.createdFromdd != ""
+                ? {name:"createdAt",type:"GT",value:[this.state.createdFromyyyy, this.state.createdFrommm, this.state.createdFromdd]} : undefined),
+
+            //for: updatedAt
+            //first case: one date
+            (this.state.collapseUpdated
+            && this.state.updatedyyyy != ""
+            && this.state.updatedmm != ""
+            && this.state.updateddd != ""
+                ? {name:"updatedAt",type:"EQ",value:[this.state.updatedyyyy, this.state.updatedmm, this.state.updateddd]} : undefined),
+
+            //second case: from beginning to date
+
+            (!this.state.collapseUpdated
+            && this.state.collapseUpdatedTill
+            && this.state.updatedTillyyyy != ""
+            && this.state.updatedTillmm != ""
+            && this.state.updatedTilldd != ""
+                ? {name:"updatedAt",type:"LT",value:[this.state.updatedTillyyyy, this.state.updatedTillmm, this.state.updatedTilldd]} : undefined),
+
+            //third case: from date to beginning
+
+            (!this.state.collapseUpdated
+            && this.state.collapseUpdatedFrom
+            && this.state.updatedFromyyyy != ""
+            && this.state.updatedFrommm != ""
+            && this.state.updatedFromdd != ""
+                ? {name:"updatedAt",type:"GT",value:[this.state.updatedFromyyyy, this.state.updatedFrommm, this.state.updatedFromdd]} : undefined),
+
+
+            //TODO: closedAt
+
+            (this.state.collapseClosed
+            && this.state.closedyyyy != ""
+            && this.state.closedmm != ""
+            && this.state.closeddd != ""
+                ? {name:"closedAt",type:"EQ",value:[this.state.closedyyyy, this.state.closedmm, this.state.closeddd]} : undefined),
+
+            //second case: from beginning to date
+
+            (!this.state.collapseClosed
+            && this.state.collapseClosedTill
+            && this.state.closedTillyyyy != ""
+            && this.state.closedTillmm != ""
+            && this.state.closedTilldd != ""
+                ? {name:"closedAt",type:"LT",value:[this.state.closedTillyyyy, this.state.closedTillmm, this.state.closedTilldd]} : undefined),
+
+            (!this.state.collapseClosed
+            && this.state.collapseClosedFrom
+            && this.state.closedFromyyyy != ""
+            && this.state.closedFrommm != ""
+            && this.state.closedFromdd != ""
+                ? {name:"closedAt",type:"GT",value:[this.state.closedFromyyyy, this.state.closedFrommm, this.state.closedFromdd]} : undefined),
+
+        );
+
+        arrayOfFilters.push(this.state.stateId != '' ? {name:"stateId",type:"EQ",value:this.state.stateId} : undefined);
+
+        arrayOfFilters.push(this.state.retentionSchedules != '' ? {name:"retentionSchedules",type:"EQ",value:this.state.retentionSchedules} : undefined);
+
+
+        var arrayOfNonNullFilters = arrayOfFilters.filter(function(x) {
+            x !== null;
+            return x;
+        });
 
         var result =
             [{
                 fullTextSearch:this.state.fullTextSearch
-            },{filter: arrayOfFilters}];
+            },{filter: arrayOfNonNullFilters}];
 
-
-        for (var i = this.state.arrayOfSelectedLocations.length - 1; i >= 0; i--) {
-           result[1]['filter'].splice(1, 0, {name: "locationName", type: "EQ", value: this.state.arrayOfSelectedLocations[i]});
-        }
-
-        result[1]['filter'] = result[1]['filter'].filter(function(x) {
-            x !== null;
-            return x;
-        });
         console.log('A bunch of record queries are submitted: ' + JSON.stringify(result));
         this.state.result = [];//CLEAR RESULTS for initialization
         event.preventDefault();
@@ -607,14 +634,15 @@ class SearchBar extends React.Component {
         this.setState({dropdownValue: e.currentTarget.textContent})
       }
 
-      toggleLocationDropdown() {
-        this.setState({
-          locationDropDownOpen: !this.state.locationDropDownOpen
-        });
+     toggleLocationDropdown() {
+         this.setState({
+             locationDropDownOpen: !this.state.locationDropDownOpen
+         });
       }
 
       toggleLocationCheckbox(event) {
          var name = event.target.name;
+
 
          if (!this.state.arrayOfSelectedLocations.includes(event.target.name)) {
              this.state.arrayOfSelectedLocations.push(event.target.name)
@@ -627,41 +655,104 @@ class SearchBar extends React.Component {
          }
       }
 
-      //if checked: arrayOfChecked.push
-    //if unchecked: arrayOfchecked.remove
+    toggleClassDropdown() {
+        this.setState({
+            classDropDownOpen: !this.state.classDropDownOpen
+        });
+    }
+
+    toggleClassCheckbox(event) {
+        var name = event.target.name;
+
+
+        if (!this.state.arrayOfSelectedClasses.includes(event.target.name)) {
+            this.state.arrayOfSelectedClasses.push(event.target.name)
+        }
+        else {
+            var index = this.state.arrayOfSelectedClasses.indexOf(event.target.name);
+            if (index > -1) {
+                this.state.arrayOfSelectedClasses.splice(index, 1);
+            }
+        }
+    }
 
       //TODO: Sample Location Param
 
-      locationDropDownItems() {
-        var listOfLocationDropDownItems = [];
-        var sampleLocationDropDown = [{'name': 'Vancouver', 'id': '5'}, {'name':'Edmonton', 'id': '6'}, {'name': 'Calgary', 'id': '7'}];
+      getLocationFromServerThenTransformToHtml() {
+          var request = new XMLHttpRequest();
+          request.open('GET', 'http://127.0.0.1:8080/records/dropdownlocation', false);
+          request.setRequestHeader("Content-type", "application/json");
+          request.onload = function () {
+              if (request.status >= 200 && request.status < 400) {
+                  console.log("LocationName from Server: " + JSON.parse(request.response)["results"]);
 
-        for (var i = 0; i < sampleLocationDropDown.length; i++) {
+                  var listOfLocationDropDownItems = [];
 
-            listOfLocationDropDownItems.push(<Label check>
-                                         <Input type="checkbox" id = {'location' + sampleLocationDropDown[i]['id']} name = {sampleLocationDropDown[i]['name']} onClick={this.toggleLocationCheckbox}/>{' '}
-                                            {sampleLocationDropDown[i]['name']}
-                                     </Label>);
+                  var serverLocationDropDownResults = JSON.parse(request.response)["results"];
+                  for (var i = 0; i < serverLocationDropDownResults.length; i++) {
+                      listOfLocationDropDownItems.push(
+                          <NavItem>
+                              <Label check>
+                                  <Input type="checkbox" id={'LocationId' + serverLocationDropDownResults[i]['LocationId']}
+                                         name={serverLocationDropDownResults[i]['LocationName']}
+                                         onClick={this.toggleLocationCheckbox}/>{' '}
+                                  {serverLocationDropDownResults[i]['LocationName']}
+                              </Label>
+                          </NavItem>
+                      );
+                  }
 
-            //this.state.locationName.push({name:"locationName",type:"EQ",value:sampleLocationDropDown[i]['name']}); //just to test
-
-        }
-
-        //console.log(listOfLocationDropDownItems);
-
-        return listOfLocationDropDownItems;
-               /* <Label check>
-                  <Input type="checkbox" onClick={this.toggleLocationCheckbox}/>{' '}
-                  Check me out
-                </Label>*/
-
+                  this.setState({
+                      listOfLocationDropDownItemsStateForm: listOfLocationDropDownItems
+                  });
+              } else {
+                  console.error('Response received and there was an error');
+              }
+          }.bind(this); //have to bind to the callback function so that it will callback properly
+          request.onerror = function () {
+              //TODO: display error to user
+              console.error('Request error for locationDropDown');
+          };
+          request.send(); //don't forget to send the httprequest lmao
       }
 
-      locationSelectedToList() {
+    getClassFromServerThenTransformToHtml() {
+        var request = new XMLHttpRequest();
+        request.open('GET', 'http://127.0.0.1:8080/records/dropdownclass', false);
+        request.setRequestHeader("Content-type", "application/json");
+        request.onload = function () {
+            if (request.status >= 200 && request.status < 400) {
+                console.log("LocationName from Server: " + JSON.parse(request.response)["results"]);
 
+                var listOfClassDropDownItems = [];
 
+                var serverClassDropDownResults = JSON.parse(request.response)["results"];
+                for (var i = 0; i < serverClassDropDownResults.length; i++) {
+                    listOfClassDropDownItems.push(
+                        <NavItem>
+                            <Label check>
+                                <Input type="checkbox" id={'LocationId' + serverClassDropDownResults[i]['classId']}
+                                       name={serverClassDropDownResults[i]['className']}
+                                       onClick={this.toggleClassCheckbox}/>{' '}
+                                {serverClassDropDownResults[i]['className']}
+                            </Label>
+                        </NavItem>
+                    );
+                }
 
-      }
+                this.setState({
+                    listOfClassDropDownItemsStateForm: listOfClassDropDownItems
+                });
+            } else {
+                console.error('Response received and there was an error');
+            }
+        }.bind(this); //have to bind to the callback function so that it will callback properly
+        request.onerror = function () {
+            //TODO: display error to user
+            console.error('Request error for classDropDown');
+        };
+        request.send(); //don't forget to send the httprequest lmao
+    }
 
 
     render() {
@@ -720,7 +811,9 @@ class SearchBar extends React.Component {
                                             </Col>
                                           </FormGroup>
                                           <FormGroup row>
-                                            <Button type="submit" id="submit-button" size="sm" color="secondary" value="submit">Search</Button>
+                                              <Col sm={{ size: 10, offset: 2 }}>
+                                                <Button type="submit" id="submit-button" size="sm" color="secondary" value="submit">Search</Button>
+                                              </Col>
                                           </FormGroup>
                        </Form>
 
@@ -734,7 +827,7 @@ class SearchBar extends React.Component {
                 <div className="animated fadeIn">
                     <Form onSubmit={this.handleSubmitFullTextSearch}>
                          <FormGroup row>
-                                            <Label for="fullTextSearch" sm={20}> Enter a valid Record/Box Number, Record/Box Title, Record/Box Notes or Box Consignment Id:</Label>
+                                            <Label for="fullTextSearch" sm={10}> Enter a valid Record/Box Number, Record/Box Title, Record/Box Notes or Box Consignment Id:</Label>
                                             <Col sm={10}>
                                               <Input type="text" name="fullTextSearch" value={this.state.fullTextSearch} onChange={this.handleChange}/>
                                             </Col>
@@ -746,32 +839,53 @@ class SearchBar extends React.Component {
                                               <Input type="text" name="typeId" value={this.state.typeId} onChange={this.handleChange}/>
                                             </Col>
                                           </FormGroup>
+
+                        <FormGroup row>
                                             <div>
-                                                <Label for="locationName" sm={20}>Location:</Label>
-                                                <Dropdown isOpen={this.state.locationDropDownOpen} toggle={this.toggleLocationDropdown}>
+                                                <Label for="locationName" sm={10}>Location:</Label>
+                                                <Col sm={10}>
+                                                <Dropdown group isOpen={this.state.locationDropDownOpen} toggle={this.toggleLocationDropdown}>
                                                   <DropdownToggle caret>
-                                                    Check the locations you would like to search for
+                                                    Click on the words of the locations you would like to search for
                                                   </DropdownToggle>
-                                                  <DropdownMenu>
-                                                    <DropdownItem>
-                                                        {this.locationDropDownItems()}
-                                                    </DropdownItem>
-                                                  </DropdownMenu>
+                                                    <DropdownMenu>
+                                                        <DropdownItem>
+                                                            <Nav>
+                                                                {this.state.listOfLocationDropDownItemsStateForm}
+                                                            </Nav>
+                                                        </DropdownItem>
+                                                    </DropdownMenu>
                                                 </Dropdown>
+                                                </Col>
                                             </div>
-                                          <FormGroup row>
-                                            <Label for="classification" sm={20}>Classification:</Label>
-                                            <Col sm={10}>
-                                              <Input type="text" name="classification" value={this.state.classification} onChange={this.handleChange}/>
-                                            </Col>
-                                          </FormGroup>
+                        </FormGroup>
+
+                        <FormGroup row>
+                            <div>
+                                <Label for="locationName" sm={10}>Classification:</Label>
+                                <Col sm={10}>
+                                    <Dropdown group isOpen={this.state.classDropDownOpen} toggle={this.toggleClassDropdown}>
+                                        <DropdownToggle caret>
+                                            Click on the words of the classifications you would like to search for
+                                        </DropdownToggle>
+                                        <DropdownMenu>
+                                            <DropdownItem>
+                                                <Nav>
+                                                    {this.state.listOfClassDropDownItemsStateForm}
+                                                </Nav>
+                                            </DropdownItem>
+                                        </DropdownMenu>
+                                    </Dropdown>
+                                </Col>
+                            </div>
+                        </FormGroup>
 
                                           <FormGroup row>
-                                            <Label for="dateCreated" sm={20}>Date Created (yyyy/mm/dd): </Label>
-                                                 <Label check>
+                                              <Label for="dateCreated" sm={2}>Date Created (yyyy/mm/dd): </Label>
+                                                <Col sm={{ size: 10 }}>
                                                    {' '}<Input type="checkbox" onClick={this.toggleCollapseCreated}/>{' '}
                                                    Check this if you just want one specific date
-                                                 </Label>
+                                                </Col>
                                            </FormGroup>
 
                                           <Collapse sm={20} isOpen={this.state.collapseCreated}>
@@ -792,11 +906,11 @@ class SearchBar extends React.Component {
 
                                           <Collapse sm={20} isOpen={this.state.collapseCreatedFromTill}>
                                           <FormGroup row>
-                                            <Label for="dateCreated" sm={20}>From{' '}</Label>
-                                                 <Label check>
+                                              <Label for="dateCreated" sm={2}>From{' '}</Label>
+                                                <Col sm={{ size: 10 }}>
                                                    {' '}<Input type="checkbox" onClick={this.toggleCollapseCreatedFrom}/>{' '}
                                                    Beginning
-                                                 </Label>
+                                                </Col>
                                            </FormGroup>
 
                                             <Collapse sm={20} isOpen={this.state.collapseCreatedFrom}>
@@ -816,11 +930,11 @@ class SearchBar extends React.Component {
                                           </Collapse>
 
                                           <FormGroup row>
-                                            <Label for="dateCreated" sm={20}>Till</Label>
-                                                 <Label check>
+                                            <Label for="dateCreated" sm={2}>Till</Label>
+                                                <Col sm={{ size: 10 }}>
                                                    {' '}<Input type="checkbox" onClick={this.toggleCollapseCreatedTill}/>{' '}
                                                    Now
-                                                 </Label>
+                                                </Col>
                                            </FormGroup>
 
                                            <Collapse sm={20} isOpen={this.state.collapseCreatedTill}>
@@ -841,11 +955,11 @@ class SearchBar extends React.Component {
 
                                           </Collapse>
                                             <FormGroup row>
-                                                <Label for="dateCreated" sm={20}>Date Updated (yyyy/mm/dd): </Label>
-                                                <Label check>
+                                                <Label for="dateCreated" sm={2}>Date Updated (yyyy/mm/dd): </Label>
+                                                <Col sm={{ size: 10 }}>
                                                     {' '}<Input type="checkbox" onClick={this.toggleCollapseUpdated}/>{' '}
                                                     Check this if you just want one specific date
-                                                </Label>
+                                                </Col>
                                             </FormGroup>
 
                                             <Collapse sm={20} isOpen={this.state.collapseUpdated}>
@@ -867,11 +981,11 @@ class SearchBar extends React.Component {
                                         <Collapse sm={20} isOpen={this.state.collapseUpdatedFromTill}>
 
                                             <FormGroup row>
-                                                <Label for="dateCreated" sm={20}>From{' '}</Label>
-                                                <Label check>
+                                                <Label for="dateCreated" sm={2}>From{' '}</Label>
+                                                <Col sm={{ size: 10 }}>
                                                     {' '}<Input type="checkbox" onClick={this.toggleCollapseUpdatedFrom}/>{' '}
                                                     Beginning
-                                                </Label>
+                                                </Col>
                                             </FormGroup>
 
                                            <Collapse sm={20} isOpen={this.state.collapseUpdatedFrom}>
@@ -891,11 +1005,11 @@ class SearchBar extends React.Component {
                                           </Collapse>
 
                                           <FormGroup row>
-                                            <Label for="dateCreated" sm={20}>Till{' '}</Label>
-                                                 <Label check>
+                                            <Label for="dateCreated" sm={2}>Till{' '}</Label>
+                                              <Col sm={{ size: 10 }}>
                                                    {' '}<Input type="checkbox" onClick={this.toggleCollapseUpdatedTill}/>{' '}
                                                    Now
-                                                 </Label>
+                                              </Col>
                                            </FormGroup>
 
                                            <Collapse sm={20} isOpen={this.state.collapseUpdatedTill}>
@@ -916,11 +1030,11 @@ class SearchBar extends React.Component {
                                         </Collapse>
 
                         <FormGroup row>
-                            <Label for="dateClosed" sm={20}>Date Closed (yyyy/mm/dd): </Label>
-                            <Label check>
+                            <Label for="dateClosed" sm={2}>Date Closed (yyyy/mm/dd): </Label>
+                            <Col sm={{ size: 10 }}>
                                 {' '}<Input type="checkbox" onClick={this.toggleCollapseClosed}/>{' '}
                                 Check this if you just want one specific date
-                            </Label>
+                            </Col>
                         </FormGroup>
 
                         <Collapse sm={20} isOpen={this.state.collapseClosed}>
@@ -941,11 +1055,11 @@ class SearchBar extends React.Component {
 
                         <Collapse sm={20} isOpen={this.state.collapseClosedFromTill}>
                             <FormGroup row>
-                                <Label for="dateClosed" sm={20}>From{' '}</Label>
-                                <Label check>
+                                <Label for="dateClosed" sm={2}>From{' '}</Label>
+                                <Col sm={{ size: 10 }}>
                                     {' '}<Input type="checkbox" onClick={this.toggleCollapseClosedFrom}/>{' '}
                                     Beginning
-                                </Label>
+                                </Col>
                             </FormGroup>
 
                             <Collapse sm={20} isOpen={this.state.collapseClosedFrom}>
@@ -965,11 +1079,11 @@ class SearchBar extends React.Component {
                             </Collapse>
 
                             <FormGroup row>
-                                <Label for="dateClosed" sm={20}>Till</Label>
-                                <Label check>
+                                <Label for="dateClosed" sm={2}>Till</Label>
+                                <Col sm={{ size: 10 }}>
                                     {' '}<Input type="checkbox" onClick={this.toggleCollapseClosedTill}/>{' '}
                                     Now
-                                </Label>
+                                </Col>
                             </FormGroup>
 
                             <Collapse sm={20} isOpen={this.state.collapseClosedTill}>
@@ -1004,7 +1118,9 @@ class SearchBar extends React.Component {
                                             </Col>
                                           </FormGroup>
                                           <FormGroup row>
-                                            <Button type="submit" id="submit-button" size="sm" color="secondary" value="submit">Search</Button>
+                                              <Col sm={{ size: 10, offset: 2 }}>
+                                                <Button type="submit" id="submit-button" size="sm" color="secondary" value="submit">Search</Button>
+                                              </Col>
                                           </FormGroup>
                        </Form>
 
@@ -1057,7 +1173,9 @@ class SearchBar extends React.Component {
                               </Col>
                        </FormGroup>
                        <FormGroup row>
-                           <Button type="submit" id="submit-button" size="sm" color="secondary" value="submit">Search</Button>
+                           <Col sm={{ size: 10, offset: 2 }}>
+                               <Button type="submit" id="submit-button" size="sm" color="secondary" value="submit">Search</Button>
+                           </Col>
                        </FormGroup>
 
 
