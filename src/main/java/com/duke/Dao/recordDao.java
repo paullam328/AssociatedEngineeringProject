@@ -362,17 +362,17 @@ public class recordDao {
 
 
     /**
-     * FullText Search for record by a keyword and a list of filters.
+     * FullText Search for record by a keyword
      *
      * Returns all matched records in FullText table
      *
-     * @param keyword - keyword to search, filters - a list of filters
+     * @param keyword - keyword to search
      * @return
      */
 
 
 
-    public List<JSONObject> FullTextSearch(String keyword, JSONObject filters, Integer page, Integer pageSize) {
+    public List<JSONObject> FullTextSearch(String keyword, Integer page, Integer pageSize) {
 
         Object[] params = new Object[] {};
         keyword = "%" + keyword + "%";
@@ -384,6 +384,7 @@ public class recordDao {
 
         String sql = "SELECT * FROM FullTextTable WHERE (rNumber LIKE ? OR bNumber LIKE ? OR rTitle LIKE ? OR bTitle LIKE ? OR nTexts LIKE ? OR bcosign LIKE ?) ";
 
+        /*
         if(filters.has("CreatedStart")) {
 
             sql = sql + "AND rCreatedAt >= ? ";
@@ -475,7 +476,7 @@ public class recordDao {
                 }
                 sql = sql + " ) ";
             }
-        }
+        }*/
 
         sql = sql + " LIMIT ?,?";
         Integer offset =pageSize*(page-1);
@@ -562,10 +563,69 @@ public class recordDao {
         return AllClassifications;
     }
 
+    /**
+     * FullText Search states dropdown
+     *
+     * Returns a list of states {Id, Name} for the states dropdown menu
+     */
+
+    public List<JSONObject> GetAllstates() {
 
 
+        final String sql = "SELECT Id,Name FROM recordstates";
+        List<JSONObject> Allstates = jdbcTemplate.query(sql, new RowMapper<JSONObject>() {
+            public JSONObject mapRow(ResultSet resultSet, int Id) throws SQLException {
+                JSONObject state = new JSONObject();
+                state.put("stateId",resultSet.getInt("Id"));
+                state.put("stateName",resultSet.getString("Name"));
+
+                return state;
+            }
+        });
+        return Allstates;
+    }
+
+    /**
+     * FullText Search record types dropdown
+     *
+     * Returns a list of types {Id, Name} for the types dropdown menu
+     */
+
+    public List<JSONObject> GetAllTypes() {
 
 
+        final String sql = "SELECT Id,Name FROM recordtypes";
+        List<JSONObject> Alltypes = jdbcTemplate.query(sql, new RowMapper<JSONObject>() {
+            public JSONObject mapRow(ResultSet resultSet, int Id) throws SQLException {
+                JSONObject type = new JSONObject();
+                type.put("typeId",resultSet.getInt("Id"));
+                type.put("typeName",resultSet.getString("Name"));
+
+                return type;
+            }
+        });
+        return Alltypes;
+    }
+
+    /**
+     * FullText Search retension schedule dropdown
+     */
+
+    public List<JSONObject> GetAllschedules() {
+
+
+        final String sql = "SELECT Id,Name FROM retentionschedules";
+        List<JSONObject> Allschedules = jdbcTemplate.query(sql, new RowMapper<JSONObject>() {
+            public JSONObject mapRow(ResultSet resultSet, int Id) throws SQLException {
+                JSONObject sched = new JSONObject();
+                sched.put("schedId",resultSet.getInt("Id"));
+                sched.put("schedName",resultSet.getString("Name"));
+
+                return sched;
+            }
+        });
+        return Allschedules;
+    }
 
 
 }
