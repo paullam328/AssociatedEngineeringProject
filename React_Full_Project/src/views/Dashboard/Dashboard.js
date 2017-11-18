@@ -180,7 +180,7 @@ class ResultsTable extends React.Component {
 	    if (this === undefined || this.props === undefined || this.props.results === undefined)
         {
 	        return (
-                <div className="animated fadeIn">
+                <div className="animated fadeIn footerTable">
                     <Row>
                         <Col>
                             <Card>
@@ -207,7 +207,7 @@ class ResultsTable extends React.Component {
 
 		let that = this;
 		return (
-			<div className="animated fadeIn">
+			<div className="animated fadeIn footerTable">
 				<Row>
 					<Col>
 						<Card>
@@ -313,6 +313,10 @@ class SearchBar extends React.Component {
 
         dropdownValue: "Please select quick search attribute:",
 
+          typeDropDownOpen: false,
+
+          arrayOfSelectedTypes: [],
+
         locationDropDownOpen: false,
 
           arrayOfSelectedLocations: [],
@@ -321,7 +325,15 @@ class SearchBar extends React.Component {
 
           classDropDownOpen: false,
 
-          arrayOfSelectedClasses: []
+          arrayOfSelectedClasses: [],
+
+          stateDropDownOpen: false,
+
+          arrayOfSelectedStates: [],
+
+          schedDropDownOpen: false,
+
+          arrayOfSelectedScheds: []
 
           //TODO: TEST
 
@@ -350,17 +362,29 @@ class SearchBar extends React.Component {
          this.toggleCollapseClosedFrom = this.toggleCollapseClosedFrom.bind(this);
          this.toggleCollapseClosedTill = this.toggleCollapseClosedTill.bind(this);
 
+        this.toggleTypeDropdown = this.toggleTypeDropdown.bind(this);
+        this.toggleTypeCheckbox = this.toggleTypeCheckbox.bind(this);
+
          this.toggleLocationDropdown = this.toggleLocationDropdown.bind(this);
          this.toggleLocationCheckbox = this.toggleLocationCheckbox.bind(this);
 
          this.toggleClassDropdown = this.toggleClassDropdown.bind(this);
          this.toggleClassCheckbox = this.toggleClassCheckbox.bind(this);
+
+        this.toggleStateDropdown = this.toggleStateDropdown.bind(this);
+        this.toggleStateCheckbox = this.toggleStateCheckbox.bind(this);
+
+        this.toggleSchedDropdown = this.toggleSchedDropdown.bind(this);
+        this.toggleSchedCheckbox = this.toggleSchedCheckbox.bind(this);
     }
 
     //fetch from server from the very beginning:
     componentWillMount() {
+        this.getTypeFromServerThenTransformToHtml();
          this.getLocationFromServerThenTransformToHtml();
          this.getClassFromServerThenTransformToHtml();
+        this.getStateFromServerThenTransformToHtml();
+        this.getSchedFromServerThenTransformToHtml();
     }
 
     sendHttpCall(method, url, json) {
@@ -421,114 +445,20 @@ class SearchBar extends React.Component {
 
 
     handleSubmitFullTextSearch(event) {
-<<<<<<< HEAD
-
         var arrayOfFilters = [];
 
 
         //push into array of filter one by one would be easier I guess
 //result[1]['filter']
-        arrayOfFilters.push(this.state.typeId != '' ? {name:"typeId",type:"EQ",value:this.state.typeId} : undefined);
-=======
-        let arrayOfFilters =
-            [
-                (this.state.typeId !== '' ? {name:"typeId",type:"EQ",value:this.state.typeId} : undefined),
-                //locationName used splice(1,0,val)
-                (this.state.classification !== '' ? {name:"classification",type:"EQ",value:this.state.classification} : undefined),
-
-                //for: createdAt
-                //first case: one date
-                (this.state.collapseCreated
-                && this.state.createdyyyy !== ""
-                && this.state.createdmm !== ""
-                && this.state.createddd !== ""
-                    ? {name:"createdAt",type:"EQ",value:[this.state.createdyyyy, this.state.createdmm, this.state.createddd]} : undefined),
-
-                //second case: from beginning to date
-
-                (!this.state.collapseCreated
-                && this.state.collapseCreatedTill
-                && this.state.createdTillyyyy !== ""
-                && this.state.createdTillmm !== ""
-                && this.state.createdTilldd !== ""
-                    ? {name:"createdAt",type:"LT",value:[this.state.createdTillyyyy, this.state.createdTillmm, this.state.createdTilldd]} : undefined),
-
-                //third case: from date to beginning
-
-                (!this.state.collapseCreated
-                && this.state.collapseCreatedFrom
-                && this.state.createdFromyyyy !== ""
-                && this.state.createdFrommm !== ""
-                && this.state.createdFromdd !== ""
-                    ? {name:"createdAt",type:"GT",value:[this.state.createdFromyyyy, this.state.createdFrommm, this.state.createdFromdd]} : undefined),
-
-                //for: updatedAt
-                //first case: one date
-                (this.state.collapseUpdated
-                && this.state.updatedyyyy !== ""
-                && this.state.updatedmm !== ""
-                && this.state.updateddd !== ""
-                    ? {name:"updatedAt",type:"EQ",value:[this.state.updatedyyyy, this.state.updatedmm, this.state.updateddd]} : undefined),
-
-                //second case: from beginning to date
-
-                (!this.state.collapseUpdated
-                && this.state.collapseUpdatedTill
-                && this.state.updatedTillyyyy !== ""
-                && this.state.updatedTillmm !== ""
-                && this.state.updatedTilldd !== ""
-                    ? {name:"updatedAt",type:"LT",value:[this.state.updatedTillyyyy, this.state.updatedTillmm, this.state.updatedTilldd]} : undefined),
-
-                //third case: from date to beginning
-
-                (!this.state.collapseUpdated
-                && this.state.collapseUpdatedFrom
-                && this.state.updatedFromyyyy !== ""
-                && this.state.updatedFrommm !== ""
-                && this.state.updatedFromdd !== ""
-                    ? {name:"updatedAt",type:"GT",value:[this.state.updatedFromyyyy, this.state.updatedFrommm, this.state.updatedFromdd]} : undefined),
-
-
-                //TODO: closedAt
-
-                (this.state.collapseClosed
-                && this.state.closedyyyy !== ""
-                && this.state.closedmm !== ""
-                && this.state.closeddd !== ""
-                    ? {name:"closedAt",type:"EQ",value:[this.state.closedyyyy, this.state.closedmm, this.state.closeddd]} : undefined),
-
-                //second case: from beginning to date
-
-                (!this.state.collapseClosed
-                && this.state.collapseClosedTill
-                && this.state.closedTillyyyy !== ""
-                && this.state.closedTillmm !== ""
-                && this.state.closedTilldd !== ""
-                    ? {name:"closedAt",type:"LT",value:[this.state.closedTillyyyy, this.state.closedTillmm, this.state.closedTilldd]} : undefined),
-
-                (!this.state.collapseClosed
-                && this.state.collapseClosedFrom
-                && this.state.closedFromyyyy !== ""
-                && this.state.closedFrommm !== ""
-                && this.state.closedFromdd !== ""
-                    ? {name:"closedAt",type:"GT",value:[this.state.closedFromyyyy, this.state.closedFrommm, this.state.closedFromdd]} : undefined),
-
-                (this.state.stateId !== '' ? {name:"stateId",type:"EQ",value:this.state.stateId} : undefined),
-                (this.state.retentionSchedules !== '' ? {name:"retentionSchedules",type:"EQ",value:this.state.retentionSchedules} : undefined),
-            ];
-
-
-        let query =
-            [{
-                fullTextSearch:this.state.fullTextSearch
-            },{filter: arrayOfFilters}];
->>>>>>> 0b5a286c8a07d06c92c2602bcc4f79199abf3dcd
+        for (var i = 0; i < this.state.arrayOfSelectedTypes.length; i++) {
+            arrayOfFilters.push({name: "typeName", type: "EQ", value: this.state.arrayOfSelectedTypes[i]});
+        }
 
         for (var i = 0; i < this.state.arrayOfSelectedLocations.length; i++) {
             arrayOfFilters.push({name: "locationName", type: "EQ", value: this.state.arrayOfSelectedLocations[i]});
         }
 
-<<<<<<< HEAD
+
         for (var i = 0; i < this.state.arrayOfSelectedClasses.length; i++) {
             arrayOfFilters.push({name: "className", type: "EQ", value: this.state.arrayOfSelectedClasses[i]});
         }
@@ -613,9 +543,13 @@ class SearchBar extends React.Component {
 
         );
 
-        arrayOfFilters.push(this.state.stateId != '' ? {name:"stateId",type:"EQ",value:this.state.stateId} : undefined);
+        for (var i = 0; i < this.state.arrayOfSelectedStates.length; i++) {
+            arrayOfFilters.push({name: "stateName", type: "EQ", value: this.state.arrayOfSelectedStates[i]});
+        }
 
-        arrayOfFilters.push(this.state.retentionSchedules != '' ? {name:"retentionSchedules",type:"EQ",value:this.state.retentionSchedules} : undefined);
+        for (var i = 0; i < this.state.arrayOfSelectedScheds.length; i++) {
+            arrayOfFilters.push({name: "schedName", type: "EQ", value: this.state.arrayOfSelectedScheds[i]});
+        }
 
 
         var arrayOfNonNullFilters = arrayOfFilters.filter(function(x) {
@@ -630,22 +564,13 @@ class SearchBar extends React.Component {
 
         console.log('A bunch of record queries are submitted: ' + JSON.stringify(result));
         this.state.result = [];//CLEAR RESULTS for initialization
-=======
-        for (let i = this.state.arrayOfSelectedLocations.length - 1; i >= 0; i--) {
-           query[1]['filter'].splice(1, 0, {name: "locationName", type: "EQ", value: this.state.arrayOfSelectedLocations[i]});
-        }
 
-        query[1]['filter'] = query[1]['filter'].filter(function(x) {
-            x !== null;
-            return x;
-        });
-        console.log('A bunch of record queries are submitted: ' + JSON.stringify(query));
-        filters = query[1];
-        this.sendHttpCall("POST", server + "/records/fulltext", {"keyword": query[0]['fullTextSearch'], "page": 1, "pageSize": 500}).then(function(result)
+        //TODO: Vincent's call
+        filters = result[1];
+        this.sendHttpCall("POST", server + "/records/fulltext", {"keyword": result[0]['fullTextSearch'], "page": 1, "pageSize": 500}).then(function(result)
         {
         	globalUpdate(result);
         });
->>>>>>> 0b5a286c8a07d06c92c2602bcc4f79199abf3dcd
         event.preventDefault();
     }
 
@@ -734,6 +659,27 @@ class SearchBar extends React.Component {
         this.setState({dropdownValue: e.currentTarget.textContent})
       }
 
+    toggleTypeDropdown() {
+        this.setState({
+            typeDropDownOpen: !this.state.typeDropDownOpen
+        });
+    }
+
+    toggleTypeCheckbox(event) {
+        var name = event.target.name;
+
+
+        if (!this.state.arrayOfSelectedTypes.includes(event.target.name)) {
+            this.state.arrayOfSelectedTypes.push(event.target.name)
+        }
+        else {
+            var index = this.state.arrayOfSelectedTypes.indexOf(event.target.name);
+            if (index > -1) {
+                this.state.arrayOfSelectedTypes.splice(index, 1);
+            }
+        }
+    }
+
      toggleLocationDropdown() {
          this.setState({
              locationDropDownOpen: !this.state.locationDropDownOpen
@@ -775,6 +721,49 @@ class SearchBar extends React.Component {
             }
         }
     }
+    toggleStateDropdown() {
+        this.setState({
+            stateDropDownOpen: !this.state.stateDropDownOpen
+        });
+    }
+
+    toggleStateCheckbox(event) {
+        var name = event.target.name;
+
+
+        if (!this.state.arrayOfSelectedStates.includes(event.target.name)) {
+            this.state.arrayOfSelectedStates.push(event.target.name)
+        }
+        else {
+            var index = this.state.arrayOfSelectedStates.indexOf(event.target.name);
+            if (index > -1) {
+                this.state.arrayOfSelectedStates.splice(index, 1);
+            }
+        }
+    }
+
+    toggleSchedDropdown() {
+        this.setState({
+            schedDropDownOpen: !this.state.schedDropDownOpen
+        });
+    }
+
+    toggleSchedCheckbox(event) {
+        var name = event.target.name;
+
+
+        if (!this.state.arrayOfSelectedScheds.includes(event.target.name)) {
+            this.state.arrayOfSelectedScheds.push(event.target.name)
+        }
+        else {
+            var index = this.state.arrayOfSelectedScheds.indexOf(event.target.name);
+            if (index > -1) {
+                this.state.arrayOfSelectedScheds.splice(index, 1);
+            }
+        }
+    }
+
+
 
       //TODO: Sample Location Param
 
@@ -784,7 +773,8 @@ class SearchBar extends React.Component {
           request.setRequestHeader("Content-type", "application/json");
           request.onload = function () {
               if (request.status >= 200 && request.status < 400) {
-                  console.log("LocationName from Server: " + JSON.parse(request.response)["results"]);
+                  console.log("LocationName from Server:");
+                  console.log(JSON.parse(request.response)["results"]);
 
                   var listOfLocationDropDownItems = [];
 
@@ -822,7 +812,8 @@ class SearchBar extends React.Component {
         request.setRequestHeader("Content-type", "application/json");
         request.onload = function () {
             if (request.status >= 200 && request.status < 400) {
-                console.log("LocationName from Server: " + JSON.parse(request.response)["results"]);
+                console.log("ClassName from Server: ");
+                console.log(JSON.parse(request.response)["results"]);
 
                 var listOfClassDropDownItems = [];
 
@@ -831,7 +822,7 @@ class SearchBar extends React.Component {
                     listOfClassDropDownItems.push(
                         <NavItem>
                             <Label check>
-                                <Input type="checkbox" id={'LocationId' + serverClassDropDownResults[i]['classId']}
+                                <Input type="checkbox" id={'classId' + serverClassDropDownResults[i]['classId']}
                                        name={serverClassDropDownResults[i]['className']}
                                        onClick={this.toggleClassCheckbox}/>{' '}
                                 {serverClassDropDownResults[i]['className']}
@@ -850,6 +841,123 @@ class SearchBar extends React.Component {
         request.onerror = function () {
             //TODO: display error to user
             console.error('Request error for classDropDown');
+        };
+        request.send(); //don't forget to send the httprequest lmao
+    }
+
+    getTypeFromServerThenTransformToHtml() {
+        var request = new XMLHttpRequest();
+        request.open('GET', 'http://127.0.0.1:8080/records/dropdowntype', false);
+        request.setRequestHeader("Content-type", "application/json");
+        request.onload = function () {
+            if (request.status >= 200 && request.status < 400) {
+                console.log("TypeName from Server: ");
+                console.log(JSON.parse(request.response)["results"]);
+
+                var listOfTypeDropDownItems = [];
+
+                var serverTypeDropDownResults = JSON.parse(request.response)["results"];
+                for (var i = 0; i < serverTypeDropDownResults.length; i++) {
+                    listOfTypeDropDownItems.push(
+                        <NavItem>
+                            <Label check>
+                                <Input type="checkbox" id={'typeId' + serverTypeDropDownResults[i]['typeId']}
+                                       name={serverTypeDropDownResults[i]['typeName']}
+                                       onClick={this.toggleTypeCheckbox}/>{' '}
+                                {serverTypeDropDownResults[i]['typeName']}
+                            </Label>
+                        </NavItem>
+                    );
+                }
+
+                this.setState({
+                    listOfTypeDropDownItemsStateForm: listOfTypeDropDownItems
+                });
+            } else {
+                console.error('Response received and there was an error');
+            }
+        }.bind(this); //have to bind to the callback function so that it will callback properly
+        request.onerror = function () {
+            //TODO: display error to user
+            console.error('Request error for typeDropDown');
+        };
+        request.send(); //don't forget to send the httprequest lmao
+    }
+
+    getStateFromServerThenTransformToHtml() {
+        var request = new XMLHttpRequest();
+        request.open('GET', 'http://127.0.0.1:8080/records/dropdownstate', false);
+        request.setRequestHeader("Content-type", "application/json");
+        request.onload = function () {
+            if (request.status >= 200 && request.status < 400) {
+                console.log("StateName from Server: ");
+                console.log(JSON.parse(request.response)["results"]);
+
+                var listOfStateDropDownItems = [];
+
+                var serverStateDropDownResults = JSON.parse(request.response)["results"];
+                for (var i = 0; i < serverStateDropDownResults.length; i++) {
+                    listOfStateDropDownItems.push(
+                        <NavItem>
+                            <Label check>
+                                <Input type="checkbox" id={'stateId' + serverStateDropDownResults[i]['stateId']}
+                                       name={serverStateDropDownResults[i]['stateName']}
+                                       onClick={this.toggleStateCheckbox}/>{' '}
+                                {serverStateDropDownResults[i]['stateName']}
+                            </Label>
+                        </NavItem>
+                    );
+                }
+
+                this.setState({
+                    listOfStateDropDownItemsStateForm: listOfStateDropDownItems
+                });
+            } else {
+                console.error('Response received and there was an error');
+            }
+        }.bind(this); //have to bind to the callback function so that it will callback properly
+        request.onerror = function () {
+            //TODO: display error to user
+            console.error('Request error for stateDropDown');
+        };
+        request.send(); //don't forget to send the httprequest lmao
+    }
+
+    getSchedFromServerThenTransformToHtml() {
+        var request = new XMLHttpRequest();
+        request.open('GET', 'http://127.0.0.1:8080/records/dropdownsched', false);
+        request.setRequestHeader("Content-type", "application/json");
+        request.onload = function () {
+            if (request.status >= 200 && request.status < 400) {
+                console.log("SchedName from Server: ");
+                console.log(JSON.parse(request.response)["results"]);
+
+                var listOfSchedDropDownItems = [];
+
+                var serverSchedDropDownResults = JSON.parse(request.response)["results"];
+                for (var i = 0; i < serverSchedDropDownResults.length; i++) {
+                    listOfSchedDropDownItems.push(
+                        <NavItem>
+                            <Label check>
+                                <Input type="checkbox" id={'schedId' + serverSchedDropDownResults[i]['schedId']}
+                                       name={serverSchedDropDownResults[i]['schedName']}
+                                       onClick={this.toggleSchedCheckbox}/>{' '}
+                                {serverSchedDropDownResults[i]['schedName']}
+                            </Label>
+                        </NavItem>
+                    );
+                }
+
+                this.setState({
+                    listOfSchedDropDownItemsStateForm: listOfSchedDropDownItems
+                });
+            } else {
+                console.error('Response received and there was an error');
+            }
+        }.bind(this); //have to bind to the callback function so that it will callback properly
+        request.onerror = function () {
+            //TODO: display error to user
+            console.error('Request error for schedDropDown');
         };
         request.send(); //don't forget to send the httprequest lmao
     }
@@ -933,12 +1041,25 @@ class SearchBar extends React.Component {
                                             </Col>
                                           </FormGroup>
                                           <h3>Filter By:</h3>
-                                          <FormGroup row>
-                                            <Label for="typeId" sm={20}>Record Type:</Label>
-                                            <Col sm={10}>
-                                              <Input type="text" name="typeId" value={this.state.typeId} onChange={this.handleChange}/>
-                                            </Col>
-                                          </FormGroup>
+                        <FormGroup row>
+                            <div>
+                                <Label for="typeName" sm={10}>Record Type:</Label>
+                                <Col sm={10}>
+                                    <Dropdown group isOpen={this.state.typeDropDownOpen} toggle={this.toggleTypeDropdown}>
+                                        <DropdownToggle caret>
+                                            Click on the words of the record types you would like to search for
+                                        </DropdownToggle>
+                                        <DropdownMenu>
+                                            <DropdownItem>
+                                                <Nav>
+                                                    {this.state.listOfTypeDropDownItemsStateForm}
+                                                </Nav>
+                                            </DropdownItem>
+                                        </DropdownMenu>
+                                    </Dropdown>
+                                </Col>
+                            </div>
+                        </FormGroup>
 
                         <FormGroup row>
                                             <div>
@@ -1205,18 +1326,45 @@ class SearchBar extends React.Component {
                         </Collapse>
 
 
-                                          <FormGroup row>
-                                            <Label for="recordState" sm={20}>Record State:</Label>
-                                            <Col sm={10}>
-                                              <Input type="text" name="stateId" value={this.state.stateId} onChange={this.handleChange}/>
-                                            </Col>
-                                          </FormGroup>
-                                          <FormGroup row>
-                                            <Label for="retentionSchedules" sm={20}>Retention Schedules:</Label>
-                                            <Col sm={10}>
-                                              <Input type="text" name="retentionSchedules" value={this.state.retentionSchedules} onChange={this.handleChange}/>
-                                            </Col>
-                                          </FormGroup>
+                        <FormGroup row>
+                            <div>
+                                <Label for="stateName" sm={10}>Record State:</Label>
+                                <Col sm={10}>
+                                    <Dropdown group isOpen={this.state.stateDropDownOpen} toggle={this.toggleStateDropdown}>
+                                        <DropdownToggle caret>
+                                            Click on the words of the record states you would like to search for
+                                        </DropdownToggle>
+                                        <DropdownMenu>
+                                            <DropdownItem>
+                                                <Nav>
+                                                    {this.state.listOfStateDropDownItemsStateForm}
+                                                </Nav>
+                                            </DropdownItem>
+                                        </DropdownMenu>
+                                    </Dropdown>
+                                </Col>
+                            </div>
+                        </FormGroup>
+
+                        <FormGroup row>
+                            <div>
+                                <Label for="schedName" sm={10}>Retention Schedules:</Label>
+                                <Col sm={10}>
+                                    <Dropdown group isOpen={this.state.schedDropDownOpen} toggle={this.toggleSchedDropdown}>
+                                        <DropdownToggle caret>
+                                            Click on the words of the retention schedules you would like to search for
+                                        </DropdownToggle>
+                                        <DropdownMenu>
+                                            <DropdownItem>
+                                                <Nav>
+                                                    {this.state.listOfSchedDropDownItemsStateForm}
+                                                </Nav>
+                                            </DropdownItem>
+                                        </DropdownMenu>
+                                    </Dropdown>
+                                </Col>
+                            </div>
+                        </FormGroup>
                                           <FormGroup row>
                                               <Col sm={{ size: 10, offset: 2 }}>
                                                 <Button type="submit" id="submit-button" size="sm" color="secondary" value="submit">Search</Button>

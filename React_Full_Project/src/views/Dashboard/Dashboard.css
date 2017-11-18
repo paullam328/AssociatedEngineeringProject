@@ -2,4 +2,22 @@
     overflow: scroll;
     overflow-x: hidden;
     height: 350px;
+
+    position:absolute;
+    z-index:9999;
+}
+
+.footerTable {
+    position:relative;
+    z-index:900;
+}
+
+.card-body {
+    position:relative;
+    z-index:900;
+}
+
+div.container-fluid div {
+    position:absolute;
+    z-index:500;
 }
