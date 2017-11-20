@@ -1,23 +1,30 @@
 .dropdown-menu{
     overflow: scroll;
     overflow-x: hidden;
-    height: 350px;
+    height: 200px;
 
     position:absolute;
-    z-index:9999;
+    z-index:1;
+}
+div.container-fluid div div div div.tab-content div.tab-pane div.row div.col div.animated form div.dropdown div.dropdown-menu {
+    position: absolute;
 }
 
-.footerTable {
-    position:relative;
-    z-index:900;
-}
-
-.card-body {
-    position:relative;
-    z-index:900;
-}
-
-div.container-fluid div {
+div.container-fluid div div div div.tab-content div.tab-pane div.row div.col div.animated form div.form-group div div.col div.btn-group div.dropdown-menu {
     position:absolute;
-    z-index:500;
+    z-index:1;
 }
+
+div.container-fluid div div div {
+    position:relative;
+}
+
+div.container-fluid div div div.footerTable {
+    position:relative;
+    z-index:-1;
+}
+
+div.container-fluid div div {
+    position:relative;
+}
+

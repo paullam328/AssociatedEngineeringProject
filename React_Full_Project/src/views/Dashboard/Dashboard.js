@@ -174,13 +174,13 @@ class RecordRow extends React.Component {
         );
     }
 }
-
+//animated fadeIn
 class ResultsTable extends React.Component {
 	render() {
 	    if (this === undefined || this.props === undefined || this.props.results === undefined)
         {
 	        return (
-                <div className="animated fadeIn footerTable">
+                <div className="footerTable">
                     <Row>
                         <Col>
                             <Card>
@@ -207,7 +207,7 @@ class ResultsTable extends React.Component {
 
 		let that = this;
 		return (
-			<div className="animated fadeIn footerTable">
+			<div className="footerTable">
 				<Row>
 					<Col>
 						<Card>
@@ -451,16 +451,16 @@ class SearchBar extends React.Component {
         //push into array of filter one by one would be easier I guess
 //result[1]['filter']
         for (var i = 0; i < this.state.arrayOfSelectedTypes.length; i++) {
-            arrayOfFilters.push({name: "typeName", type: "EQ", value: this.state.arrayOfSelectedTypes[i]});
+            arrayOfFilters.push({name: "typeId", type: "EQ", value: this.state.arrayOfSelectedTypes[i]});
         }
 
         for (var i = 0; i < this.state.arrayOfSelectedLocations.length; i++) {
-            arrayOfFilters.push({name: "locationName", type: "EQ", value: this.state.arrayOfSelectedLocations[i]});
+            arrayOfFilters.push({name: "locationId", type: "EQ", value: this.state.arrayOfSelectedLocations[i]});
         }
 
 
         for (var i = 0; i < this.state.arrayOfSelectedClasses.length; i++) {
-            arrayOfFilters.push({name: "className", type: "EQ", value: this.state.arrayOfSelectedClasses[i]});
+            arrayOfFilters.push({name: "classId", type: "EQ", value: this.state.arrayOfSelectedClasses[i]});
         }
 
         arrayOfFilters.push(
@@ -544,11 +544,11 @@ class SearchBar extends React.Component {
         );
 
         for (var i = 0; i < this.state.arrayOfSelectedStates.length; i++) {
-            arrayOfFilters.push({name: "stateName", type: "EQ", value: this.state.arrayOfSelectedStates[i]});
+            arrayOfFilters.push({name: "stateId", type: "EQ", value: this.state.arrayOfSelectedStates[i]});
         }
 
         for (var i = 0; i < this.state.arrayOfSelectedScheds.length; i++) {
-            arrayOfFilters.push({name: "schedName", type: "EQ", value: this.state.arrayOfSelectedScheds[i]});
+            arrayOfFilters.push({name: "schedId", type: "EQ", value: this.state.arrayOfSelectedScheds[i]});
         }
 
 
@@ -666,14 +666,14 @@ class SearchBar extends React.Component {
     }
 
     toggleTypeCheckbox(event) {
-        var name = event.target.name;
+	    var id = event.target.id;
 
 
-        if (!this.state.arrayOfSelectedTypes.includes(event.target.name)) {
-            this.state.arrayOfSelectedTypes.push(event.target.name)
+        if (!this.state.arrayOfSelectedTypes.includes(event.target.id)) {
+            this.state.arrayOfSelectedTypes.push(event.target.id)
         }
         else {
-            var index = this.state.arrayOfSelectedTypes.indexOf(event.target.name);
+            var index = this.state.arrayOfSelectedTypes.indexOf(event.target.id);
             if (index > -1) {
                 this.state.arrayOfSelectedTypes.splice(index, 1);
             }
@@ -687,14 +687,13 @@ class SearchBar extends React.Component {
       }
 
       toggleLocationCheckbox(event) {
-         var name = event.target.name;
+          var id = event.target.id;
 
-
-         if (!this.state.arrayOfSelectedLocations.includes(event.target.name)) {
-             this.state.arrayOfSelectedLocations.push(event.target.name)
+         if (!this.state.arrayOfSelectedLocations.includes(event.target.id)) {
+             this.state.arrayOfSelectedLocations.push(event.target.id)
          }
          else {
-             var index = this.state.arrayOfSelectedLocations.indexOf(event.target.name);
+             var index = this.state.arrayOfSelectedLocations.indexOf(event.target.id);
              if (index > -1) {
                  this.state.arrayOfSelectedLocations.splice(index, 1);
              }
@@ -708,14 +707,14 @@ class SearchBar extends React.Component {
     }
 
     toggleClassCheckbox(event) {
-        var name = event.target.name;
+        var id = event.target.id;
 
 
-        if (!this.state.arrayOfSelectedClasses.includes(event.target.name)) {
-            this.state.arrayOfSelectedClasses.push(event.target.name)
+        if (!this.state.arrayOfSelectedClasses.includes(event.target.id)) {
+            this.state.arrayOfSelectedClasses.push(event.target.id)
         }
         else {
-            var index = this.state.arrayOfSelectedClasses.indexOf(event.target.name);
+            var index = this.state.arrayOfSelectedClasses.indexOf(event.target.id);
             if (index > -1) {
                 this.state.arrayOfSelectedClasses.splice(index, 1);
             }
@@ -728,14 +727,14 @@ class SearchBar extends React.Component {
     }
 
     toggleStateCheckbox(event) {
-        var name = event.target.name;
+        var id = event.target.id;
 
 
-        if (!this.state.arrayOfSelectedStates.includes(event.target.name)) {
-            this.state.arrayOfSelectedStates.push(event.target.name)
+        if (!this.state.arrayOfSelectedStates.includes(event.target.id)) {
+            this.state.arrayOfSelectedStates.push(event.target.id)
         }
         else {
-            var index = this.state.arrayOfSelectedStates.indexOf(event.target.name);
+            var index = this.state.arrayOfSelectedStates.indexOf(event.target.id);
             if (index > -1) {
                 this.state.arrayOfSelectedStates.splice(index, 1);
             }
@@ -749,14 +748,13 @@ class SearchBar extends React.Component {
     }
 
     toggleSchedCheckbox(event) {
-        var name = event.target.name;
+        var id = event.target.id;
 
-
-        if (!this.state.arrayOfSelectedScheds.includes(event.target.name)) {
-            this.state.arrayOfSelectedScheds.push(event.target.name)
+        if (!this.state.arrayOfSelectedScheds.includes(event.target.id)) {
+            this.state.arrayOfSelectedScheds.push(event.target.id)
         }
         else {
-            var index = this.state.arrayOfSelectedScheds.indexOf(event.target.name);
+            var index = this.state.arrayOfSelectedScheds.indexOf(event.target.id);
             if (index > -1) {
                 this.state.arrayOfSelectedScheds.splice(index, 1);
             }
@@ -783,7 +781,7 @@ class SearchBar extends React.Component {
                       listOfLocationDropDownItems.push(
                           <NavItem>
                               <Label check>
-                                  <Input type="checkbox" id={'LocationId' + serverLocationDropDownResults[i]['LocationId']}
+                                  <Input type="checkbox" id={serverLocationDropDownResults[i]['LocationId']}
                                          name={serverLocationDropDownResults[i]['LocationName']}
                                          onClick={this.toggleLocationCheckbox}/>{' '}
                                   {serverLocationDropDownResults[i]['LocationName']}
@@ -822,7 +820,7 @@ class SearchBar extends React.Component {
                     listOfClassDropDownItems.push(
                         <NavItem>
                             <Label check>
-                                <Input type="checkbox" id={'classId' + serverClassDropDownResults[i]['classId']}
+                                <Input type="checkbox" id={serverClassDropDownResults[i]['classId']}
                                        name={serverClassDropDownResults[i]['className']}
                                        onClick={this.toggleClassCheckbox}/>{' '}
                                 {serverClassDropDownResults[i]['className']}
@@ -861,7 +859,7 @@ class SearchBar extends React.Component {
                     listOfTypeDropDownItems.push(
                         <NavItem>
                             <Label check>
-                                <Input type="checkbox" id={'typeId' + serverTypeDropDownResults[i]['typeId']}
+                                <Input type="checkbox" id={serverTypeDropDownResults[i]['typeId']}
                                        name={serverTypeDropDownResults[i]['typeName']}
                                        onClick={this.toggleTypeCheckbox}/>{' '}
                                 {serverTypeDropDownResults[i]['typeName']}
@@ -900,7 +898,7 @@ class SearchBar extends React.Component {
                     listOfStateDropDownItems.push(
                         <NavItem>
                             <Label check>
-                                <Input type="checkbox" id={'stateId' + serverStateDropDownResults[i]['stateId']}
+                                <Input type="checkbox" id={serverStateDropDownResults[i]['stateId']}
                                        name={serverStateDropDownResults[i]['stateName']}
                                        onClick={this.toggleStateCheckbox}/>{' '}
                                 {serverStateDropDownResults[i]['stateName']}
@@ -939,7 +937,7 @@ class SearchBar extends React.Component {
                     listOfSchedDropDownItems.push(
                         <NavItem>
                             <Label check>
-                                <Input type="checkbox" id={'schedId' + serverSchedDropDownResults[i]['schedId']}
+                                <Input type="checkbox" id={serverSchedDropDownResults[i]['schedId']}
                                        name={serverSchedDropDownResults[i]['schedName']}
                                        onClick={this.toggleSchedCheckbox}/>{' '}
                                 {serverSchedDropDownResults[i]['schedName']}
