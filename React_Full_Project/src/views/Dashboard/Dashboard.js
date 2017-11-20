@@ -1031,7 +1031,6 @@ class SearchBar extends React.Component {
                         </NavLink>
                     </NavItem>
 
-                    /* Configure Locations */
 
                     <NavItem>
                         <NavLink
@@ -1561,8 +1560,6 @@ class SearchBar extends React.Component {
                             </Col>
                         </Row>
                     </TabPane>
-
-                    /* Configure Locations */
 
                     <TabPane tabId="4">
                         <Row>
