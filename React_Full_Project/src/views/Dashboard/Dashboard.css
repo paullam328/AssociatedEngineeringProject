@@ -27,4 +27,9 @@ div.container-fluid div div div.footerTable {
 div.container-fluid div div {
     position:relative;
 }
-
+div.container-fluid{
+    width: 100%;
+}
+div.app-body main.main {
+    margin-left: 0;
+}

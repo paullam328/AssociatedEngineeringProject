@@ -24,6 +24,8 @@ class Sidebar extends Component {
 
 
   render() {
+    return null;
+    /*
 
     const props = this.props;
     const activeRoute = this.activeRoute;
@@ -93,8 +95,8 @@ class Sidebar extends Component {
           </Nav>
         </nav>
       </div>
-    )
+    )*/
   }
 }
 
-export default Sidebar;
+export default Sidebar; //SIDEBAR IS PRETTY MUCH USELESS, I GUESS
