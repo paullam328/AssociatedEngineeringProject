@@ -262,6 +262,9 @@ class SearchBar extends React.Component {
             locationName: [],
             classification: '',
 
+            //FOR QUICKSEARCH
+                quickSearchAttr: "recordBoxNum",
+
             createdyyyy: '',
             createdmm: '',
             createddd: '',
