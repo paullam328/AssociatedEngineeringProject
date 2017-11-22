@@ -45,6 +45,7 @@ var filters = [{"column": "createdAt", "type": "LT", "value": [2009, 12, 31]}, {
 }];
 //var server = "http://ec2-13-59-251-84.us-east-2.compute.amazonaws.com";
 var server = "http://localhost:8080";
+var name;
 
 
 function getDate(input) { //converts the JSON's string date into an array of ints, [year, month, day]
@@ -325,7 +326,12 @@ class SearchBar extends React.Component {
 
             schedDropDownOpen: false,
 
-            arrayOfSelectedScheds: []
+            arrayOfSelectedScheds: [],
+
+            rolesName: '',
+
+            radioButtonValue: ''
+
 
             //TODO: TEST
 
@@ -341,6 +347,8 @@ class SearchBar extends React.Component {
         this.toggleTab = this.toggleTab.bind(this);
         this.toggleAttr = this.toggleAttr.bind(this);
         this.changeValue = this.changeValue.bind(this);
+        this.addRole = this.addRole.bind(this);
+
 
         this.toggleCollapseCreated = this.toggleCollapseCreated.bind(this);
         this.toggleCollapseCreatedFrom = this.toggleCollapseCreatedFrom.bind(this);
@@ -380,6 +388,7 @@ class SearchBar extends React.Component {
     }
 
     sendHttpCall(method, url, json) {
+        console.log("in sendHttpCall()");
         return new Promise(function (resolve, reject) {
             let xhr = new XMLHttpRequest();
             xhr.open(method, url, true);
@@ -392,19 +401,48 @@ class SearchBar extends React.Component {
                 }
             };
 
-            if (method === "POST") {
+            if (method === "POST" || method === "PUT" || method === "DELETE") {
                 let body = JSON.stringify(json);
                 xhr.send(body);
+            } else {
+                xhr.send();
             }
         });
     }
 
+
+    populateConfigureTab() {
+        console.log("in populateConfigureTab()");
+        let json = {};
+        let url = "/roles/";
+        let method = "GET";
+        console.log(server + url);
+
+        this.sendHttpCall(method, server + url, json).then(function (result) {
+            globalUpdate(result);
+        });
+    }
+
+    addRole() {
+        console.log("in addRole()");
+
+        let json = {rolesName: this.state.rolesName};
+        console.log(JSON.stringify(json));
+        let url = "/roles/";
+        let method = "POST";
+
+        this.sendHttpCall(method, server + url, json).then(function (result) {
+            globalUpdate(result);
+        });
+        8
+    }
+
     handleSubmitQuickSearch(event) {
-        if (this.state.dropdownValue === "Please select quick search attribute:") {
-            console.log(JSON.stringify({Error: 'No quick search attribute is selected from the dropdown menu'}))
-        }
 
         let input = this.state.numberOrConsignmentCode.replace(" ", "");
+
+        console.log("val: " + input);
+        console.log("state: " + this.state.radioButtonValue);
 
         if (input.length < 5) {
             console.log("Invalid input - input too short");
@@ -1005,6 +1043,7 @@ class SearchBar extends React.Component {
                             className={classnames({active: this.state.activeTab === '1'})}
                             onClick={() => {
                                 this.toggleTab('1');
+                                globalUpdate({"results": []});
                             }}
                         >
                             Quick Search
@@ -1015,6 +1054,7 @@ class SearchBar extends React.Component {
                             className={classnames({active: this.state.activeTab === '2'})}
                             onClick={() => {
                                 this.toggleTab('2');
+                                globalUpdate({"results": []});
                             }}
                         >
                             Full Text Search
@@ -1025,6 +1065,7 @@ class SearchBar extends React.Component {
                             className={classnames({active: this.state.activeTab === '3'})}
                             onClick={() => {
                                 this.toggleTab('3');
+                                globalUpdate({"results": []});
                             }}
                         >
                             Record Type Specific Search
@@ -1037,9 +1078,10 @@ class SearchBar extends React.Component {
                             className={classnames({active: this.state.activeTab === '4'})}
                             onClick={() => {
                                 this.toggleTab('4');
+                                this.populateConfigureTab();
                             }}
                         >
-                            Configure Locations
+                            Configure Roles
                         </NavLink>
                     </NavItem>
                 </Nav>
@@ -1049,20 +1091,24 @@ class SearchBar extends React.Component {
                             <Col sm="20">
                                 <div className="animated fadeIn">
                                     <Form onSubmit={this.handleSubmitQuickSearch}>
-
-                                        <Dropdown isOpen={this.state.dropdownOpen} toggle={this.toggleAttr} sm={2}>
-                                            <DropdownToggle caret>
-                                                {this.state.dropdownValue}
-                                            </DropdownToggle>
-                                            <DropdownMenu>
-                                                <DropdownItem>
-                                                    <div onClick={this.changeValue}>Record/Box Number:</div>
-                                                </DropdownItem>
-                                                <DropdownItem>
-                                                    <div onClick={this.changeValue}>Consignment Code:</div>
-                                                </DropdownItem>
-                                            </DropdownMenu>
-                                        </Dropdown>
+                                        <FormGroup tag="fieldset">
+                                            <legend>Please select quick search attribute:</legend>
+                                            <FormGroup check>
+                                                <Label check>
+                                                    <Input type="radio" name="radio1" value="recordBoxNum"
+                                                           onChange={this.isCheckedQuickSearchAttr}
+                                                           defaultChecked={true}/>{' '}
+                                                    Record/Box Number
+                                                </Label>
+                                            </FormGroup>
+                                            <FormGroup check>
+                                                <Label check>
+                                                    <Input type="radio" name="radio1" value="consignmentCode"
+                                                           onChange={this.isCheckedQuickSearchAttr}/>{' '}
+                                                    Consignment Code
+                                                </Label>
+                                            </FormGroup>
+                                        </FormGroup>
 
                                         <FormGroup row>
                                             <Col sm={10}>
@@ -1562,36 +1608,25 @@ class SearchBar extends React.Component {
                     </TabPane>
 
                     <TabPane tabId="4">
+
                         <Row>
                             <Col sm="20">
                                 <div className="animated fadeIn">
-                                    <Form onSubmit={this.handleSubmitQuickSearch}>
-
-                                        <Dropdown isOpen={this.state.dropdownOpen} toggle={this.toggleAttr} sm={2}>
-                                            <DropdownToggle caret>
-                                                {this.state.dropdownValue}
-                                            </DropdownToggle>
-                                            <DropdownMenu>
-                                                <DropdownItem>
-                                                    <div onClick={this.changeValue}>Record/Box Number:</div>
-                                                </DropdownItem>
-                                                <DropdownItem>
-                                                    <div onClick={this.changeValue}>Consignment Code:</div>
-                                                </DropdownItem>
-                                            </DropdownMenu>
-                                        </Dropdown>
+                                    <Form onSubmit={this.addRole}>
 
                                         <FormGroup row>
+                                            <Label for="rolesName" sm={20}>Role Name:</Label>
                                             <Col sm={10}>
-                                                <Input type="text" name="numberOrConsignmentCode"
-                                                       value={this.state.numberOrConsignmentCode}
+                                                <Input type="text" name="rolesName"
+                                                       value={this.state.rolesName}
                                                        onChange={this.handleChange}/>
                                             </Col>
                                         </FormGroup>
                                         <FormGroup row>
                                             <Col sm={{size: 10, offset: 2}}>
                                                 <Button type="submit" id="submit-button" size="sm" color="secondary"
-                                                        value="submit">Search</Button>
+                                                        value="submit">Add</Button>
+
                                             </Col>
                                         </FormGroup>
                                     </Form>

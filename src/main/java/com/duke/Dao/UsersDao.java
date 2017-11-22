@@ -57,4 +57,11 @@ public class UsersDao {
         }, userId);
         return usersList;
     }
+
+    public String getCurrentUser() {
+        String username = System.getProperty("user.name");
+        System.out.println("username: " + username);
+        return username;
+    }
+
 }
