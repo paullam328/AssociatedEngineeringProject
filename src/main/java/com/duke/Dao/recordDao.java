@@ -95,9 +95,11 @@ public class recordDao {
     }
 
     /**
-     * Search by ConsignmentCode.
+     * Quick search by ConsignmentCode.
      *
-     * Returns all rows of records, location.Name (location_name), notes.Text (notes), cutomattributevalues.Value (client_name), and all rows of containers
+     * Returns all columns of records, location.Name (location_name),
+     * notes.Text (notes), cutomattributevalues.Value (client_name),
+     * and all columns of containers for the given consignment code.
      *
      * @param consignmentCode
      * @return
@@ -315,9 +317,11 @@ public class recordDao {
 
 
     /**
-     * Search for record by record number.
+     * Quick search by record number.
      *
-     * Returns all rows of records, location.Name (location_name), notes.Text (notes), and cutomattributevalues.Value (client_name)
+     * Returns all columns of records, location.Name (location_name),
+     * notes.Text (notes), cutomattributevalues.Value (client_name),
+     * and all columns of containers for the given record number.
      *
      * @param recordNumber - records.Number
      * @return
@@ -645,6 +649,16 @@ public class recordDao {
         return Allschedules;
     }
 
+    /**
+     * Quick search by box number.
+     *
+     * Returns all columns of records, location.Name (location_name),
+     * notes.Text (notes), cutomattributevalues.Value (client_name),
+     * and all columns of containers for the given box number.
+     *
+     * @param containerNumber
+     * @return
+     */
     public List<record> SearchByContainerNumber(String containerNumber) {
         final String sql = "SELECT records.*, COALESCE(locations.Name, 'NA') AS location_name, COALESCE(notes.Text, 'NA') AS notes, COALESCE(customattributevalues.Value, 'NA') AS client_name, COALESCE(containers.Number, 'NA') AS containersNumber, COALESCE(containers.Id, -1) AS containersId, COALESCE(containers.Title, 'NA') AS containersTitle, containers.UpdatedAt AS containersUpdatedAt, containers.CreatedAt AS containersCreatedAt  FROM recordr.records INNER JOIN locations ON locations.Id = records.LocationId LEFT JOIN notes ON notes.RowId=records.Id AND notes.TableId = 26 LEFT JOIN customattributevalues ON customattributevalues.RecordId = records.Id AND customattributevalues.AttrId = 9 LEFT JOIN containers ON containers.Id = records.ContainerId WHERE containers.Number = ? ORDER BY containers.Number ASC";
 

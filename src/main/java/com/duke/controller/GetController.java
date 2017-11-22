@@ -377,7 +377,7 @@ public class GetController {
     /**
      * POST request to search by container number.
      *
-     * /records/containerNumber
+     * /records/boxNumber
      *
      * Input ex: {"boxNumber": "2007/023-EDM"}
      *
