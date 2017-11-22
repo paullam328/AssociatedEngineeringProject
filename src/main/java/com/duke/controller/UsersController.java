@@ -47,7 +47,7 @@ public class UsersController {
             if (results.size() < 1) {
                 // no results found
                 // return 404
-                return new ResponseEntity<String>("404  No results found", HttpStatus.NOT_FOUND);
+                return new ResponseEntity<String>("No results found", HttpStatus.NOT_FOUND);
             } else {
                 // results found
                 obj.put("results", results);
