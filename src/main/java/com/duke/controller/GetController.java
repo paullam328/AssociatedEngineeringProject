@@ -373,6 +373,14 @@ public class GetController {
         obj.put("results", results);
         return obj.toString();
     }
+    @CrossOrigin
+    @ResponseBody @RequestMapping(value = "/colours", method = RequestMethod.GET)
+    public java.lang.String GetAllColours() {
+        JSONObject obj = new JSONObject();
+        List<JSONObject> results=RecordDao.GetAllColours();
+        obj.put("results", results);
+        return obj.toString();
+    }
 
     /**
      * POST request to search by container number.

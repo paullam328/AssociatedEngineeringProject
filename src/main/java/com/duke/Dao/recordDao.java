@@ -650,6 +650,27 @@ public class recordDao {
     }
 
     /**
+     * Retrieve End tab label colours
+     */
+
+    public List<JSONObject> GetAllColours() {
+
+
+        final String sql = "SELECT * FROM labelcolours";
+        List<JSONObject> allColours = jdbcTemplate.query(sql, new RowMapper<JSONObject>() {
+            public JSONObject mapRow(ResultSet resultSet, int Id) throws SQLException {
+                JSONObject colour = new JSONObject();
+                colour.put("key",resultSet.getString("key"));
+                colour.put("colour",resultSet.getString("colour"));
+
+                return colour;
+            }
+        });
+        System.out.print(allColours);
+        return allColours;
+    }
+
+    /**
      * Quick search by box number.
      *
      * Returns all columns of records, location.Name (location_name),
