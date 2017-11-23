@@ -394,7 +394,7 @@ public class recordDao {
 
 
 
-    public List<JSONObject> FullTextSearch(String keyword, Integer page, Integer pageSize) {
+    public List<JSONObject> FullTextSearch(String keyword, JSONObject filters, Integer page, Integer pageSize) {
 
         Object[] params = new Object[] {};
         keyword = "%" + keyword + "%";
@@ -406,7 +406,7 @@ public class recordDao {
 
         String sql = "SELECT * FROM FullTextTable WHERE (rNumber LIKE ? OR bNumber LIKE ? OR rTitle LIKE ? OR bTitle LIKE ? OR nTexts LIKE ? OR bcosign LIKE ?) ";
 
-        /*
+
         if(filters.has("CreatedStart")) {
 
             sql = sql + "AND rCreatedAt >= ? ";
@@ -416,6 +416,10 @@ public class recordDao {
             sql = sql + "AND rCreatedAt <= ? ";
             params = appendValue(params,filters.get("CreatedTo"));
         }
+        if(filters.has("CreatedAt")) {
+            sql = sql + "AND rCreatedAt == ? ";
+            params = appendValue(params,filters.get("CreatedAt"));
+        }
         if(filters.has("UpdatedStart")) {
             sql = sql + "AND rUpdatedAt >= ? ";
             params = appendValue(params,filters.get("UpdatedStart"));
@@ -424,6 +428,10 @@ public class recordDao {
             sql = sql + "AND rUpdatedAt <= ? ";
             params = appendValue(params,filters.get("UpdatedTo"));
         }
+        if(filters.has("UpdatedAt")) {
+            sql = sql + "AND rUpdatedAt == ? ";
+            params = appendValue(params,filters.get("UpdatedAt"));
+        }
         if(filters.has("ClosedStart")) {
             sql = sql + "AND rClosedAt >= ? ";
             params = appendValue(params,filters.get("ClosedStart"));
@@ -431,6 +439,10 @@ public class recordDao {
         if(filters.has("ClosedTo")) {
             sql = sql + "AND rClosedAt <= ? ";
             params = appendValue(params,filters.get("ClosedTo"));
+        }
+        if(filters.has("ClosedAt")) {
+            sql = sql + "AND rClosedAt == ? ";
+            params = appendValue(params,filters.get("ClosedAt"));
         }
         if(filters.has("LocationId")) {
             if (filters.getJSONArray("LocationId").length() > 0) {
@@ -498,7 +510,7 @@ public class recordDao {
                 }
                 sql = sql + " ) ";
             }
-        }*/
+        }
 
         sql = sql + " LIMIT ?,?";
         Integer offset =pageSize*(page-1);

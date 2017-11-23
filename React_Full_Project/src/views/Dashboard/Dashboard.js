@@ -82,8 +82,8 @@ function callFilter(row, index, arr) {
             //console.log("row[criterion.column] is:" + JSON.stringify(row[criterion.column]));//why is it 2004?
             //we can assume the hr
             let date = getDate(row[criterion.column]);
-            //console.log("date is: " + JSON.stringify(date));
-            //console.log("criterion.value is: " + JSON.stringify(criterion.value));
+            console.log("date is: " + JSON.stringify(date));
+            console.log("criterion.value is: " + JSON.stringify(criterion.value));
             switch (criterion.type) {
                 case 'GT': //after this date
                     if (date[0] < parseInt(criterion.value[0]) || date[1] < parseInt(criterion.value[1]) || date[2] < parseInt(criterion.value[2])) return false;
@@ -111,16 +111,18 @@ function callFilter(row, index, arr) {
 //value is the value to compare to
 
 function filterJSON(input, crit) {
-    //console.log("input is: " + JSON.stringify(input));
+    console.log("input is: " + JSON.stringify(input));
     if (input === null || input === undefined) return null;
     return input.filter(callFilter, crit);
 }
 
 //given a valid JSON response, updates global variables and tables
 function globalUpdate(response) {
-    responseJSON = response;
+    //responseJSON = response;
     console.log("length before " + response.results.length);
-    records = filterJSON(response.results, filters);
+    //records = filterJSON(response.results, filters);
+    console.log("responseJSON.results: " + response.results);
+    records = response.results;
     console.log("length after" + records.length);
     console.log(records);
     dashGlobal.update();
@@ -506,21 +508,24 @@ class SearchBar extends React.Component {
 
     handleSubmitFullTextSearch(event) {
         var arrayOfFilters = [];
+        var sampleFilterParam = {"CreatedStart":'a',"UpdatedStart":"b","TypeId":[5,20,25]};
 
 
         //push into array of filter one by one would be easier I guess
 //result[1]['filter']
+
+        //Beginning of Old Filter
         for (var i = 0; i < this.state.arrayOfSelectedTypes.length; i++) {
-            arrayOfFilters.push({name: "typeId", type: "EQ", value: this.state.arrayOfSelectedTypes[i]['id']});
+            arrayOfFilters.push({name: "TypeId", type: "EQ", value: this.state.arrayOfSelectedTypes[i]['id']});
         }
 
         for (var i = 0; i < this.state.arrayOfSelectedLocations.length; i++) {
-            arrayOfFilters.push({name: "locationId", type: "EQ", value: this.state.arrayOfSelectedLocations[i]});
+            arrayOfFilters.push({name: "LocationId", type: "EQ", value: this.state.arrayOfSelectedLocations[i]});
         }
 
 
         for (var i = 0; i < this.state.arrayOfSelectedClasses.length; i++) {
-            arrayOfFilters.push({name: "classId", type: "EQ", value: this.state.arrayOfSelectedClasses[i]});
+            arrayOfFilters.push({name: "ClassId", type: "EQ", value: this.state.arrayOfSelectedClasses[i]});
         }
 
         arrayOfFilters.push(
@@ -644,36 +649,159 @@ class SearchBar extends React.Component {
         );
 
         for (var i = 0; i < this.state.arrayOfSelectedStates.length; i++) {
-            arrayOfFilters.push({name: "stateId", type: "EQ", value: this.state.arrayOfSelectedStates[i]});
+            arrayOfFilters.push({name: "StateId", type: "EQ", value: this.state.arrayOfSelectedStates[i]});
         }
 
         for (var i = 0; i < this.state.arrayOfSelectedScheds.length; i++) {
-            arrayOfFilters.push({name: "schedId", type: "EQ", value: this.state.arrayOfSelectedScheds[i]});
+            arrayOfFilters.push({name: "SchedId", type: "EQ", value: this.state.arrayOfSelectedScheds[i]});
         }
-
+//End of Old Filter
 
         var arrayOfNonNullFilters = arrayOfFilters.filter(function (x) {
             x !== null;
             return x;
         });
 
+
+
+        var backendFilter = {};
+        var arrayOfSelectedTypesId = [];
+
+        for (var i = 0; i < this.state.arrayOfSelectedTypes.length; i++) {
+            arrayOfSelectedTypesId.push(this.state.arrayOfSelectedTypes[i]['id']);
+        }
+
+        backendFilter["TypeId"] = arrayOfSelectedTypesId;
+
+       /* for (var i = 0; i < this.state.arrayOfSelectedLocations.length; i++) {
+            backendFilter["LocationId"] = this.state.arrayOfSelectedLocations[i];
+        }*/
+       backendFilter["LocationId"] = this.state.arrayOfSelectedLocations;
+
+
+        backendFilter["ClassId"] = this.state.arrayOfSelectedClasses;
+
+
+
+            //for: createdAt
+            //first case: one date
+            (this.state.collapseCreated
+            && this.state.createdyyyy != ""
+            && this.state.createdmm != ""
+            && this.state.createddd != ""
+                ? backendFilter["CreatedAt"] = this.state.createdyyyy + "-" + this.state.createdmm + "-" + this.state.createddd : undefined);
+
+
+            //second case: from beginning to date
+
+            (!this.state.collapseCreated
+            && this.state.collapseCreatedTill
+            && this.state.createdTillyyyy != ""
+            && this.state.createdTillmm != ""
+            && this.state.createdTilldd != ""
+                ? backendFilter["CreatedTo"] = this.state.createdTillyyyy + "-" + this.state.createdTillmm + "-" + this.state.createdTilldd: undefined);
+
+            //third case: from date to beginning
+
+            (!this.state.collapseCreated
+            && this.state.collapseCreatedFrom
+            && this.state.createdFromyyyy != ""
+            && this.state.createdFrommm != ""
+            && this.state.createdFromdd != ""
+                ?
+                backendFilter["CreatedStart"] = this.state.createdFromyyyy + "-" + this.state.createdFrommm + "-" + this.state.createdFromdd : undefined);
+
+
+
+            //for: updatedAt
+            //first case: one date
+            (this.state.collapseUpdated
+            && this.state.updatedyyyy != ""
+            && this.state.updatedmm != ""
+            && this.state.updateddd != ""
+                ?
+                backendFilter["UpdatedAt"] = this.state.updatedyyyy + "-" + this.state.updatedmm + "-" + this.state.updateddd : undefined);
+
+
+            //second case: from beginning to date
+
+            (!this.state.collapseUpdated
+            && this.state.collapseUpdatedTill
+            && this.state.updatedTillyyyy != ""
+            && this.state.updatedTillmm != ""
+            && this.state.updatedTilldd != ""
+                ? backendFilter["UpdatedTo"] = this.state.updatedTillyyyy + "-" + this.state.updatedTillmm + "-" + this.state.updatedTilldd : undefined);
+
+            //third case: from date to beginning
+
+            (!this.state.collapseUpdated
+            && this.state.collapseUpdatedFrom
+            && this.state.updatedFromyyyy != ""
+            && this.state.updatedFrommm != ""
+            && this.state.updatedFromdd != ""
+                ? backendFilter["UpdatedStart"] = this.state.updatedFromyyyy + "-" +this.state.updatedFrommm + "-" + this.state.updatedFromdd : undefined);
+
+
+            //TODO: closedAt
+
+            (this.state.collapseClosed
+            && this.state.closedyyyy != ""
+            && this.state.closedmm != ""
+            && this.state.closeddd != ""
+                ? backendFilter["ClosedAt"] = this.state.closedyyyy + "-" + this.state.closedmm + "-" + this.state.closeddd : undefined);
+
+
+            //second case: from beginning to date
+
+            (!this.state.collapseClosed
+            && this.state.collapseClosedTill
+            && this.state.closedTillyyyy != ""
+            && this.state.closedTillmm != ""
+            && this.state.closedTilldd != ""
+                ? backendFilter["ClosedTo"] = this.state.closedTillyyyy + "-" + this.state.closedTillmm + "-" + this.state.closedTilldd : undefined);
+
+
+            (!this.state.collapseClosed
+            && this.state.collapseClosedFrom
+            && this.state.closedFromyyyy != ""
+            && this.state.closedFrommm != ""
+            && this.state.closedFromdd != ""
+                ? backendFilter["ClosedStart"] = this.state.closedFromyyyy + "-" + this.state.closedFrommm + "-" + this.state.closedFromdd : undefined);
+
+        /*for (var i = 0; i < this.state.arrayOfSelectedStates.length; i++) {
+            backendFilter["StateId"] = this.state.arrayOfSelectedStates[i];
+        }
+
+        for (var i = 0; i < this.state.arrayOfSelectedScheds.length; i++) {
+            backendFilter["SchedId"] = this.state.arrayOfSelectedScheds[i];
+        }*/
+        backendFilter["StateId"] = this.state.arrayOfSelectedStates;
+        backendFilter["SchedId"] = this.state.arrayOfSelectedScheds;
+
+
         var result =
             [{
                 fullTextSearch: this.state.fullTextSearch
-            }, {filter: arrayOfNonNullFilters}];
+            }, /*{filter: arrayOfNonNullFilters}*/
+                backendFilter
+            ];
+
+
 
         console.log('A bunch of record queries are submitted: ' + JSON.stringify(result));
         this.state.result = [];//CLEAR RESULTS for initialization
 
         //TODO: Vincent's call
-        filters = result[1];
+        console.log('filters is:' + JSON.stringify(result[1]));
         this.sendHttpCall("POST", server + "/records/fulltext", {
             "keyword": result[0]['fullTextSearch'],
             "page": 1,
-            "pageSize": 1000
+            "pageSize": 1000,
+            "filters": result[1]
         }).then(function (response) {
-            filters = result[1]['filter'];
+            //filters = result[1]['filter'];
             //^but where is filters assigned? ^
+            //console.log("response is:" + JSON.stringify(response));
             globalUpdate(response);
         });
         event.preventDefault();
@@ -1276,14 +1404,6 @@ class SearchBar extends React.Component {
                                                     </Dropdown>
                                                 </Col>
                                             </div>
-                                        </FormGroup>
-
-                                        <FormGroup row>
-                                            <Label for="dateCreated" sm={2}>Date Created (yyyy/mm/dd): </Label>
-                                            <Col sm={{size: 10}}>
-                                                {' '}<Input type="checkbox" onClick={this.toggleCollapseCreated}/>{' '}
-                                                Check this if you just want one specific date
-                                            </Col>
                                         </FormGroup>
 
                                         <FormGroup row>

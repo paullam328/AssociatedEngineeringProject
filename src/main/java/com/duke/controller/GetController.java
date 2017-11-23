@@ -313,10 +313,11 @@ public class GetController {
         JSONObject obj = new JSONObject();
         JSONObject jsonObj = new JSONObject(params);
         String keyword= jsonObj.getString("keyword");
+        JSONObject filters = jsonObj.getJSONObject("filters");
         Integer page= jsonObj.getInt("page");
         Integer pageSize= jsonObj.getInt("pageSize");
 
-        List<JSONObject> results=RecordDao.FullTextSearch(keyword, page, pageSize);
+        List<JSONObject> results=RecordDao.FullTextSearch(keyword, filters, page, pageSize);
         obj.put("results", results);
         return obj.toString();
     }
