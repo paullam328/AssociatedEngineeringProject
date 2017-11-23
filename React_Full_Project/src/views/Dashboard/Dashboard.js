@@ -218,7 +218,7 @@ class ResultsTable extends React.Component {
             for (let key in this.props.results[0]) {
                 if (this.props.results[0].hasOwnProperty(key)) {
                     //TODO: Replace header with user-readable string
-                    columns.push({"Header": key, "accessor": key});
+                    columns.push({"Header": key.replace(/([A-Z]+)/g, " $1").replace(/([A-Z][a-z])/g, " $1"), "accessor": key});
                 }
             }
         }
