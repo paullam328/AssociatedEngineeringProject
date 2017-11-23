@@ -223,7 +223,7 @@ class ResultsTable extends React.Component {
 
         let that = this;
         return (
-            <div className="footerTable">
+            <div>
                 <Row>
                     <Col>
                         <Card>

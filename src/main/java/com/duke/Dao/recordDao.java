@@ -654,8 +654,6 @@ public class recordDao {
      */
 
     public List<JSONObject> GetAllColours() {
-
-
         final String sql = "SELECT * FROM labelcolours";
         List<JSONObject> allColours = jdbcTemplate.query(sql, new RowMapper<JSONObject>() {
             public JSONObject mapRow(ResultSet resultSet, int Id) throws SQLException {

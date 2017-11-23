@@ -20,8 +20,6 @@ public class record {
     private java.sql.Timestamp closedAt;
     private String consignmentCode;
     private String recordStateName;
-    private Boolean hasPrintedLabel;
-    private Boolean hasPrintedEndTabLabel;
 
 
     private String locationName;    // for locations.Name
@@ -62,14 +60,10 @@ public class record {
         this.containersNumber = containersNumber;
         this.containersTitle = containersTitle;
         this.containersUpdatedAt = containersUpdatedAt;
-        this.hasPrintedLabel = false;
-        this.hasPrintedEndTabLabel = false;
     }
 
     // default constructor
     public record(){
-        this.hasPrintedLabel = false;
-        this.hasPrintedEndTabLabel = false;
     };
 
     public Integer getId() {
@@ -195,14 +189,6 @@ public class record {
     public void setRecordStateName(String recordStateName) {
         this.recordStateName = recordStateName;
     }
-
-    public Boolean getHasPrintedLabel() { return hasPrintedLabel; }
-
-    public void setHasPrintedLabel(Boolean hasPrinted) { this.hasPrintedLabel = hasPrintedLabel; }
-
-    public Boolean getHasPrintedEndTabLabel() { return hasPrintedEndTabLabel; }
-
-    public void setHasPrintedEndTabLabel(Boolean hasPrintedEndTabLabel) { this.hasPrintedEndTabLabel = hasPrintedEndTabLabel; }
 
     public String getLocationName() {
         return locationName;
