@@ -20,18 +20,22 @@ public class record {
     private java.sql.Timestamp closedAt;
     private String consignmentCode;
     private String recordStateName;
-    private Boolean hasPrintedLabel;
-    private Boolean hasPrintedEndTabLabel;
 
 
     private String locationName;    // for locations.Name
     private String notesText;       // for notes.Text
     private String clientName;      // for customattributevalues.Value
 
+    private java.sql.Timestamp containersCreatedAt;
+    private Integer containersId;
+    private String containersNumber;
+    private String containersTitle;
+    private java.sql.Timestamp containersUpdatedAt;
 
 
 
-    public record(int id, int AttrId, int RecordId, String Value, String title, String number, int scheduleId, int typeId, int stateId, int containerId, int locationId, Timestamp createdAt, Timestamp updatedAt, Timestamp closedAt, String consignmentCode, String recordStateName, String locationName, String notesText, String clientName){
+
+    public record(int id, int AttrId, int RecordId, String Value, String title, String number, int scheduleId, int typeId, int stateId, int containerId, int locationId, Timestamp createdAt, Timestamp updatedAt, Timestamp closedAt, String consignmentCode, String recordStateName, String locationName, String notesText, String clientName, Timestamp containersCreatedAt, Integer containersId, String containersNumber, String containersTitle, Timestamp containersUpdatedAt){
         this.id= id;
         this.AttrId = AttrId;
         this.RecordId=RecordId;
@@ -51,14 +55,15 @@ public class record {
         this.locationName = locationName;
         this.notesText = notesText;
         this.clientName = clientName;
-        this.hasPrintedLabel = false;
-        this.hasPrintedEndTabLabel = false;
+        this.containersCreatedAt = containersCreatedAt;
+        this.containersId = containersId;
+        this.containersNumber = containersNumber;
+        this.containersTitle = containersTitle;
+        this.containersUpdatedAt = containersUpdatedAt;
     }
 
     // default constructor
     public record(){
-        this.hasPrintedLabel = false;
-        this.hasPrintedEndTabLabel = false;
     };
 
     public Integer getId() {
@@ -185,14 +190,6 @@ public class record {
         this.recordStateName = recordStateName;
     }
 
-    public Boolean getHasPrintedLabel() { return hasPrintedLabel; }
-
-    public void setHasPrintedLabel(Boolean hasPrinted) { this.hasPrintedLabel = hasPrintedLabel; }
-
-    public Boolean getHasPrintedEndTabLabel() { return hasPrintedEndTabLabel; }
-
-    public void setHasPrintedEndTabLabel(Boolean hasPrintedEndTabLabel) { this.hasPrintedEndTabLabel = hasPrintedEndTabLabel; }
-
     public String getLocationName() {
         return locationName;
     }
@@ -215,5 +212,45 @@ public class record {
 
     public void setClientName(String clientName) {
         this.clientName = clientName;
+    }
+
+    public Timestamp getContainersCreatedAt() {
+        return containersCreatedAt;
+    }
+
+    public void setContainersCreatedAt(Timestamp containersCreatedAt) {
+        this.containersCreatedAt = containersCreatedAt;
+    }
+
+    public Integer getContainersId() {
+        return containersId;
+    }
+
+    public void setContainersId(Integer containersId) {
+        this.containersId = containersId;
+    }
+
+    public String getContainersNumber() {
+        return containersNumber;
+    }
+
+    public void setContainersNumber(String containersNumber) {
+        this.containersNumber = containersNumber;
+    }
+
+    public String getContainersTitle() {
+        return containersTitle;
+    }
+
+    public void setContainersTitle(String containersTitle) {
+        this.containersTitle = containersTitle;
+    }
+
+    public Timestamp getContainersUpdatedAt() {
+        return containersUpdatedAt;
+    }
+
+    public void setContainersUpdatedAt(Timestamp containersUpdatedAt) {
+        this.containersUpdatedAt = containersUpdatedAt;
     }
 }

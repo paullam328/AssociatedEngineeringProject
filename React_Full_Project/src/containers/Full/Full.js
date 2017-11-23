@@ -27,15 +27,43 @@ class Full extends Component {
         this.addToRecordLabels = this.addToRecordLabels.bind(this);
         this.addToEndTabLabels = this.addToEndTabLabels.bind(this);
         this.addToContainerReports = this.addToContainerReports.bind(this);
-        this.addToEnclosureReports = this.addToEnclosureReports.bind(this);
-        this.print = this.print.bind(this);
+        this.flush = this.flush.bind(this);
         this.state = {
-            recordLabels: [],
-            endTabLabels: [],
-            containerReports: [],
-            enclosureReports: []
+            recordLabels: [{id:1,test:"FOR TESTING"}, {id:2,test:"FOR TESTING"},{id:3,test:"FOR TESTING"}],
+            endTabLabels: [{id:1,test:"FOR TESTING"}, {id:2,test:"FOR TESTING"},{id:3,test:"FOR TESTING"}, {id:4,test:"FOR TESTING"},{id:5,test:"FOR TESTING"}, {id:6,test:"FOR TESTING"},{id:7,test:"FOR TESTING"}, {id:8,test:"FOR TESTING"}],
+            containerReports: [{id:1,test:"FOR TESTING"},{id:2,test:"FOR TESTING"}],
+            colours: {}
         };
     }
+
+    componentWillMount() {
+        var request = new XMLHttpRequest();
+        request.open('GET', 'http://127.0.0.1:8080/records/colours', false);
+        request.setRequestHeader("Content-type", "application/json");
+        request.onload = function () {
+            if (request.status >= 200 && request.status < 400) {
+                var results = JSON.parse(request.response)["results"];
+                var tempdata = {};
+
+                results.forEach((result) => {
+                    tempdata[result.key] = result.colour;
+                });
+                tempdata["v"] = "faae25";
+                var newState = Object.assign({}, this.state); // Clone the state obj in newState
+                newState["colours"] = tempdata;
+                this.setState(newState);
+
+
+            } else {
+                console.error('Response received and there was an error');
+            }
+
+        }.bind(this); //have to bind to the callback function so that it will callback properly
+
+        request.send();
+    }
+
+
     // TODO: disallow duplicates
     addToRecordLabels(data) {
         var newState = Object.assign({}, this.state); // Clone the state obj in newState
@@ -58,20 +86,12 @@ class Full extends Component {
         //console.log(this.state);
     }
 
-    addToEnclosureReports(data) {
-        var newState = Object.assign({}, this.state);
-        newState["enclosureReports"].push(data);
-        this.setState(newState);
-        //console.log(this.state);
-    }
-
-    print() {
-        console.log("Full.print()");
-    }
-
-    // TODO : empty state/print arrays then POST to update record/container hasPrinted boolean
     flush() {
-        console.log("flush");
+        this.setState({
+            recordLabels: [],
+            endTabLabels: [],
+            containerReports: []
+        });
     }
 
     render() {
@@ -84,7 +104,7 @@ class Full extends Component {
                         <Breadcrumb />
                         <Container fluid>
                             <Switch>
-                                <Route path="/dashboard" name="Dashboard" component={() => <Dashboard addToRecordLabels={this.addToRecordLabels} addToEndTabLabels={this.addToEndTabLabels} addToContainerReports={this.addToContainerReports} addToEnclosureReports={this.addToEnclosureReports} />}/>
+                                <Route path="/dashboard" name="Dashboard" component={() => <Dashboard addToRecordLabels={this.addToRecordLabels} addToEndTabLabels={this.addToEndTabLabels} addToContainerReports={this.addToContainerReports}  />}/>
                                 <Route path="/components/buttons" name="Buttons" component={Buttons}/>
                                 <Route path="/components/cards" name="Cards" component={Cards}/>
                                 <Route path="/components/forms" name="Forms" component={Forms}/>
@@ -101,7 +121,7 @@ class Full extends Component {
                             </Switch>
                         </Container>
                     </main>
-                    <PrintQueue state={this.state} print={this.print} />
+                    <PrintQueue state={this.state} flush={this.flush}/>
                 </div>
                 <Footer />
             </div>

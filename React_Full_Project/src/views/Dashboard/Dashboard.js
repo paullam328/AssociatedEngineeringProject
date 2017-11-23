@@ -223,7 +223,7 @@ class ResultsTable extends React.Component {
 
         let that = this;
         return (
-            <div className="footerTable">
+            <div>
                 <Row>
                     <Col>
                         <Card>
@@ -258,7 +258,7 @@ class SearchBar extends React.Component {
             classification: '',
 
             //FOR QUICKSEARCH
-                quickSearchAttr: "recordBoxNum",
+                quickSearchAttr: "recordNum",
 
             createdyyyy: '',
             createdmm: '',
@@ -357,7 +357,9 @@ class SearchBar extends React.Component {
 
             rolesName: '',
 
-            radioButtonValue: ''
+            radioButtonValue: '',
+
+            containerNumber: ''
 
 
             //serverLocationDropDown: []
@@ -477,10 +479,14 @@ class SearchBar extends React.Component {
         } else {
             let json = {};
             let url = "";
-            if (this.state.quickSearchAttr == "recordBoxNum") {
+            if (this.state.quickSearchAttr == "recordNum") {
                 console.log(JSON.stringify({Number: this.state.numberOrConsignmentCode}));
                 url = "/records/number";
                 json = {Number: this.state.numberOrConsignmentCode};
+            } else if (this.state.quickSearchAttr == "boxNum") {
+                console.log(JSON.stringify({boxNumber: this.state.numberOrConsignmentCode}));
+                url = "/records/boxNumber";
+                json = {boxNumber: this.state.numberOrConsignmentCode};
             } else {
                 console.log(JSON.stringify({consignmentCode: this.state.numberOrConsignmentCode}));
                 url = "/records/consignmentCode";
@@ -1151,10 +1157,10 @@ class SearchBar extends React.Component {
                                             <legend>Please select quick search attribute:</legend>
                                             <FormGroup check>
                                                 <Label check>
-                                                    <Input type="radio" name="radio1" value="recordBoxNum"
+                                                    <Input type="radio" name="radio1" value="recordNum"
                                                            onChange={this.isCheckedQuickSearchAttr}
                                                            defaultChecked={true}/>{' '}
-                                                    Record/Box Number
+                                                    Record Number
                                                 </Label>
                                             </FormGroup>
                                             <FormGroup check>
@@ -1162,6 +1168,13 @@ class SearchBar extends React.Component {
                                                     <Input type="radio" name="radio1" value="consignmentCode"
                                                            onChange={this.isCheckedQuickSearchAttr}/>{' '}
                                                     Consignment Code
+                                                </Label>
+                                            </FormGroup>
+                                            <FormGroup check>
+                                                <Label check>
+                                                    <Input type="radio" name="radio1" value="boxNum"
+                                                           onChange={this.isCheckedQuickSearchAttr}/>{' '}
+                                                    Box Number
                                                 </Label>
                                             </FormGroup>
                                         </FormGroup>

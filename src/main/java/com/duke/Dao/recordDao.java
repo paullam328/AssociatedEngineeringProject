@@ -95,16 +95,18 @@ public class recordDao {
     }
 
     /**
-     * Search by ConsignmentCode.
+     * Quick search by ConsignmentCode.
      *
-     * Returns all rows of records, location.Name (location_name), notes.Text (notes), and cutomattributevalues.Value (client_name)
+     * Returns all columns of records, location.Name (location_name),
+     * notes.Text (notes), cutomattributevalues.Value (client_name),
+     * and all columns of containers for the given consignment code.
      *
      * @param consignmentCode
      * @return
      */
 
     public List<record> SearchRecordsByConsignmentCode(String consignmentCode) {
-        final String sql = "SELECT records.*, COALESCE(locations.Name, 'NA') AS location_name, COALESCE(notes.Text, 'NA') AS notes, COALESCE(customattributevalues.Value, 'NA') AS client_name FROM recordr.records INNER JOIN locations ON locations.Id = records.LocationId LEFT JOIN notes ON notes.RowId=records.Id AND notes.TableId = 26 LEFT JOIN customattributevalues ON customattributevalues.RecordId = records.Id AND customattributevalues.AttrId = 9 WHERE records.ConsignmentCode = ?";
+        final String sql = "SELECT records.*, COALESCE(locations.Name, 'NA') AS location_name, COALESCE(notes.Text, 'NA') AS notes, COALESCE(customattributevalues.Value, 'NA') AS client_name, COALESCE(containers.Number, 'NA') AS containersNumber, COALESCE(containers.Id, -1) AS containersId, COALESCE(containers.Title, 'NA') AS containersTitle, containers.UpdatedAt AS containersUpdatedAt, containers.CreatedAt AS containersCreatedAt  FROM recordr.records INNER JOIN locations ON locations.Id = records.LocationId LEFT JOIN notes ON notes.RowId=records.Id AND notes.TableId = 26 LEFT JOIN customattributevalues ON customattributevalues.RecordId = records.Id AND customattributevalues.AttrId = 9 LEFT JOIN containers ON containers.Id = records.ContainerId WHERE records.ConsignmentCode = ? ORDER BY records.ConsignmentCode ASC";
 
         final List<record> recordList = jdbcTemplate.query(sql, new ResultSetExtractor<List<record>>() {
 
@@ -134,8 +136,17 @@ public class recordDao {
                     l.setClosedAt(new java.sql.Timestamp(closedDate.getTime()));
 
                     l.setLocationName(resultSet.getString("location_name"));
+
                     l.setNotesText(resultSet.getString("notes"));
+
                     l.setClientName(resultSet.getString("client_name"));
+
+                    // from containers table
+                    l.setContainersId(resultSet.getInt("containersId"));
+                    l.setContainersNumber(resultSet.getString("containersNumber"));
+                    l.setContainersTitle(resultSet.getString("containersTitle"));
+                    l.setContainersCreatedAt(resultSet.getTimestamp("containersCreatedAt"));
+                    l.setContainersUpdatedAt(resultSet.getTimestamp("containersUpdatedAt"));
 
                     list.add(l);
                 }
@@ -306,9 +317,11 @@ public class recordDao {
 
 
     /**
-     * Search for record by record number.
+     * Quick search by record number.
      *
-     * Returns all rows of records, location.Name (location_name), notes.Text (notes), and cutomattributevalues.Value (client_name)
+     * Returns all columns of records, location.Name (location_name),
+     * notes.Text (notes), cutomattributevalues.Value (client_name),
+     * and all columns of containers for the given record number.
      *
      * @param recordNumber - records.Number
      * @return
@@ -316,7 +329,7 @@ public class recordDao {
 
 
     public List<record> SearchByRecordNumber(String recordNumber) {
-        final String sql = "SELECT records.*, COALESCE(locations.Name, 'NA') AS location_name, COALESCE(notes.Text, 'NA') AS notes, COALESCE(customattributevalues.Value, 'NA') AS client_name FROM recordr.records INNER JOIN locations ON locations.Id = records.LocationId LEFT JOIN notes ON notes.RowId=records.Id AND notes.TableId = 26 LEFT JOIN customattributevalues ON customattributevalues.RecordId = records.Id AND customattributevalues.AttrId = 9 WHERE records.Number = ?";
+        final String sql = "SELECT records.*, COALESCE(locations.Name, 'NA') AS location_name, COALESCE(notes.Text, 'NA') AS notes, COALESCE(customattributevalues.Value, 'NA') AS client_name, COALESCE(containers.Number, 'NA') AS containersNumber, COALESCE(containers.Id, -1) AS containersId, COALESCE(containers.Title, 'NA') AS containersTitle, containers.UpdatedAt AS containersUpdatedAt, containers.CreatedAt AS containersCreatedAt  FROM recordr.records INNER JOIN locations ON locations.Id = records.LocationId LEFT JOIN notes ON notes.RowId=records.Id AND notes.TableId = 26 LEFT JOIN customattributevalues ON customattributevalues.RecordId = records.Id AND customattributevalues.AttrId = 9 LEFT JOIN containers ON containers.Id = records.ContainerId WHERE records.Number = ? ORDER BY records.Number ASC";
 
 
         final List<record> recordList = jdbcTemplate.query(sql, new ResultSetExtractor<List<record>>() {
@@ -346,8 +359,17 @@ public class recordDao {
                     l.setClosedAt(new java.sql.Timestamp(closedDate.getTime()));
 
                     l.setLocationName(resultSet.getString("location_name"));
+
                     l.setNotesText(resultSet.getString("notes"));
+
                     l.setClientName(resultSet.getString("client_name"));
+
+                    // from containers table
+                    l.setContainersId(resultSet.getInt("containersId"));
+                    l.setContainersNumber(resultSet.getString("containersNumber"));
+                    l.setContainersTitle(resultSet.getString("containersTitle"));
+                    l.setContainersCreatedAt(resultSet.getTimestamp("containersCreatedAt"));
+                    l.setContainersUpdatedAt(resultSet.getTimestamp("containersUpdatedAt"));
 
                     list.add(l);
                 }
@@ -625,6 +647,86 @@ public class recordDao {
             }
         });
         return Allschedules;
+    }
+
+    /**
+     * Retrieve End tab label colours
+     */
+
+    public List<JSONObject> GetAllColours() {
+        final String sql = "SELECT * FROM labelcolours";
+        List<JSONObject> allColours = jdbcTemplate.query(sql, new RowMapper<JSONObject>() {
+            public JSONObject mapRow(ResultSet resultSet, int Id) throws SQLException {
+                JSONObject colour = new JSONObject();
+                colour.put("key",resultSet.getString("key"));
+                colour.put("colour",resultSet.getString("colour"));
+
+                return colour;
+            }
+        });
+        return allColours;
+    }
+
+    /**
+     * Quick search by box number.
+     *
+     * Returns all columns of records, location.Name (location_name),
+     * notes.Text (notes), cutomattributevalues.Value (client_name),
+     * and all columns of containers for the given box number.
+     *
+     * @param containerNumber
+     * @return
+     */
+    public List<record> SearchByContainerNumber(String containerNumber) {
+        final String sql = "SELECT records.*, COALESCE(locations.Name, 'NA') AS location_name, COALESCE(notes.Text, 'NA') AS notes, COALESCE(customattributevalues.Value, 'NA') AS client_name, COALESCE(containers.Number, 'NA') AS containersNumber, COALESCE(containers.Id, -1) AS containersId, COALESCE(containers.Title, 'NA') AS containersTitle, containers.UpdatedAt AS containersUpdatedAt, containers.CreatedAt AS containersCreatedAt  FROM recordr.records INNER JOIN locations ON locations.Id = records.LocationId LEFT JOIN notes ON notes.RowId=records.Id AND notes.TableId = 26 LEFT JOIN customattributevalues ON customattributevalues.RecordId = records.Id AND customattributevalues.AttrId = 9 LEFT JOIN containers ON containers.Id = records.ContainerId WHERE containers.Number = ? ORDER BY containers.Number ASC";
+
+        final List<record> recordList = jdbcTemplate.query(sql, new ResultSetExtractor<List<record>>() {
+
+            @Override
+            public List<record> extractData(ResultSet resultSet) throws SQLException, DataAccessException {
+                List<record> list = new ArrayList<record>();
+
+                while (resultSet.next()) {
+                    record l = new record();
+
+                    //from records table
+                    l.setId(resultSet.getInt("records.Id"));
+                    l.setNumber(resultSet.getString("records.Number"));
+                    l.setTitle(resultSet.getString("records.Title"));
+                    l.setScheduleId(resultSet.getInt("records.ScheduleId"));
+                    l.setTypeId(resultSet.getInt("records.TypeId"));
+                    l.setConsignmentCode(resultSet.getString("records.ConsignmentCode"));
+                    l.setStateId(resultSet.getInt("records.StateId"));
+                    l.setContainerId(resultSet.getInt("records.ContainerId"));
+                    l.setLocationId(resultSet.getInt("records.LocationId"));
+                    java.util.Date createdDate = resultSet.getDate("records.CreatedAt");
+                    java.util.Date updatedDate = resultSet.getDate("records.UpdatedAt");
+                    java.util.Date closedDate = resultSet.getDate("records.ClosedAt");
+                    l.setCreatedAt(new java.sql.Timestamp(createdDate.getTime()));
+                    l.setUpdatedAt(new java.sql.Timestamp(updatedDate.getTime()));
+                    l.setClosedAt(new java.sql.Timestamp(closedDate.getTime()));
+
+                    l.setLocationName(resultSet.getString("location_name"));
+
+                    l.setNotesText(resultSet.getString("notes"));
+
+                    l.setClientName(resultSet.getString("client_name"));
+
+                    // from containers table
+                    l.setContainersId(resultSet.getInt("containersId"));
+                    l.setContainersNumber(resultSet.getString("containersNumber"));
+                    l.setContainersTitle(resultSet.getString("containersTitle"));
+                    l.setContainersCreatedAt(resultSet.getTimestamp("containersCreatedAt"));
+                    l.setContainersUpdatedAt(resultSet.getTimestamp("containersUpdatedAt"));
+
+                    list.add(l);
+                }
+
+                System.out.println(list);
+                return list;
+            }
+        }, containerNumber);
+        return recordList;
     }
 
 
