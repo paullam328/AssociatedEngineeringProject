@@ -29,7 +29,7 @@ class Full extends Component {
         this.addToContainerReports = this.addToContainerReports.bind(this);
         this.flush = this.flush.bind(this);
         this.state = {
-            recordLabels: [{id:1,test:"FOR TESTING"}, {id:2,test:"FOR TESTING"}],
+            recordLabels: [{id:1,test:"FOR TESTING"}, {id:2,test:"FOR TESTING"},{id:3,test:"FOR TESTING"}],
             endTabLabels: [{id:1,test:"FOR TESTING"}, {id:2,test:"FOR TESTING"},{id:3,test:"FOR TESTING"}, {id:4,test:"FOR TESTING"},{id:5,test:"FOR TESTING"}, {id:6,test:"FOR TESTING"},{id:7,test:"FOR TESTING"}, {id:8,test:"FOR TESTING"}],
             containerReports: [{id:1,test:"FOR TESTING"},{id:2,test:"FOR TESTING"}],
             colours: {}

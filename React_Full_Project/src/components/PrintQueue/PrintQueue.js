@@ -53,7 +53,13 @@ class PrintQueue extends Component {
                 "number": "20063148.00.C.05.04~01",
                 "scheduleId":15,
                 "locationName":"Calgary",
-                "clientName":"Calgary Airport Authority"}
+                "clientName":"Calgary Airport Authority"},
+            {"classificationPath":"CONSTRUCTION SERVICES - CONTRACT ADMINISTRATION - ",
+                "title":"Daily/Weekly Reports - Calgary Airport Authority - 2007 Airside Improvements",
+                "number": "20133148.00.C.05.04~02",
+                "scheduleId":15,
+                "locationName":"Vancouver",
+                "clientName":"Vancouver Airport Authority"}
         ];
 
 
@@ -66,7 +72,17 @@ class PrintQueue extends Component {
             var location = record.locationName;                                         // TODO
             var number = record.number;                                                           //TODO
             var schedNum = String(record.scheduleId);                                             //TODO
-            var prevVolume;                                                              // TODO
+            var prevVolume = "";
+            if (number.charAt(19)) {
+                var volume = number.charAt(20) + number.charAt(21);
+                if (volume > 1) {
+                    var prev = Math.max(volume - 1, 0).toString();
+                    if (prev.length < 2) {
+                        prev = "0" + prev;
+                    }
+                    prevVolume = number.substring(0,20) + prev;
+                }
+            }
             var clientName = record.clientName;                                                                // TODO
             var classificationPath = record.classificationPath;                             // TODO
             var title = record.title;                                                     //TODO
@@ -94,7 +110,7 @@ class PrintQueue extends Component {
             doc.text(leftAlign, topAlign + locationTitlePad, splitTitle);
             // Previous Part
             doc.setFontStyle('normal');
-            doc.text(leftAlign + labelWidth, topAlign + statLocationSchNumPad, "TODO prev part", null,null,"right");
+            doc.text(leftAlign + labelWidth, topAlign + statLocationSchNumPad, prevVolume, null,null,"right");
 
 
             // Static headers
