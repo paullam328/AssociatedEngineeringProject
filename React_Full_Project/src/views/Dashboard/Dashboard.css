@@ -33,3 +33,7 @@ div.container-fluid{
 div.app-body main.main {
     margin-left: 0;
 }
+
+.selected-types {
+    margin: 5px 5px 5px 5px;
+}

@@ -786,11 +786,12 @@ class SearchBar extends React.Component {
             name: name
         }));
 
-        if (!this.state.arrayOfSelectedTypes.includes({id: id, name: name})) {
+        if (!JSON.stringify(this.state.arrayOfSelectedTypes).includes(JSON.stringify({id: id, name: name}))) {
             this.state.arrayOfSelectedTypes.push({id: id, name: name})
         }
         else {
-            var index = this.state.arrayOfSelectedTypes.indexOf({id: id, name: name});
+            //var index = this.state.arrayOfSelectedTypes.indexOf({id: id, name: name});
+            var index = this.state.arrayOfSelectedTypes.findIndex((i => i.id === id));
             if (index > -1) {
                 this.state.arrayOfSelectedTypes.splice(index, 1);
             }
