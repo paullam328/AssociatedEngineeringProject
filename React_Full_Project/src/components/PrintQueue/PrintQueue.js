@@ -11,6 +11,9 @@ class PrintQueue extends Component {
         super(props);
         this.print = this.print.bind(this);
         this.flush = this.flush.bind(this);
+        this.recordLabelPrint = this.recordLabelPrint.bind(this);
+        this.endTabLabelPrint = this.endTabLabelPrint.bind(this);
+        this.containerReportPrint = this.containerReportPrint.bind(this);
         this.state = this.props.state;
         /*this.state = {
             recordLabels: [],
@@ -38,19 +41,35 @@ class PrintQueue extends Component {
         const statLocationPrevPartPad = labelWidth / 3.2;
         var leftAlign = margin;
         var topAlign = margin;
+        var testRecords = [
+            {"classificationPath":"CONSTRUCTION SERVICES - CONSTRUCTION INSPECTION - ",
+                "title":"Daily/Weekly Reports - Calgary Airport Authority - 2007 Airside Improvements",
+                "number": "SAS-LOP/1",
+                "scheduleId":15,
+                "locationName":"Calgary",
+                "clientName":"Calgary Airport Authority"},
+            {"classificationPath":"CONSTRUCTION SERVICES - CONTRACT ADMINISTRATION - ",
+                "title":"Daily/Weekly Reports - Calgary Airport Authority - 2007 Airside Improvements",
+                "number": "20063148.00.C.05.04~01",
+                "scheduleId":15,
+                "locationName":"Calgary",
+                "clientName":"Calgary Airport Authority"}
+        ];
+
+
         var count = this.state.recordLabels.length;
 
+
         for(var i=0; i<count; i++) {
-            // set these to params
-            var record = this.state.recordLabels[i];
-            var location = String(record.locationId);   // TODO: NEED REAL LOCATION
-            var number = record.number;
-            var volumeNum;  // TODO
-            var schedNum = String(record.scheduleId);
-            var prevVolume;  // TODO
-            var clientName;  // TODO
-            var classificationPath = "TODO CLASSIFICATION PATH *** " // TODO
-            var title = record.title;
+            //var record = this.state.recordLabels[i];      // TODO UNCOMMENT WHEN NOT TESTING
+            var record = testRecords[i];
+            var location = record.locationName;                                         // TODO
+            var number = record.number;                                                           //TODO
+            var schedNum = String(record.scheduleId);                                             //TODO
+            var prevVolume;                                                              // TODO
+            var clientName = record.clientName;                                                                // TODO
+            var classificationPath = record.classificationPath;                             // TODO
+            var title = record.title;                                                     //TODO
 
             // add a new page if over limit
             if (i % 10 === 0 && i > 0) {
@@ -62,13 +81,11 @@ class PrintQueue extends Component {
             doc.setFontSize(8.5);
             doc.setFontStyle('bold');
             // Record Location
-            doc.text(leftAlign, topAlign, "TODO");
+            doc.text(leftAlign, topAlign, location);
             // Record Number
-            var volumeNum = "~" + "TODO";
-            var numberAndVolume = number + volumeNum;
-            doc.text(leftAlign + locationNumberPad, topAlign, numberAndVolume,null,null,"right");
+            doc.text(leftAlign + locationNumberPad, topAlign, number,null,null,"right");
             // Client Name
-            doc.text(leftAlign + locationClientNamePad, topAlign + statLocationClientPad, "TODO");
+            doc.text(leftAlign + locationClientNamePad, topAlign + statLocationClientPad, clientName);
             // Schedule Number
             doc.text(leftAlign + locationSchNumPad, topAlign + statLocationSchNumPad, schedNum);
             // Classification Path + Title
@@ -117,6 +134,7 @@ class PrintQueue extends Component {
         const fontSizeL = 42;
         const height = 215.9;
         var pos;
+        var that = this;
 
         const defaultRGB = [0,0,0]
 
@@ -137,6 +155,8 @@ class PrintQueue extends Component {
             {"number": "AGL-2006/001",
                 "typeId": 3}
         ];
+
+        doc.setFontStyle('normal');
 
         function convertHex(hex){
             var r = parseInt(hex.substring(0,2), 16);
@@ -268,19 +288,21 @@ class PrintQueue extends Component {
             var key;
             var charSpacer = '  ';
 
-            // If two digit char and starts with 0, get colour for second digit
-            if (char.charAt(0) === '0' && char.length >= 2) {
+            // If two digit char, get colour for second digit
+            if (char.length >= 2) {
                 key = char.charAt(1);
-            }
-            else if (char.charAt(0) === 'v') {
-                key = 'v';
+                if (char.charAt(0) === 'v') {
+                    key = 'v';
+                }
             }
             else {
-                key = char;
+                key = char.charAt(0);
             }
-            if (key in this.state.colours) {
-                var hex = this.state.colours[key];
+            console.log(key);
+            if (key in that.state.colours) {
+                var hex = that.state.colours[key];
                 RGB = convertHex(hex);
+
             }
             else {
                 RGB = defaultRGB;
@@ -358,7 +380,8 @@ class PrintQueue extends Component {
 
 
 
-        var count = this.state.endTabLabels.length;
+        //var count = this.state.endTabLabels.length;     // TODO UNCOMMENT WHEN NOT TESTING
+        var count = testRecords.length;         // for testing
 
         doc.setTextColor(255);
         createTemplate();
@@ -371,11 +394,10 @@ class PrintQueue extends Component {
             }
             pos = (i % 6) + 1;
 
-            var record = this.state.endTabLabels[i];
-            var recordNum = record.number;
-            var typeId = record.typeId;
-            console.log(recordNum);
-            console.log(typeId);
+            //var record = this.state.endTabLabels[i];      // TODO UNCOMMENT WHEN NOT TESTING
+            var record = testRecords[i];        // for testing
+            var recordNum = record.number;                                                           //TODO
+            var typeId = record.typeId;                                                           //TODO
 
             switch(typeId) {
                 case 10:
@@ -416,7 +438,7 @@ class PrintQueue extends Component {
     }
 
 
-    containerReportPrint(doc) {
+    containerReportPrint(doc, container) {
 
         // TODO: find date due for destruction using record typeId -> recordTypes DB defaultScheduleId -> retentionSchedule ID DB (years)
 // or more efficient for frontend to hold a hashmap for record.typeID = years?
@@ -428,6 +450,8 @@ class PrintQueue extends Component {
         const schedNbrColumnX = 178;
         const titleWidth = schedNbrColumnX - titleColumnX;
         var topAlign = 76;
+
+        doc.setTextColor(0);
 
         var testContainer = {"records":[{"number": "SAS-LOP/1",
             "typeId": 32,
@@ -507,12 +531,12 @@ class PrintQueue extends Component {
             "number":"2006/001-EDM"
         };
 
-        const containerNumber = testContainer.number;
-        const consignmentCode = testContainer.consignmentCode;
+        const containerNumber = testContainer.number;                                                       //TODO
+        const consignmentCode = testContainer.consignmentCode;                                             //TODO
         const consignmentCode2 = "DESTRUCTION CERTIFICATE 2007-001";
 
         var page = 1;
-        var count = testContainer.records.length;
+        var count = testContainer.records.length;                                                           //TODO
 
         function createTemplate() {
             doc.setFontType("bold");
@@ -565,10 +589,10 @@ class PrintQueue extends Component {
 
 
         for (var i = 0; i < count; i++) {
-            var record = testContainer.records[i];
+            var record = testContainer.records[i];                                                                  //TODO
             doc.setFontStyle('bold');   // for border calculation to be accurate
             doc.setFontSize(10);        // for border calculation to be accurate
-            var splitTitle = doc.splitTextToSize(record.title, titleWidth);
+            var splitTitle = doc.splitTextToSize(record.title, titleWidth);                                         //TODO
             var titleHeight = splitTitle.length * 10 * 1.13 / 72 * 25.4;
 
             var border = topAlign + titleHeight + 9;
@@ -581,16 +605,16 @@ class PrintQueue extends Component {
 
             doc.setFontStyle('bold');
             doc.setFontSize(10);
-            doc.text(titleColumnX - 10, topAlign + 2, record.number, null, null, 'right');
+            doc.text(titleColumnX - 10, topAlign + 2, record.number, null, null, 'right');                          //TODO
             doc.text(titleColumnX, topAlign, splitTitle);
-            doc.text(schedNbrColumnX + 7, topAlign + 6, record.scheduleId.toString());
+            doc.text(schedNbrColumnX + 7, topAlign + 6, record.scheduleId.toString());                              //TODO
 
             doc.setFontSize(8);
             doc.setFontStyle('normal');
             // TODO : time formatting
-            doc.text(titleColumnX + 35, topAlign + titleHeight, record.dateCreated); //"2015-08-06 at 10:33 AM"
-            doc.text(titleColumnX + 35, topAlign + titleHeight + 3, record.dateClosed);
-            doc.text(titleColumnX + 35, topAlign + titleHeight + 6, record.dateDestruction);
+            doc.text(titleColumnX + 35, topAlign + titleHeight, record.dateCreated); //"2015-08-06 at 10:33 AM"     //TODO
+            doc.text(titleColumnX + 35, topAlign + titleHeight + 3, record.dateClosed);                             //TODO
+            doc.text(titleColumnX + 35, topAlign + titleHeight + 6, record.dateDestruction);                        //TODO
             // Date headers
             doc.setFontStyle('italic');
             doc.text(titleColumnX + 31, topAlign + titleHeight, "Date Created",null,null,'right');
@@ -598,13 +622,12 @@ class PrintQueue extends Component {
             doc.text(titleColumnX, topAlign + titleHeight + 6, "Date Due for Destruction");
 
             topAlign = border + 7;
-            secondaryTopAlign = topAlign + 6;
         }
+        return doc;
     }
 
     /* ENCLOSURE REPORTS NO LONGER NEEDED
         enclosureReportPrint(doc) {
-            //TODO: add location and type of record? eg "BURNABY-PROJECT RECORDS"
             var margin = 12.7;
             var width = 215.9;
             var height = 279.4;
@@ -815,20 +838,21 @@ class PrintQueue extends Component {
         */
 
     print() {
-        const recordLabels = this.state.recordLabels;
-        const endTabLabels = this.state.endTabLabels;
-        const containerReports = this.state.containerReports;
+        var recordLabels = this.state.recordLabels;
+        var endTabLabels = this.state.endTabLabels;
+        var containerReports = this.state.containerReports;
         console.log(this.state);
 
         var pdfConverter = require('jspdf');
+        var doc;
         // TODO: adding pages
         var addPage = false;
 
         if (recordLabels.length > 0 || containerReports.length > 0) {
-            var doc = new pdfConverter('p','mm','letter');
+            doc = new pdfConverter('p','mm','letter');
         }
         else if (endTabLabels.length > 0) {
-            var doc = new pdfConverter('l','mm','letter');
+            doc = new pdfConverter('l','mm','letter');
         }
 
         if (recordLabels.length > 0) {
@@ -846,10 +870,14 @@ class PrintQueue extends Component {
             if (addPage === true) {
                 doc.addPage('letter','p');
             }
-            doc = this.containerReportPrint(doc);
+            for (var i = 0; i < containerReports.length; i++) {
+                doc = this.containerReportPrint(doc,containerReports[i]);
+                if (i + 1 < containerReports.length) {
+                    doc.addPage();
+                }
+            }
         }
 
-        doc.autoPrint();
         var blob = doc.output('blob');
 
         // Check if IE or other browser,then open the PDF file

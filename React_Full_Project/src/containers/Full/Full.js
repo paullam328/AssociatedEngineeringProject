@@ -29,9 +29,9 @@ class Full extends Component {
         this.addToContainerReports = this.addToContainerReports.bind(this);
         this.flush = this.flush.bind(this);
         this.state = {
-            recordLabels: [{id:1}],
-            endTabLabels: [],
-            containerReports: [],
+            recordLabels: [{id:1,test:"FOR TESTING"}, {id:2,test:"FOR TESTING"}],
+            endTabLabels: [{id:1,test:"FOR TESTING"}, {id:2,test:"FOR TESTING"},{id:3,test:"FOR TESTING"}, {id:4,test:"FOR TESTING"},{id:5,test:"FOR TESTING"}, {id:6,test:"FOR TESTING"},{id:7,test:"FOR TESTING"}, {id:8,test:"FOR TESTING"}],
+            containerReports: [{id:1,test:"FOR TESTING"},{id:2,test:"FOR TESTING"}],
             colours: {}
         };
     }
@@ -44,15 +44,15 @@ class Full extends Component {
             if (request.status >= 200 && request.status < 400) {
                 var results = JSON.parse(request.response)["results"];
                 var tempdata = {};
-                console.log("HJERERERERERE");
 
                 results.forEach((result) => {
                     tempdata[result.key] = result.colour;
                 });
-
+                tempdata["v"] = "faae25";
                 var newState = Object.assign({}, this.state); // Clone the state obj in newState
                 newState["colours"] = tempdata;
                 this.setState(newState);
+
 
             } else {
                 console.error('Response received and there was an error');
@@ -86,8 +86,6 @@ class Full extends Component {
         //console.log(this.state);
     }
 
-
-    // TODO : empty state/print arrays
     flush() {
         this.setState({
             recordLabels: [],
