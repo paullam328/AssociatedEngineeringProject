@@ -314,7 +314,6 @@ class PrintQueue extends Component {
             else {
                 key = char.charAt(0);
             }
-            console.log(key);
             if (key in that.state.colours) {
                 var hex = that.state.colours[key];
                 RGB = convertHex(hex);
@@ -396,8 +395,7 @@ class PrintQueue extends Component {
 
 
 
-        //var count = this.state.endTabLabels.length;     // TODO UNCOMMENT WHEN NOT TESTING
-        var count = testRecords.length;         // for testing
+        var count = this.state.endTabLabels.length;
 
         doc.setTextColor(255);
         createTemplate();
@@ -454,7 +452,7 @@ class PrintQueue extends Component {
     }
 
 
-    containerReportPrint(doc, container) {
+    containerReportPrint(doc) {
 
         // TODO: find date due for destruction using record typeId -> recordTypes DB defaultScheduleId -> retentionSchedule ID DB (years)
 // or more efficient for frontend to hold a hashmap for record.typeID = years?
@@ -467,9 +465,10 @@ class PrintQueue extends Component {
         const titleWidth = schedNbrColumnX - titleColumnX;
         var topAlign = 76;
 
+
         doc.setTextColor(0);
 
-        var testContainer = {"records":[{"number": "SAS-LOP/1",
+        var testContainers = [{"records":[{"number": "SAS-LOP/1",
             "typeId": 32,
             "scheduleId":44,
             "title":"Reichert - Runolfsson - Voluptatem quisquam",
@@ -545,16 +544,90 @@ class PrintQueue extends Component {
             "consignmentCode":"362817350",
             "id":11124,
             "number":"2006/001-EDM"
-        };
+        },
 
-        const containerNumber = testContainer.number;                                                       //TODO
-        const consignmentCode = testContainer.consignmentCode;                                             //TODO
-        const consignmentCode2 = "DESTRUCTION CERTIFICATE 2007-001";
+        {"records":[{"number": "SAS-LOP/1",
+            "typeId": 32,
+            "scheduleId":44,
+            "title":"Reichert - Runolfsson - Voluptatem quisquam",
+            "dateCreated":"2004-02-10 21:37:57",
+            "dateClosed":"2005-12-31 16:03:19",
+            "dateDestruction":"2025-12-31"
+        },
+            {"number": "20012183.00.E.05.00:01",
+                "typeId": 32,
+                "scheduleId":44,
+                "title":"ENGINEERING SERVICES - DESIGN - Design Reports - Osoyoos Indian Band - Drinking Water System Improvement Design - _ Enclosure Volume 2",
+                "dateCreated":"2004-01-10 21:47:22",
+                "dateClosed":"2005-12-31 16:03:19",
+                "dateDestruction":"2025-12-31"
+            },
+            {"number": "20172064.00.S.04.00",
+                "typeId": 32,
+                "scheduleId":44,
+                "title":"Klocko Group - Eaque modi fugit laudantium",
+                "dateCreated":"2004-01-10 21:47:22",
+                "dateClosed":"2005-12-31 16:03:19",
+                "dateDestruction":"2025-12-31"
+            },
+            {"number": "EDM_P_2004.008",
+                "typeId": 32,
+                "scheduleId":44,
+                "title":"Halvorson, Batz and Considine - Voluptatem facere veritatis accusantium",
+                "dateCreated":"2004-01-10 21:47:22",
+                "dateClosed":"2005-12-31 16:03:19",
+                "dateDestruction":"2025-12-31"
+            },
+            {"number": "CEO-2017/019",
+                "typeId": 32,
+                "scheduleId":44,
+                "title":"Muller LLC - Inventore magnam expedita dolor aut et",
+                "dateCreated":"2016-01-27 20:08:40",
+                "dateClosed":"2005-12-31 16:03:19",
+                "dateDestruction":"2025-12-31"
+            },
+            {"number": "AGL-2006/001",
+                "typeId": 32,
+                "scheduleId":44,
+                "title":"Bradtke, Morissette and Halvorson - Ut cum velit adipisci",
+                "dateCreated":"2004-01-16 21:58:27",
+                "dateClosed":"2005-12-31 16:03:19",
+                "dateDestruction":"2025-12-31"
+            },
+            {"number": "BUR_P_2017.706",
+                "typeId": 32,
+                "scheduleId":44,
+                "title":"Kshlerin, Parisian and Runolfsson - Voluptates asperiores ducimus delectus",
+                "dateCreated":"2004-01-16 21:58:27",
+                "dateClosed":"2005-12-31 16:03:19",
+                "dateDestruction":"2025-12-31"
+            },
+            {"number": "AGL-2006/001",
+                "typeId": 32,
+                "scheduleId":44,
+                "title":"Ernser, Beahan and Rau - Iste animi voluptas est quae aut",
+                "dateCreated":"2004-01-16 21:58:27",
+                "dateClosed":"2005-12-31 16:03:19",
+                "dateDestruction":"2025-12-31"
+            },
+            {"number": "EDM-TEST-2006/001",
+                "typeId": 32,
+                "scheduleId":44,
+                "title":"Ernser, Beahan and Rau - Iste animi voluptas est quae aut, Ernser, Beahan and Rau - Iste animi voluptas est quae aut",
+                "dateCreated":"2004-02-16 21:58:27",
+                "dateClosed":"2005-12-31 16:03:19",
+                "dateDestruction":"2025-12-31"
+            }
+        ],
+            "consignmentCode":"DESTRUCTION CERTIFICATE 2007-001",
+            "id":10903,
+            "number":"2005/003-PER"
+        }];
 
-        var page = 1;
-        var count = testContainer.records.length;                                                           //TODO
+        var count = this.state.containerReports.length;
 
-        function createTemplate() {
+
+        function createTemplate(consignmentCode,containerNumber,page) {
             doc.setFontType("bold");
             doc.setFontSize(12);
             doc.text(margin, margin + 7, 'CONSIGNMENT AND CONTAINER');
@@ -575,8 +648,14 @@ class PrintQueue extends Component {
 
             doc.setFontType("bold");
             doc.setFontSize(12);
-            // TODO: resizing overflow consignment code
-            doc.text(width - 39, margin + 8, consignmentCode, null, null, 'center');           // consignment Code
+            if (consignmentCode.length > 20) {
+                doc.setFontSize(11);
+                doc.text(width - 17, margin + 8, consignmentCode, null, null, 'right');           // consignment Code
+            }
+            else {
+                doc.text(width - 39, margin + 8, consignmentCode, null, null, 'center');           // consignment Code
+            }
+            doc.setFontSize(12);
             doc.text(width - 39, margin + 22, containerNumber, null, null, 'center');   // container ID
 
             doc.setFontType("normal");
@@ -601,43 +680,54 @@ class PrintQueue extends Component {
             topAlign = 76;
         }
 
-        createTemplate();
 
+        for (var w = 0; w < count; w++) {
+            var container = testContainers[w];                              // TODO
+            var recordCount = container.records.length;
+            var page = 1;
+            const containerNumber = container.number;                                                       //TODO
+            const consignmentCode = container.consignmentCode;                                             //TODO
 
-        for (var i = 0; i < count; i++) {
-            var record = testContainer.records[i];                                                                  //TODO
-            doc.setFontStyle('bold');   // for border calculation to be accurate
-            doc.setFontSize(10);        // for border calculation to be accurate
-            var splitTitle = doc.splitTextToSize(record.title, titleWidth);                                         //TODO
-            var titleHeight = splitTitle.length * 10 * 1.13 / 72 * 25.4;
+            createTemplate(consignmentCode,containerNumber,page)
 
-            var border = topAlign + titleHeight + 9;
-            if (border > height - margin) {
-                doc.addPage();
-                page++;
-                createTemplate();
-                border = topAlign + titleHeight + 9;
+            for (var i = 0; i < recordCount; i++) {
+                var record = container.records[i];                                                                  //TODO
+                doc.setFontStyle('bold');   // for border calculation to be accurate
+                doc.setFontSize(10);        // for border calculation to be accurate
+                var splitTitle = doc.splitTextToSize(record.title, titleWidth);                                         //TODO
+                var titleHeight = splitTitle.length * 10 * 1.13 / 72 * 25.4;
+
+                var border = topAlign + titleHeight + 9;
+                if (border > height - margin) {
+                    doc.addPage();
+                    page++;
+                    createTemplate(consignmentCode,containerNumber,page);
+                    border = topAlign + titleHeight + 9;
+                }
+
+                doc.setFontStyle('bold');
+                doc.setFontSize(10);
+                doc.text(titleColumnX - 10, topAlign + 2, record.number, null, null, 'right');                          //TODO
+                doc.text(titleColumnX, topAlign, splitTitle);
+                doc.text(schedNbrColumnX + 7, topAlign + 6, record.scheduleId.toString());                              //TODO
+
+                doc.setFontSize(8);
+                doc.setFontStyle('normal');
+                // TODO : time formatting
+                doc.text(titleColumnX + 35, topAlign + titleHeight, record.dateCreated); //"2015-08-06 at 10:33 AM"     //TODO
+                doc.text(titleColumnX + 35, topAlign + titleHeight + 3, record.dateClosed);                             //TODO
+                doc.text(titleColumnX + 35, topAlign + titleHeight + 6, record.dateDestruction);                        //TODO
+                // Date headers
+                doc.setFontStyle('italic');
+                doc.text(titleColumnX + 31, topAlign + titleHeight, "Date Created",null,null,'right');
+                doc.text(titleColumnX + 31, topAlign + titleHeight + 3, "Date Closed",null,null,'right');
+                doc.text(titleColumnX, topAlign + titleHeight + 6, "Date Due for Destruction");
+
+                topAlign = border + 7;
             }
-
-            doc.setFontStyle('bold');
-            doc.setFontSize(10);
-            doc.text(titleColumnX - 10, topAlign + 2, record.number, null, null, 'right');                          //TODO
-            doc.text(titleColumnX, topAlign, splitTitle);
-            doc.text(schedNbrColumnX + 7, topAlign + 6, record.scheduleId.toString());                              //TODO
-
-            doc.setFontSize(8);
-            doc.setFontStyle('normal');
-            // TODO : time formatting
-            doc.text(titleColumnX + 35, topAlign + titleHeight, record.dateCreated); //"2015-08-06 at 10:33 AM"     //TODO
-            doc.text(titleColumnX + 35, topAlign + titleHeight + 3, record.dateClosed);                             //TODO
-            doc.text(titleColumnX + 35, topAlign + titleHeight + 6, record.dateDestruction);                        //TODO
-            // Date headers
-            doc.setFontStyle('italic');
-            doc.text(titleColumnX + 31, topAlign + titleHeight, "Date Created",null,null,'right');
-            doc.text(titleColumnX + 31, topAlign + titleHeight + 3, "Date Closed",null,null,'right');
-            doc.text(titleColumnX, topAlign + titleHeight + 6, "Date Due for Destruction");
-
-            topAlign = border + 7;
+            if (w + 1 < count) {
+                doc.addPage();
+            }
         }
         return doc;
     }
@@ -861,7 +951,6 @@ class PrintQueue extends Component {
 
         var pdfConverter = require('jspdf');
         var doc;
-        // TODO: adding pages
         var addPage = false;
 
         if (recordLabels.length > 0 || containerReports.length > 0) {
@@ -886,12 +975,8 @@ class PrintQueue extends Component {
             if (addPage === true) {
                 doc.addPage('letter','p');
             }
-            for (var i = 0; i < containerReports.length; i++) {
-                doc = this.containerReportPrint(doc,containerReports[i]);
-                if (i + 1 < containerReports.length) {
-                    doc.addPage();
-                }
-            }
+            doc = this.containerReportPrint(doc);
+
         }
 
         var blob = doc.output('blob');
