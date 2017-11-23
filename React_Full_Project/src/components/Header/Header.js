@@ -52,10 +52,7 @@ class Header extends Component {
   render() {
     return (
       <header className="app-header navbar">
-        <NavbarToggler className="d-lg-none" onClick={this.mobileSidebarToggle}>&#9776;</NavbarToggler>
         <NavbarBrand href="#"></NavbarBrand>
-
-        <NavbarToggler className="d-md-down-none" type="button" onClick={this.asideToggle}>&#9776;</NavbarToggler>
       </header>
     )
   }

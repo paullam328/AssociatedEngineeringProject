@@ -27,9 +27,9 @@ class Full extends Component {
         this.addToRecordLabels = this.addToRecordLabels.bind(this);
         this.addToEndTabLabels = this.addToEndTabLabels.bind(this);
         this.addToContainerReports = this.addToContainerReports.bind(this);
-        this.print = this.print.bind(this);
+        this.flush = this.flush.bind(this);
         this.state = {
-            recordLabels: [],
+            recordLabels: [{id:1}],
             endTabLabels: [],
             containerReports: [],
             colours: {}
@@ -44,6 +44,7 @@ class Full extends Component {
             if (request.status >= 200 && request.status < 400) {
                 var results = JSON.parse(request.response)["results"];
                 var tempdata = {};
+                console.log("HJERERERERERE");
 
                 results.forEach((result) => {
                     tempdata[result.key] = result.colour;
@@ -85,13 +86,14 @@ class Full extends Component {
         //console.log(this.state);
     }
 
-    print() {
-        console.log("Full.print()");
-    }
 
     // TODO : empty state/print arrays
     flush() {
-        console.log("flush");
+        this.setState({
+            recordLabels: [],
+            endTabLabels: [],
+            containerReports: []
+        });
     }
 
     render() {
@@ -121,7 +123,7 @@ class Full extends Component {
                             </Switch>
                         </Container>
                     </main>
-                    <PrintQueue state={this.state} print={this.print} flush={this.flush}/>
+                    <PrintQueue state={this.state} flush={this.flush}/>
                 </div>
                 <Footer />
             </div>

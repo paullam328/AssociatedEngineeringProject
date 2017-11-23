@@ -10,6 +10,7 @@ class PrintQueue extends Component {
     constructor(props) {
         super(props);
         this.print = this.print.bind(this);
+        this.flush = this.flush.bind(this);
         this.state = this.props.state;
         /*this.state = {
             recordLabels: [],
@@ -865,23 +866,37 @@ class PrintQueue extends Component {
     showPrint() {
         document.body.classList.toggle('aside-menu-hidden', false);
     }
+    hidePrint() {
+        document.body.classList.toggle('aside-menu-hidden', true);
+    }
 
+    flush() {
+        this.setState({
+            recordLabels: [],
+            endTabLabels: [],
+            containerReports: []
+        });
+        this.hidePrint();
+        this.props.flush();
+    }
 
 
     render() {
 
-        const recordLabels = this.state.recordLabels;
-        const endTabLabels = this.state.endTabLabels;
-        const containerReports = this.state.containerReports;
+        var recordLabels = this.state.recordLabels;
+        var endTabLabels = this.state.endTabLabels;
+        var containerReports = this.state.containerReports;
+        console.log(this.state);
 
         const hr = <hr className="mx-3 my-0"/>;
         let recordLabelHeader = null;
         let endTabLabelHeader = null;
         let containerReportHeader = null;
         const printButton = <button className="btn-block" onClick={this.print}>Print</button>;
-        const rLabels = [];         // Rows of the print screen - only for visual purposes
-        const eTabLabels = [];      //
-        const cReports = [];        //
+        const clearButton = <button onClick={this.flush}>Clear</button>;
+        var rLabels = [];         // Rows of the print screen - only for visual purposes
+        var eTabLabels = [];      //
+        var cReports = [];        //
 
 
         if(typeof recordLabels != "undefined" && recordLabels != null && recordLabels.length > 0){
@@ -945,7 +960,7 @@ class PrintQueue extends Component {
             <aside className="aside-menu" >
                 <TabContent>
                     <div className="callout m-0 py-2 text-muted text-center bg-light text-uppercase">
-                        <b>Print</b>
+                        <b>Print</b> {clearButton}
                     </div>
                     {hr}
                     {recordLabelHeader}

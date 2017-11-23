@@ -666,7 +666,6 @@ public class recordDao {
                 return colour;
             }
         });
-        System.out.print(allColours);
         return allColours;
     }
 
