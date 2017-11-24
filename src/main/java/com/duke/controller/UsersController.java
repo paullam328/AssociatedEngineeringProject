@@ -36,8 +36,6 @@ public class UsersController {
 
     public ResponseEntity<String> SearchUserbyUserId(@RequestBody String params) {
         try {
-            System.out.println("In AdminController... SearchUserbyUserId()");
-
             JSONObject obj = new JSONObject();
             JSONObject jsonObj = new JSONObject(params);
             String userId = jsonObj.getString("UserId");
@@ -47,7 +45,36 @@ public class UsersController {
             if (results.size() < 1) {
                 // no results found
                 // return 404
-                return new ResponseEntity<String>("No results found", HttpStatus.NOT_FOUND);
+                return new ResponseEntity<String>("404  No results found", HttpStatus.NOT_FOUND);
+            } else {
+                // results found
+                obj.put("results", results);
+                return new ResponseEntity<String>(obj.toString(), HttpStatus.OK);
+
+            }
+        } catch (Exception ex) {
+            String errorMessage = ex + "error";
+            return new ResponseEntity<String>(errorMessage, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @CrossOrigin
+    @ResponseBody
+    @RequestMapping(
+            value = "/authorization",
+            method = RequestMethod.GET
+    )
+
+    public ResponseEntity<String> getAuthorization() {
+        try {
+
+            JSONObject obj = new JSONObject();
+            List<Users> results = usersDao.getAuthorization();
+
+            if (results.size() < 1) {
+                // no results found
+                // return 404
+                return new ResponseEntity<String>("404  No results found", HttpStatus.NOT_FOUND);
             } else {
                 // results found
                 obj.put("results", results);
@@ -59,9 +86,6 @@ public class UsersController {
             return new ResponseEntity<String>(errorMessage, HttpStatus.BAD_REQUEST);
         }
     }
-
-
-
 
 
 }
