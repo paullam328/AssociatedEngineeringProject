@@ -21,7 +21,6 @@ module.exports = {
     path: BUILD_DIR,
     filename: '[name].bundle.js'
   },
-  watch: true,
   devServer: {
     contentBase: BUILD_DIR,
     //   port: 9001,

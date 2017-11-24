@@ -72,7 +72,12 @@
             <scope>import</scope>
         </dependency>
 
-
+	<!-- https://mvnrepository.com/artifact/com.sun.xml.parsers/jaxp-ri -->
+	<dependency>
+		<groupId>com.sun.xml.parsers</groupId>
+		<artifactId>jaxp-ri</artifactId>
+		<version>1.4.5</version>
+	</dependency>
     </dependencies>
 
     <build>

@@ -21,6 +21,9 @@ import FontAwesome from '../../views/Icons/FontAwesome/';
 import SimpleLineIcons from '../../views/Icons/SimpleLineIcons/';
 import PrintQueue from '../../components/PrintQueue/';
 
+var server = "http://13.59.251.84:8080";
+//var server = "http://127.0.0.1:8080";
+
 class Full extends Component {
     constructor(props) {
         super(props);
@@ -38,7 +41,7 @@ class Full extends Component {
 
     componentWillMount() {
         var request = new XMLHttpRequest();
-        request.open('GET', 'http://127.0.0.1:8080/records/colours', false);
+        request.open('GET', server + '/records/colours', false);
         request.setRequestHeader("Content-type", "application/json");
         request.onload = function () {
             if (request.status >= 200 && request.status < 400) {

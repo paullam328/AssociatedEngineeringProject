@@ -43,8 +43,8 @@ var filters = [{"column": "createdAt", "type": "LT", "value": [2009, 12, 31]}, {
     "type": "GT",
     "value": [2005, 1, 1]
 }];
-//var server = "http://ec2-13-59-251-84.us-east-2.compute.amazonaws.com";
-var server = "http://localhost:8080";
+var server = "http://13.59.251.84:8080";
+//var server = "http://localhost:8080";
 var name;
 
 
@@ -1030,7 +1030,7 @@ class SearchBar extends React.Component {
 
     getLocationFromServerThenTransformToHtml() {
         var request = new XMLHttpRequest();
-        request.open('GET', 'http://127.0.0.1:8080/records/dropdownlocation', false);
+        request.open('GET', server + '/records/dropdownlocation', false);
         request.setRequestHeader("Content-type", "application/json");
         request.onload = function () {
             if (request.status >= 200 && request.status < 400) {
@@ -1069,7 +1069,7 @@ class SearchBar extends React.Component {
 
     getClassFromServerThenTransformToHtml() {
         var request = new XMLHttpRequest();
-        request.open('GET', 'http://127.0.0.1:8080/records/dropdownclass', false);
+        request.open('GET', server + '/records/dropdownclass', false);
         request.setRequestHeader("Content-type", "application/json");
         request.onload = function () {
             if (request.status >= 200 && request.status < 400) {
@@ -1108,7 +1108,7 @@ class SearchBar extends React.Component {
 
     getTypeFromServerThenTransformToHtml() {
         var request = new XMLHttpRequest();
-        request.open('GET', 'http://127.0.0.1:8080/records/dropdowntype', false);
+        request.open('GET', server + '/records/dropdowntype', false);
         request.setRequestHeader("Content-type", "application/json");
         request.onload = function () {
             if (request.status >= 200 && request.status < 400) {
@@ -1147,7 +1147,7 @@ class SearchBar extends React.Component {
 
     getStateFromServerThenTransformToHtml() {
         var request = new XMLHttpRequest();
-        request.open('GET', 'http://127.0.0.1:8080/records/dropdownstate', false);
+        request.open('GET', server + '/records/dropdownstate', false);
         request.setRequestHeader("Content-type", "application/json");
         request.onload = function () {
             if (request.status >= 200 && request.status < 400) {
@@ -1186,7 +1186,7 @@ class SearchBar extends React.Component {
 
     getSchedFromServerThenTransformToHtml() {
         var request = new XMLHttpRequest();
-        request.open('GET', 'http://127.0.0.1:8080/records/dropdownsched', false);
+        request.open('GET', server + '/records/dropdownsched', false);
         request.setRequestHeader("Content-type", "application/json");
         request.onload = function () {
             if (request.status >= 200 && request.status < 400) {

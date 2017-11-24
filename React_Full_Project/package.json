@@ -42,6 +42,7 @@
     "chart.js": "2.6.0",
     "font-awesome": "^4.7.0",
     "history": "4.6.3",
+    "http-server": "^0.10.0",
     "jquery": "3.0.0",
     "jspdf": "^1.3.5",
     "popper.js": "^1.11.0",
@@ -56,9 +57,9 @@
     "simple-line-icons": "^2.4.1"
   },
   "scripts": {
-    "dev": "webpack -d --progress --watch",
-    "start": "webpack-dev-server --env.dev --hot --progress --colors --inline",
-    "build": "webpack -p --progress",
+    "dev": "webpack-dev-server --env.dev --hot --progress --colors --inline",
+    "start": "http-server --cors -p 80 build/",
+    "build": "webpack -p --colors --progress",
     "clean": "rimraf ./build"
   },
   "engines": {
