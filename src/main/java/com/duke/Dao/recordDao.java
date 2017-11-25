@@ -106,7 +106,7 @@ public class recordDao {
      */
 
     public List<record> SearchRecordsByConsignmentCode(String consignmentCode) {
-        final String sql = "SELECT records.*, COALESCE(locations.Name, 'NA') AS location_name, COALESCE(notes.Text, 'NA') AS notes, COALESCE(customattributevalues.Value, 'NA') AS client_name, COALESCE(containers.Number, 'NA') AS containersNumber, COALESCE(containers.Id, -1) AS containersId, COALESCE(containers.Title, 'NA') AS containersTitle, containers.UpdatedAt AS containersUpdatedAt, containers.CreatedAt AS containersCreatedAt  FROM recordr.records INNER JOIN locations ON locations.Id = records.LocationId LEFT JOIN notes ON notes.RowId=records.Id AND notes.TableId = 26 LEFT JOIN customattributevalues ON customattributevalues.RecordId = records.Id AND customattributevalues.AttrId = 9 LEFT JOIN containers ON containers.Id = records.ContainerId WHERE records.ConsignmentCode = ? ORDER BY records.ConsignmentCode ASC";
+        final String sql = "SELECT records.*, COALESCE(locations.Name, 'NA') AS location_name, COALESCE(notes.Text, 'NA') AS notes, COALESCE(customattributevalues.Value, 'NA') AS client_name, COALESCE(containers.Number, 'NA') AS containersNumber, COALESCE(containers.Id, -1) AS containersId, COALESCE(containers.Title, 'NA') AS containersTitle, containers.UpdatedAt AS containersUpdatedAt, containers.CreatedAt AS containersCreatedAt  FROM recordr.records INNER JOIN locations ON locations.Id = records.LocationId LEFT JOIN notes ON notes.RowId=records.Id AND notes.TableId = 26 LEFT JOIN customattributevalues ON customattributevalues.RecordId = records.Id AND customattributevalues.AttrId = 9 LEFT JOIN containers ON containers.Id = records.ContainerId WHERE records.ConsignmentCode = ? OR records.Number = ? OR containers.Number = ? ORDER BY records.ConsignmentCode ASC";
 
         final List<record> recordList = jdbcTemplate.query(sql, new ResultSetExtractor<List<record>>() {
 
@@ -329,7 +329,7 @@ public class recordDao {
 
 
     public List<record> SearchByRecordNumber(String recordNumber) {
-        final String sql = "SELECT records.*, COALESCE(locations.Name, 'NA') AS location_name, COALESCE(notes.Text, 'NA') AS notes, COALESCE(customattributevalues.Value, 'NA') AS client_name, COALESCE(containers.Number, 'NA') AS containersNumber, COALESCE(containers.Id, -1) AS containersId, COALESCE(containers.Title, 'NA') AS containersTitle, containers.UpdatedAt AS containersUpdatedAt, containers.CreatedAt AS containersCreatedAt  FROM recordr.records INNER JOIN locations ON locations.Id = records.LocationId LEFT JOIN notes ON notes.RowId=records.Id AND notes.TableId = 26 LEFT JOIN customattributevalues ON customattributevalues.RecordId = records.Id AND customattributevalues.AttrId = 9 LEFT JOIN containers ON containers.Id = records.ContainerId WHERE records.Number = ? ORDER BY records.Number ASC";
+        final String sql = "SELECT records.*, COALESCE(locations.Name, 'NA') AS location_name, COALESCE(notes.Text, 'NA') AS notes, COALESCE(customattributevalues.Value, 'NA') AS client_name, COALESCE(containers.Number, 'NA') AS containersNumber, COALESCE(containers.Id, -1) AS containersId, COALESCE(containers.Title, 'NA') AS containersTitle, containers.UpdatedAt AS containersUpdatedAt, containers.CreatedAt AS containersCreatedAt  FROM recordr.records INNER JOIN locations ON locations.Id = records.LocationId LEFT JOIN notes ON notes.RowId=records.Id AND notes.TableId = 26 LEFT JOIN customattributevalues ON customattributevalues.RecordId = records.Id AND customattributevalues.AttrId = 9 LEFT JOIN containers ON containers.Id = records.ContainerId WHERE records.ConsignmentCode = ? OR records.Number = ? OR containers.Number = ? ORDER BY records.Number ASC";
 
 
         final List<record> recordList = jdbcTemplate.query(sql, new ResultSetExtractor<List<record>>() {
@@ -680,17 +680,33 @@ public class recordDao {
     }
 
     /**
-     * Quick search by box number.
+     * Quick search
      *
      * Returns all columns of records, location.Name (location_name),
      * notes.Text (notes), cutomattributevalues.Value (client_name),
-     * and all columns of containers for the given box number.
+     * and all columns of containers for the given records number, records
+     * consignment code, or containers number.
      *
-     * @param containerNumber
+     * @param quickSearchInput
      * @return
      */
-    public List<record> SearchByContainerNumber(String containerNumber) {
-        final String sql = "SELECT records.*, COALESCE(locations.Name, 'NA') AS location_name, COALESCE(notes.Text, 'NA') AS notes, COALESCE(customattributevalues.Value, 'NA') AS client_name, COALESCE(containers.Number, 'NA') AS containersNumber, COALESCE(containers.Id, -1) AS containersId, COALESCE(containers.Title, 'NA') AS containersTitle, containers.UpdatedAt AS containersUpdatedAt, containers.CreatedAt AS containersCreatedAt  FROM recordr.records INNER JOIN locations ON locations.Id = records.LocationId LEFT JOIN notes ON notes.RowId=records.Id AND notes.TableId = 26 LEFT JOIN customattributevalues ON customattributevalues.RecordId = records.Id AND customattributevalues.AttrId = 9 LEFT JOIN containers ON containers.Id = records.ContainerId WHERE containers.Number = ? ORDER BY containers.Number ASC";
+    public List<record> searchByQuickSearch(String quickSearchInput) {
+        final String sql =
+                        "SELECT records.*, " +
+                        "COALESCE(locations.Name, 'NA') AS location_name, " +
+                        "COALESCE(notes.Text, 'NA') AS notes, " +
+                        "COALESCE(customattributevalues.Value, 'NA') AS client_name, " +
+                        "COALESCE(containers.Number, 'NA') AS containersNumber, " +
+                        "COALESCE(containers.Id, -1) AS containersId, " +
+                        "COALESCE(containers.Title, 'NA') AS containersTitle, " +
+                        "containers.UpdatedAt AS containersUpdatedAt, " +
+                        "containers.CreatedAt AS containersCreatedAt " +
+                        "FROM recordr.records " +
+                        "LEFT JOIN locations ON locations.Id = records.LocationId " +
+                        "LEFT JOIN notes ON notes.RowId=records.Id AND notes.TableId = 26 " +
+                        "LEFT JOIN customattributevalues ON customattributevalues.RecordId = records.Id AND customattributevalues.AttrId = 9 " +
+                        "LEFT JOIN containers ON containers.Id = records.ContainerId " +
+                        "WHERE records.ConsignmentCode = ? OR records.Number = ? OR containers.Number = ?";
 
         final List<record> recordList = jdbcTemplate.query(sql, new ResultSetExtractor<List<record>>() {
 
@@ -737,7 +753,7 @@ public class recordDao {
                 System.out.println(list);
                 return list;
             }
-        }, containerNumber);
+        }, quickSearchInput, quickSearchInput, quickSearchInput);
         return recordList;
     }
 

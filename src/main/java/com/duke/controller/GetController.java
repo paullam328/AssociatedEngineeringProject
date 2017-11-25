@@ -155,16 +155,7 @@ public class GetController {
         return obj.toString();
     }
 
-    /**
-     * POST request to search by ConsignmentCode
-     *
-     * /records/consignmentCode
-     *
-     * Input ex: {"consignmentCode": "445810223"}
-     * @param params
-     * @return
-     */
-
+    /*
     @CrossOrigin
     @ResponseBody
     @RequestMapping(
@@ -184,8 +175,6 @@ public class GetController {
 
         // DO NOT DELETE:
 
-        /*
-
             if (results.size() < 1) {
                 // no results found
                 // return 404
@@ -201,21 +190,8 @@ public class GetController {
             String errorMessage = ex + " error";
             return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
         }
-        */
-    }
 
-    /**
-     * POST request to search by record number.
-     *
-     * /records/number
-     *
-     * Input ex: {"Number": "20035916.00.C.03.06~02"}
-     *
-     * TODO: exception handling
-     *
-     * @param params
-     * @return
-     */
+    }
 
     @CrossOrigin
     @ResponseBody
@@ -255,6 +231,7 @@ public class GetController {
         }
 
     }
+    */
 
     /**
      * GET request to search the notes of a record.
@@ -384,11 +361,14 @@ public class GetController {
     }
 
     /**
-     * POST request to search by container number.
+     * POST request to quick search by records.Number,
+     * records.ConsignmentCode or containers.Number.
      *
-     * /records/boxNumber
+     * /records/quickSearch
      *
-     * Input ex: {"boxNumber": "2007/023-EDM"}
+     * Input ex: {"quickSearchInput": "2007/023-EDM"}
+     *           {"quickSearchInput": "20035916.00.C.03.06~02"}
+     *           {"quickSearchInput": "445810223"}
      *
      *
      * @param params
@@ -398,19 +378,19 @@ public class GetController {
     @CrossOrigin
     @ResponseBody
     @RequestMapping(
-            value = "/boxNumber",
+            value = "/quickSearch",
             method = RequestMethod.POST,
             consumes= MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<String> SearchRecordsByContainerNumber(@RequestBody String params) {
+    public ResponseEntity<String> searchByQuickSearch(@RequestBody String params) {
         try {
-            System.out.println("In SearchRecordsByContainerNumber");
+            System.out.println("In searchByQuickSearch()");
             JSONObject obj = new JSONObject();
             JSONObject jsonObj = new JSONObject(params);
-            String likeNumber = jsonObj.getString("boxNumber");
+            String likeNumber = jsonObj.getString("quickSearchInput");
             likeNumber = likeNumber.replaceAll("\\s", "");
 
-            List<record> results = RecordDao.SearchByContainerNumber(likeNumber);
+            List<record> results = RecordDao.searchByQuickSearch(likeNumber);
 
             if (results.size() < 1) {
                 // no results found
@@ -423,7 +403,7 @@ public class GetController {
                 return new ResponseEntity<String>(obj.toString(), HttpStatus.OK);
             }
         } catch (Exception ex) {
-            // return 404
+            // 
             String errorMessage = ex + " error";
             return new ResponseEntity<String>(errorMessage, HttpStatus.BAD_REQUEST);
 
