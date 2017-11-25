@@ -43,8 +43,8 @@ var filters = [{"column": "createdAt", "type": "LT", "value": [2009, 12, 31]}, {
     "type": "GT",
     "value": [2005, 1, 1]
 }];
-var server = "http://13.59.251.84:8080";
-//var server = "http://localhost:8080";
+//var server = "http://13.59.251.84:8080";
+var server = "http://localhost:8080";
 var name;
 
 
@@ -218,7 +218,10 @@ class ResultsTable extends React.Component {
             for (let key in this.props.results[0]) {
                 if (this.props.results[0].hasOwnProperty(key)) {
                     //TODO: Replace header with user-readable string
-                    columns.push({"Header": key.replace(/([A-Z]+)/g, " $1").replace(/([A-Z][a-z])/g, " $1"), "accessor": key});
+                    columns.push({
+                        "Header": key.replace(/([A-Z]+)/g, " $1").replace(/([A-Z][a-z])/g, " $1"),
+                        "accessor": key
+                    });
                 }
             }
         }
@@ -260,7 +263,7 @@ class SearchBar extends React.Component {
             classification: '',
 
             //FOR QUICKSEARCH
-                quickSearchAttr: "recordNum",
+            quickSearchAttr: "recordNum",
 
             createdyyyy: '',
             createdmm: '',
@@ -357,7 +360,16 @@ class SearchBar extends React.Component {
 
             arrayOfSelectedScheds: [],
 
-            rolesName: '',
+            addRolesName: '',
+            addRolesNameValidation: '',
+
+            updateRolesId: '',
+            updateRolesName: '',
+            updateRolesIdValidation: '',
+            updateRolesNameValidation: '',
+
+            deleteRolesId: '',
+            deleteRolesIdValidation: '',
 
             radioButtonValue: '',
 
@@ -376,7 +388,10 @@ class SearchBar extends React.Component {
         this.toggleTab = this.toggleTab.bind(this);
         this.toggleAttr = this.toggleAttr.bind(this);
         //this.changeValue = this.changeValue.bind(this);
+
         this.addRole = this.addRole.bind(this);
+        this.updateRole = this.updateRole.bind(this);
+        this.deleteRole = this.deleteRole.bind(this);
 
         this.isCheckedQuickSearchAttr = this.isCheckedQuickSearchAttr.bind(this);
 
@@ -456,10 +471,14 @@ class SearchBar extends React.Component {
         });
     }
 
+    /**
+     * Add new role to roles table.
+     */
+
     addRole() {
         console.log("in addRole()");
 
-        let json = {rolesName: this.state.rolesName};
+        let json = {addRolesName: this.state.addRolesName};
         console.log(JSON.stringify(json));
         let url = "/roles/";
         let method = "POST";
@@ -468,6 +487,40 @@ class SearchBar extends React.Component {
             globalUpdate(result);
         });
     }
+
+    /**
+     * Update role name for the given roles id.
+     */
+
+    updateRole() {
+        console.log("in updateRole()");
+        let json = {updateRolesId: this.state.updateRolesId, updateRolesName: this.state.updateRolesName};
+        let url = "/roles/";
+        let method = "PUT";
+
+        this.sendHttpCall(method, server + url, json).then(function (result) {
+            globalUpdate(result);
+        });
+    }
+
+    /**
+     * Delete role for the given roles id.
+     */
+
+    deleteRole() {
+        console.log("in deleteRole()");
+        let json = {deleteRolesId: this.state.deleteRolesId};
+        console.log(JSON.stringify(json));
+        let url = "/roles/";
+        let method = "DELETE";
+
+        this.sendHttpCall(method, server + url, json).then(function (result) {
+            globalUpdate(result);
+
+        });
+
+    }
+
 
     handleSubmitQuickSearch(event) {
         console.log("SearchButtonValueIs:" + this.state.quickSearchAttr);
@@ -508,7 +561,7 @@ class SearchBar extends React.Component {
 
     handleSubmitFullTextSearch(event) {
         var arrayOfFilters = [];
-        var sampleFilterParam = {"CreatedStart":'a',"UpdatedStart":"b","TypeId":[5,20,25]};
+        var sampleFilterParam = {"CreatedStart": 'a', "UpdatedStart": "b", "TypeId": [5, 20, 25]};
 
 
         //push into array of filter one by one would be easier I guess
@@ -663,7 +716,6 @@ class SearchBar extends React.Component {
         });
 
 
-
         var backendFilter = {};
         var arrayOfSelectedTypesId = [];
 
@@ -673,100 +725,98 @@ class SearchBar extends React.Component {
 
         backendFilter["TypeId"] = arrayOfSelectedTypesId;
 
-       /* for (var i = 0; i < this.state.arrayOfSelectedLocations.length; i++) {
-            backendFilter["LocationId"] = this.state.arrayOfSelectedLocations[i];
-        }*/
-       backendFilter["LocationId"] = this.state.arrayOfSelectedLocations;
+        /* for (var i = 0; i < this.state.arrayOfSelectedLocations.length; i++) {
+             backendFilter["LocationId"] = this.state.arrayOfSelectedLocations[i];
+         }*/
+        backendFilter["LocationId"] = this.state.arrayOfSelectedLocations;
 
 
         backendFilter["ClassId"] = this.state.arrayOfSelectedClasses;
 
 
-
-            //for: createdAt
-            //first case: one date
-            (this.state.collapseCreated
-            && this.state.createdyyyy != ""
-            && this.state.createdmm != ""
-            && this.state.createddd != ""
-                ? backendFilter["CreatedAt"] = this.state.createdyyyy + "-" + this.state.createdmm + "-" + this.state.createddd : undefined);
-
-
-            //second case: from beginning to date
-
-            (!this.state.collapseCreated
-            && this.state.collapseCreatedTill
-            && this.state.createdTillyyyy != ""
-            && this.state.createdTillmm != ""
-            && this.state.createdTilldd != ""
-                ? backendFilter["CreatedTo"] = this.state.createdTillyyyy + "-" + this.state.createdTillmm + "-" + this.state.createdTilldd: undefined);
-
-            //third case: from date to beginning
-
-            (!this.state.collapseCreated
-            && this.state.collapseCreatedFrom
-            && this.state.createdFromyyyy != ""
-            && this.state.createdFrommm != ""
-            && this.state.createdFromdd != ""
-                ?
-                backendFilter["CreatedStart"] = this.state.createdFromyyyy + "-" + this.state.createdFrommm + "-" + this.state.createdFromdd : undefined);
+        //for: createdAt
+        //first case: one date
+        (this.state.collapseCreated
+        && this.state.createdyyyy != ""
+        && this.state.createdmm != ""
+        && this.state.createddd != ""
+            ? backendFilter["CreatedAt"] = this.state.createdyyyy + "-" + this.state.createdmm + "-" + this.state.createddd : undefined);
 
 
+        //second case: from beginning to date
 
-            //for: updatedAt
-            //first case: one date
-            (this.state.collapseUpdated
-            && this.state.updatedyyyy != ""
-            && this.state.updatedmm != ""
-            && this.state.updateddd != ""
-                ?
-                backendFilter["UpdatedAt"] = this.state.updatedyyyy + "-" + this.state.updatedmm + "-" + this.state.updateddd : undefined);
+        (!this.state.collapseCreated
+        && this.state.collapseCreatedTill
+        && this.state.createdTillyyyy != ""
+        && this.state.createdTillmm != ""
+        && this.state.createdTilldd != ""
+            ? backendFilter["CreatedTo"] = this.state.createdTillyyyy + "-" + this.state.createdTillmm + "-" + this.state.createdTilldd : undefined);
 
+        //third case: from date to beginning
 
-            //second case: from beginning to date
-
-            (!this.state.collapseUpdated
-            && this.state.collapseUpdatedTill
-            && this.state.updatedTillyyyy != ""
-            && this.state.updatedTillmm != ""
-            && this.state.updatedTilldd != ""
-                ? backendFilter["UpdatedTo"] = this.state.updatedTillyyyy + "-" + this.state.updatedTillmm + "-" + this.state.updatedTilldd : undefined);
-
-            //third case: from date to beginning
-
-            (!this.state.collapseUpdated
-            && this.state.collapseUpdatedFrom
-            && this.state.updatedFromyyyy != ""
-            && this.state.updatedFrommm != ""
-            && this.state.updatedFromdd != ""
-                ? backendFilter["UpdatedStart"] = this.state.updatedFromyyyy + "-" +this.state.updatedFrommm + "-" + this.state.updatedFromdd : undefined);
+        (!this.state.collapseCreated
+        && this.state.collapseCreatedFrom
+        && this.state.createdFromyyyy != ""
+        && this.state.createdFrommm != ""
+        && this.state.createdFromdd != ""
+            ?
+            backendFilter["CreatedStart"] = this.state.createdFromyyyy + "-" + this.state.createdFrommm + "-" + this.state.createdFromdd : undefined);
 
 
-            //TODO: closedAt
-
-            (this.state.collapseClosed
-            && this.state.closedyyyy != ""
-            && this.state.closedmm != ""
-            && this.state.closeddd != ""
-                ? backendFilter["ClosedAt"] = this.state.closedyyyy + "-" + this.state.closedmm + "-" + this.state.closeddd : undefined);
-
-
-            //second case: from beginning to date
-
-            (!this.state.collapseClosed
-            && this.state.collapseClosedTill
-            && this.state.closedTillyyyy != ""
-            && this.state.closedTillmm != ""
-            && this.state.closedTilldd != ""
-                ? backendFilter["ClosedTo"] = this.state.closedTillyyyy + "-" + this.state.closedTillmm + "-" + this.state.closedTilldd : undefined);
+        //for: updatedAt
+        //first case: one date
+        (this.state.collapseUpdated
+        && this.state.updatedyyyy != ""
+        && this.state.updatedmm != ""
+        && this.state.updateddd != ""
+            ?
+            backendFilter["UpdatedAt"] = this.state.updatedyyyy + "-" + this.state.updatedmm + "-" + this.state.updateddd : undefined);
 
 
-            (!this.state.collapseClosed
-            && this.state.collapseClosedFrom
-            && this.state.closedFromyyyy != ""
-            && this.state.closedFrommm != ""
-            && this.state.closedFromdd != ""
-                ? backendFilter["ClosedStart"] = this.state.closedFromyyyy + "-" + this.state.closedFrommm + "-" + this.state.closedFromdd : undefined);
+        //second case: from beginning to date
+
+        (!this.state.collapseUpdated
+        && this.state.collapseUpdatedTill
+        && this.state.updatedTillyyyy != ""
+        && this.state.updatedTillmm != ""
+        && this.state.updatedTilldd != ""
+            ? backendFilter["UpdatedTo"] = this.state.updatedTillyyyy + "-" + this.state.updatedTillmm + "-" + this.state.updatedTilldd : undefined);
+
+        //third case: from date to beginning
+
+        (!this.state.collapseUpdated
+        && this.state.collapseUpdatedFrom
+        && this.state.updatedFromyyyy != ""
+        && this.state.updatedFrommm != ""
+        && this.state.updatedFromdd != ""
+            ? backendFilter["UpdatedStart"] = this.state.updatedFromyyyy + "-" + this.state.updatedFrommm + "-" + this.state.updatedFromdd : undefined);
+
+
+        //TODO: closedAt
+
+        (this.state.collapseClosed
+        && this.state.closedyyyy != ""
+        && this.state.closedmm != ""
+        && this.state.closeddd != ""
+            ? backendFilter["ClosedAt"] = this.state.closedyyyy + "-" + this.state.closedmm + "-" + this.state.closeddd : undefined);
+
+
+        //second case: from beginning to date
+
+        (!this.state.collapseClosed
+        && this.state.collapseClosedTill
+        && this.state.closedTillyyyy != ""
+        && this.state.closedTillmm != ""
+        && this.state.closedTilldd != ""
+            ? backendFilter["ClosedTo"] = this.state.closedTillyyyy + "-" + this.state.closedTillmm + "-" + this.state.closedTilldd : undefined);
+
+
+        (!this.state.collapseClosed
+        && this.state.collapseClosedFrom
+        && this.state.closedFromyyyy != ""
+        && this.state.closedFrommm != ""
+        && this.state.closedFromdd != ""
+            ? backendFilter["ClosedStart"] = this.state.closedFromyyyy + "-" + this.state.closedFrommm + "-" + this.state.closedFromdd : undefined);
 
         /*for (var i = 0; i < this.state.arrayOfSelectedStates.length; i++) {
             backendFilter["StateId"] = this.state.arrayOfSelectedStates[i];
@@ -785,7 +835,6 @@ class SearchBar extends React.Component {
             }, /*{filter: arrayOfNonNullFilters}*/
                 backendFilter
             ];
-
 
 
         console.log('A bunch of record queries are submitted: ' + JSON.stringify(result));
@@ -1222,6 +1271,8 @@ class SearchBar extends React.Component {
         };
         request.send(); //don't forget to send the httprequest lmao
     }
+
+
 
 
     render() {
@@ -1804,17 +1855,20 @@ class SearchBar extends React.Component {
                     </TabPane>
 
                     <TabPane tabId="4">
-
                         <Row>
                             <Col sm="20">
+
                                 <div className="animated fadeIn">
+
+                                    <legend>Add New Role</legend>
                                     <Form onSubmit={this.addRole}>
 
                                         <FormGroup row>
-                                            <Label for="rolesName" sm={20}>Role Name:</Label>
+                                            <Label for="addRolesName" sm={10}>Enter the new role name:</Label>
                                             <Col sm={10}>
-                                                <Input type="text" name="rolesName"
-                                                       value={this.state.rolesName}
+                                                <Input type="text"
+                                                       name="addRolesName"
+                                                       value={this.state.addRolesName}
                                                        onChange={this.handleChange}/>
                                             </Col>
                                         </FormGroup>
@@ -1825,6 +1879,54 @@ class SearchBar extends React.Component {
                                             </Col>
                                         </FormGroup>
                                     </Form>
+
+                                    <legend>Update Existing Role Name</legend>
+                                    <Form onSubmit={this.updateRole}>
+                                        <FormGroup row>
+                                            <Label for="updateRolesId" sm={10}>Enter the role ID you would like to
+                                                update:</Label>
+                                            <Col sm={10}>
+                                                <Input type="text" name="updateRolesId"
+                                                       value={this.state.updateRolesId}
+                                                       onChange={this.handleChange}/>
+                                            </Col>
+
+                                            <Label for="updateRolesId" sm={10}>Enter the new role name:</Label>
+                                            <Col sm={10}>
+                                                <Input type="text" name="updateRolesName"
+                                                       value={this.state.updateRolesName}
+                                                       onChange={this.handleChange}/>
+                                            </Col>
+                                        </FormGroup>
+                                        <FormGroup row>
+                                            <Col sm={{size: 10, offset: 2}}>
+                                                <Button type="submit" id="submit-button" size="sm" color="secondary"
+                                                        value="submit">Update</Button>
+                                            </Col>
+                                        </FormGroup>
+                                    </Form>
+
+                                    <legend>Delete Role</legend>
+                                    <Form onSubmit={this.deleteRole}>
+
+                                        <FormGroup row>
+                                            <Label for="deleteRolesId" sm={10}>Enter the role ID you would like to
+                                                delete:</Label>
+                                            <Col sm={10}>
+                                                <Input type="text" name="deleteRolesId"
+                                                       value={this.state.deleteRolesId}
+                                                       onChange={this.handleChange}/>
+                                            </Col>
+
+                                        </FormGroup>
+                                        <FormGroup row>
+                                            <Col sm={{size: 10, offset: 2}}>
+                                                <Button type="submit" id="submit-button" size="sm" color="secondary"
+                                                        value="submit">Delete</Button>
+                                            </Col>
+                                        </FormGroup>
+                                    </Form>
+
 
                                 </div>
                             </Col>

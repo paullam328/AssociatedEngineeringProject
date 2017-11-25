@@ -24,7 +24,7 @@ public class RolesController {
      * <p>
      * /roles/
      * <p>
-     * Input ex: {"rolesName": "Teacher"}
+     * Input ex: {"addRolesName": "Teacher"}
      *
      * @param params
      * @return
@@ -36,10 +36,9 @@ public class RolesController {
             method = RequestMethod.POST)
     public ResponseEntity<String> createRole(@RequestBody String params) {
         try {
-            System.out.println("In AdminController... addRole()");
 
             JSONObject jsonObj = new JSONObject(params);
-            String newName = jsonObj.getString("rolesName").trim();
+            String newName = jsonObj.getString("addRolesName").trim();
 
             if (newName.length() < 1) {
                 // input too short
@@ -102,7 +101,7 @@ public class RolesController {
      * <p>
      * /roles/
      * <p>
-     * Input ex: { "RolesId": "1", "newRolesName": "Superman" }
+     * Input ex: { "updateRolesId": "1", "updateRolesName": "Superman" }
      *
      * @param params
      * @return
@@ -114,11 +113,10 @@ public class RolesController {
             method = RequestMethod.PUT)
     public ResponseEntity<String> updateRole(@RequestBody String params) {
         try {
-            System.out.println("In AdminController... updateRole()");
 
             JSONObject jsonObj = new JSONObject(params);
-            String rolesId = jsonObj.getString("RolesId").trim();
-            String newRolesName = jsonObj.getString("newRolesName").trim();
+            String rolesId = jsonObj.getString("updateRolesId").trim();
+            String newRolesName = jsonObj.getString("updateRolesName").trim();
 
             if (newRolesName.length() < 1) {
                 // input too short
@@ -145,7 +143,7 @@ public class RolesController {
      *
      * DELETE request to remove entry from roles for given roles ID.
      *
-     * Input ex: { "RolesId": "7" }
+     * Input ex: { "deleteRolesId": "7" }
      *
      * @param params
      * @return
@@ -158,10 +156,9 @@ public class RolesController {
             method = RequestMethod.DELETE)
     public ResponseEntity<String> deleteRole(@RequestBody String params) {
         try {
-            System.out.println("In AdminController... updateRole()");
 
             JSONObject jsonObj = new JSONObject(params);
-            String rolesId = jsonObj.getString("RolesId").trim();
+            String rolesId = jsonObj.getString("deleteRolesId").trim();
 
             boolean isUpdated = rolesDao.deleteRole(rolesId);
             System.out.println("isUpdated: " + isUpdated);

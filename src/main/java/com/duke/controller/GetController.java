@@ -403,7 +403,7 @@ public class GetController {
                 return new ResponseEntity<String>(obj.toString(), HttpStatus.OK);
             }
         } catch (Exception ex) {
-            // 
+            //
             String errorMessage = ex + " error";
             return new ResponseEntity<String>(errorMessage, HttpStatus.BAD_REQUEST);
 
