@@ -1,6 +1,7 @@
 package com.duke.Dao;
 
 import com.duke.Entity.*;
+import com.duke.Dao.UsersDao;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
@@ -22,14 +23,33 @@ public class RolesDao {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
+    @Autowired
+    private UsersDao usersDao;
+
+    private String ADMIN = "Administrator";
+    private String RMC = "Records Management Clerk";
+    private String REG_USER = "Regular User";
+    private String DENIED = "Access Denied";
+
+
     /**
      * Create new entry in roles table.
      *
      * @param newName - new roles name to be inserted
      */
     public void addRole(String newName) {
-        final String sql = "INSERT INTO roles (roles.Name) VALUES (?)";
-        jdbcTemplate.update(sql, newName);
+        System.out.println("in addRole()");
+        String currentUserRole = usersDao.getAuthorization();
+        System.out.println("currentUserRole: " + currentUserRole);
+
+        if (currentUserRole.equals(ADMIN)) {
+            final String sql = "INSERT INTO roles (roles.Name) VALUES (?)";
+            jdbcTemplate.update(sql, newName);
+        } else {
+            // user doesn't have permission to add role
+
+
+        }
     }
 
     /**
@@ -40,18 +60,26 @@ public class RolesDao {
 
     public List<JSONObject> getAllRoles() {
         System.out.println("2. in getAllRoles()");
-        final String sql = "SELECT * FROM roles ORDER BY roles.Id ASC";
 
-        List<JSONObject> jsonList = jdbcTemplate.query(sql, new RowMapper<JSONObject>() {
-            public JSONObject mapRow(ResultSet resultSet, int Id) throws SQLException {
-                JSONObject obj = new JSONObject();
-                obj.put("rolesId", resultSet.getInt("Id"));
-                obj.put("rolesName", resultSet.getString("Name"));
+        String currentUserRole = usersDao.getAuthorization();
 
-                return obj;
-            }
-        });
-        return jsonList;
+        if (currentUserRole.equals(ADMIN)) {
+            final String sql = "SELECT * FROM roles ORDER BY roles.Id ASC";
+            List<JSONObject> jsonList = jdbcTemplate.query(sql, new RowMapper<JSONObject>() {
+                public JSONObject mapRow(ResultSet resultSet, int Id) throws SQLException {
+                    JSONObject obj = new JSONObject();
+                    obj.put("rolesId", resultSet.getInt("Id"));
+                    obj.put("rolesName", resultSet.getString("Name"));
+
+                    return obj;
+                }
+            });
+            return jsonList;
+        } else {
+            System.out.println("RolesDao: getAllRolles() User doesnt have permission to read roles table. They are " + currentUserRole + " but needs to be " + ADMIN);
+            // user doesn't have permission to read roles table
+            return null;
+        }
     }
 
     /**
@@ -61,12 +89,19 @@ public class RolesDao {
      * @param id - the roles.id corresponding to the role name to be updated
      */
     public boolean updateRole(String newRoleName, String id) {
-        try {
-            final String sql = "UPDATE roles SET roles.Name = ? WHERE roles.Id = ?";
-            jdbcTemplate.update(sql, newRoleName, id);
-            return true;
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        String currentUserRole = usersDao.getAuthorization();
+
+        if (currentUserRole == ADMIN) {
+            try {
+                final String sql = "UPDATE roles SET roles.Name = ? WHERE roles.Id = ?";
+                jdbcTemplate.update(sql, newRoleName, id);
+                return true;
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                return false;
+            }
+        } else {
+            // user doesn't have permission to update role
             return false;
         }
     }
@@ -78,12 +113,19 @@ public class RolesDao {
      */
 
     public boolean deleteRole(String id) {
-        try {
-            final String sql = "DELETE FROM roles WHERE roles.Id = ?";
-            jdbcTemplate.update(sql, id);
-            return true;
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        String currentUserRole = usersDao.getAuthorization();
+
+        if (currentUserRole == ADMIN) {
+            try {
+                final String sql = "DELETE FROM roles WHERE roles.Id = ?";
+                jdbcTemplate.update(sql, id);
+                return true;
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                return false;
+            }
+        } else {
+            // user doesn't have permission to delete role
             return false;
         }
     }

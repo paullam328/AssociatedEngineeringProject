@@ -1,6 +1,7 @@
 package com.duke.Dao;
 
 import com.duke.Entity.*;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -26,6 +27,11 @@ public class UsersDao extends HttpServlet{
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
+    private String ADMIN = "Administrator";
+    private String RMC = "Records Management Clerk";
+    private String REG_USER = "Regular User";
+    private String DENIED = "Access Denied";
+
     /**
      * For user authorization.
      *
@@ -37,30 +43,45 @@ public class UsersDao extends HttpServlet{
      * Can't test this without logging into AE, so she says it's OK
      * not to test it.
      *
-     * I hardcoded a userid for testing.
+     * Hardcoded userid to 'lange' for testing.
+     * lange is an admin.
 
      */
     public String getCurrentRemoteUser() {
+        System.out.println("in getCurrentRemoteUser()");
         // TODO: Use HttpServlet to get remote user. Uncomment first line below for project handin.
         // String username = request.getRemoteUser();
-        String name = "ae\\goulets";
+        String name = "ae\\lange";
 
         int startIndex = name.indexOf("\\") + 1;
 
         if (startIndex != -1) {
+            System.out.println(name.substring(startIndex, name.length()));
             return name.substring(startIndex, name.length());
         } else {
             return null;
         }
     }
 
-    public List<Users> getAuthorization() {
+    public String getAuthorization() {
+        System.out.println("in getAuthorization()");
         String userid = getCurrentRemoteUser();
 
         if (userid != null) {
-            return getUserByUserId(userid);
+            System.out.println("!!!!");
+            List<JSONObject> results = getUserByUserId(userid);
+            System.out.println("***** " + results.toString());
+            JSONObject obj = results.get(0);
+            String userRole = obj.getString("RolesName");
+           if (userRole == "NA") {
+               return REG_USER;
+           } else {
+               System.out.println(userRole);
+               return userRole;
+           }
         } else {
-            return null;
+            // user doesn't have permission to access the app
+            return DENIED;
         }
     }
 
@@ -71,7 +92,8 @@ public class UsersDao extends HttpServlet{
      * @param userId
      * @return
      */
-    public List<Users> getUserByUserId(String userId) {
+    public List<JSONObject> getUserByUserId(String userId) {
+        System.out.println("userid: " + userId);
         final String sql =
                 "SELECT  users.*, coalesce(roles.Id, '-1') AS rolesId, " +
                 "coalesce(roles.Name, 'NA') AS rolesName, " +
@@ -84,24 +106,26 @@ public class UsersDao extends HttpServlet{
                 "LEFT JOIN userlocations ON userlocations.UserId = users.Id " +
                 "LEFT JOIN locations ON userlocations.LocationId = locations.Id " +
                 "WHERE users.UserId = ?";
+        System.out.println("1");
 
-        final List<Users> usersList = jdbcTemplate.query(sql, new ResultSetExtractor<List<Users>>() {
+        final List<JSONObject> usersList = jdbcTemplate.query(sql, new ResultSetExtractor<List<JSONObject>>() {
 
             @Override
-            public List<Users> extractData(ResultSet resultSet) throws SQLException, DataAccessException {
-                List<Users> list = new ArrayList<Users>();
+            public List<JSONObject> extractData(ResultSet resultSet) throws SQLException, DataAccessException {
+                System.out.println("2");
+                List<JSONObject> list = new ArrayList<JSONObject>();
 
                 while (resultSet.next()) {
-                    Users u = new Users();
-                    u.setId(resultSet.getInt("users.Id"));
-                    u.setUserId(resultSet.getString("users.UserId"));
-                    u.setFirstName(resultSet.getString("users.FirstName"));
-                    u.setLastName(resultSet.getString("users.LastName"));
-                    u.setRolesId(resultSet.getInt("rolesId"));
-                    u.setRolesName(resultSet.getString("rolesName"));
-                    u.setLocationId(resultSet.getInt("locationsId"));
-                    u.setLocationName(resultSet.getString("locationsName"));
-                    u.setLocationCode(resultSet.getString("locationsCode"));
+                    JSONObject u = new JSONObject();
+                    u.put("UID", resultSet.getInt("users.Id"));
+                    u.put("UsersID", resultSet.getString("users.UserId"));
+                    u.put("FirstName", resultSet.getString("users.FirstName"));
+                    u.put("LastName", resultSet.getString("users.LastName"));
+                    u.put("RID", resultSet.getInt("rolesId"));
+                    u.put("RolesName", resultSet.getString("rolesName"));
+                    u.put("LID", resultSet.getInt("locationsId"));
+                    u.put("LocationsName", resultSet.getString("locationsName"));
+                    u.put("LocationsCode", resultSet.getString("locationsCode"));
 
                     list.add(u);
                 }
@@ -110,6 +134,7 @@ public class UsersDao extends HttpServlet{
                 return list;
             }
         }, userId);
+        System.out.println("print: " + usersList.toString());
         return usersList;
     }
 

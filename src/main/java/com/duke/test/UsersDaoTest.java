@@ -11,11 +11,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class UsersDaoTest {
     private UsersDao testUsersDao;
+    private RolesDao testRolesDao;
     private String expectedUserId = "goulets";
 
     @BeforeEach
     public void runBefore() {
         testUsersDao = new UsersDao();
+        testRolesDao = new RolesDao();
     }
 
     @Test
@@ -25,7 +27,10 @@ public class UsersDaoTest {
     }
 
     @Test
-    public void testIsRegularUser() {
+    public void testAddRole() {
+
+        testRolesDao.addRole("Alex on a shelf");
+
 
     }
 

@@ -23,7 +23,7 @@ public class UsersController {
      * <p>
      * /users/
      * <p>
-     * Input ex: { "UserId": "reichertb" }
+     * Input ex: { "UserId": "lange" }
      */
 
     @CrossOrigin
@@ -40,7 +40,7 @@ public class UsersController {
             JSONObject jsonObj = new JSONObject(params);
             String userId = jsonObj.getString("UserId");
 
-            List<Users> results = usersDao.getUserByUserId(userId);
+            List<JSONObject> results = usersDao.getUserByUserId(userId);
 
             if (results.size() < 1) {
                 // no results found
@@ -69,15 +69,15 @@ public class UsersController {
         try {
 
             JSONObject obj = new JSONObject();
-            List<Users> results = usersDao.getAuthorization();
+           String result = usersDao.getAuthorization();
 
-            if (results.size() < 1) {
+            if (result.length() < 1) {
                 // no results found
                 // return 404
                 return new ResponseEntity<String>("404  No results found", HttpStatus.NOT_FOUND);
             } else {
                 // results found
-                obj.put("results", results);
+                obj.put("results", result);
                 return new ResponseEntity<String>(obj.toString(), HttpStatus.OK);
 
             }
