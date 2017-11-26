@@ -38,9 +38,9 @@ public class RolesDao {
      * @param newName - new roles name to be inserted
      */
     public void addRole(String newName) {
-        System.out.println("in addRole()");
+        //System.out.println("in addRole()");
         String currentUserRole = usersDao.getAuthorization();
-        System.out.println("currentUserRole: " + currentUserRole);
+        //System.out.println("currentUserRole: " + currentUserRole);
 
         if (currentUserRole.equals(ADMIN)) {
             final String sql = "INSERT INTO roles (roles.Name) VALUES (?)";
@@ -59,7 +59,7 @@ public class RolesDao {
      */
 
     public List<JSONObject> getAllRoles() {
-        System.out.println("2. in getAllRoles()");
+        //System.out.println("2. in getAllRoles()");
 
         String currentUserRole = usersDao.getAuthorization();
 
@@ -91,7 +91,7 @@ public class RolesDao {
     public boolean updateRole(String newRoleName, String id) {
         String currentUserRole = usersDao.getAuthorization();
 
-        if (currentUserRole == ADMIN) {
+        if (currentUserRole.equals(ADMIN)) {
             try {
                 final String sql = "UPDATE roles SET roles.Name = ? WHERE roles.Id = ?";
                 jdbcTemplate.update(sql, newRoleName, id);
@@ -115,7 +115,7 @@ public class RolesDao {
     public boolean deleteRole(String id) {
         String currentUserRole = usersDao.getAuthorization();
 
-        if (currentUserRole == ADMIN) {
+        if (currentUserRole.equals(ADMIN)) {
             try {
                 final String sql = "DELETE FROM roles WHERE roles.Id = ?";
                 jdbcTemplate.update(sql, id);
