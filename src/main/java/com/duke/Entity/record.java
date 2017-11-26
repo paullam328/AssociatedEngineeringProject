@@ -34,10 +34,12 @@ public class record {
     private String containersTitle;
     private java.sql.Timestamp containersUpdatedAt;
 
+    private String RecordType;
 
 
 
-    public record(String CustomerType, int id, int AttrId, int RecordId, String Value, String title, String number, int scheduleId, int typeId, int stateId, int containerId, int locationId, Timestamp createdAt, Timestamp updatedAt, Timestamp closedAt, String consignmentCode, String recordStateName, String locationName, String notesText, String CustomerName, String clientName, Timestamp containersCreatedAt, Integer containersId, String containersNumber, String containersTitle, Timestamp containersUpdatedAt){
+
+    public record(String CustomerType, int id, int AttrId, int RecordId, String Value, String title, String number, int scheduleId, int typeId, int stateId, int containerId, int locationId, Timestamp createdAt, Timestamp updatedAt, Timestamp closedAt, String consignmentCode, String recordStateName, String locationName, String notesText, String CustomerName, String clientName, Timestamp containersCreatedAt, Integer containersId, String containersNumber, String containersTitle, Timestamp containersUpdatedAt, String recordType){
         this.id= id;
         this.AttrId = AttrId;
         this.RecordId=RecordId;
@@ -64,6 +66,7 @@ public class record {
         this.containersTitle = containersTitle;
         this.containersUpdatedAt = containersUpdatedAt;
         this.CustomerType = CustomerType;
+        RecordType = recordType;
     }
 
     // default constructor
@@ -272,5 +275,13 @@ public class record {
 
     public void setClientName(String clientName) {
         this.clientName = clientName;
+    }
+
+    public String getRecordType() {
+        return RecordType;
+    }
+
+    public void setRecordType(String recordType) {
+        RecordType = recordType;
     }
 }

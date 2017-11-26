@@ -412,16 +412,14 @@ public class GetController {
     }
 
     /**
+     * Record type specific search by project
      *
-     *
-     * /records/typeSearch
+     * /records/projectSearch
      *
      * { "projectSearchInput": "20053891.00.C.07.00","filterByFunction": "", "filterByPM": "", "filterbyClientName": "Ebert, Kovacek and Olson"}
      * @param params
      * @return
      */
-
-
 
     @CrossOrigin
     @ResponseBody

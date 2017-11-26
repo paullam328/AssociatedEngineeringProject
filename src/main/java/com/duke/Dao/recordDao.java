@@ -826,7 +826,7 @@ public class recordDao {
 
                     while (resultSet.next()) {
                         record l = new record();
-                        l.setContainersTitle("ProjectType");
+                        l.setRecordType("Project");
                         l.setNumber(resultSet.getString("RecordsNumber"));
                         l.setTitle(resultSet.getString("RecordsTitle"));
                         l.setConsignmentCode(resultSet.getString("ConsignmentCode"));
