@@ -373,8 +373,16 @@ class SearchBar extends React.Component {
 
             radioButtonValue: '',
 
-            containerNumber: ''
+            containerNumber: '',
 
+            addLocationsName: '',
+            addLocationsCode: '',
+
+            updateLocationsId: '',
+            updateLocationsName: '',
+            updateLocationsCode: '',
+
+            deleteLocationsId: ''
 
             //serverLocationDropDown: []
 
@@ -389,9 +397,16 @@ class SearchBar extends React.Component {
         this.toggleAttr = this.toggleAttr.bind(this);
         //this.changeValue = this.changeValue.bind(this);
 
+        this.populateConfigureTab = this.populateConfigureTab.bind(this);
+
         this.addRole = this.addRole.bind(this);
         this.updateRole = this.updateRole.bind(this);
         this.deleteRole = this.deleteRole.bind(this);
+
+        this.addLocation = this.addLocation.bind(this);
+        this.updateLocation = this.updateLocation.bind(this);
+        this.deleteLocation = this.deleteLocation.bind(this);
+
 
         this.isCheckedQuickSearchAttr = this.isCheckedQuickSearchAttr.bind(this);
 
@@ -458,12 +473,29 @@ class SearchBar extends React.Component {
         });
     }
 
-
-    populateConfigureTab() {
+    /**
+     * Populate the results table for the configure tabs:
+     *      Configure roles
+     *      Configure locations
+     *      TODO: Configure users
+     *
+     * @param tabNum
+     */
+    populateConfigureTab(tabNum) {
         console.log("in populateConfigureTab()");
+        console.log("tabNum: " + tabNum)
+
         let json = {};
-        let url = "/roles/";
         let method = "GET";
+        let url;
+
+        if (tabNum === '4') {
+            url = "/roles/";
+
+        } else if (tabNum == '5') {
+            url = "/locations/";
+        }
+
         console.log(server + url);
 
         this.sendHttpCall(method, server + url, json).then(function (result) {
@@ -472,7 +504,9 @@ class SearchBar extends React.Component {
     }
 
     /**
-     * Add new role to roles table.
+     * --------------------------------
+     * CRUD methods for Configure Roles.
+     * --------------------------------
      */
 
     addRole() {
@@ -488,10 +522,6 @@ class SearchBar extends React.Component {
         });
     }
 
-    /**
-     * Update role name for the given roles id.
-     */
-
     updateRole() {
         console.log("in updateRole()");
         let json = {updateRolesId: this.state.updateRolesId, updateRolesName: this.state.updateRolesName};
@@ -502,10 +532,6 @@ class SearchBar extends React.Component {
             globalUpdate(result);
         });
     }
-
-    /**
-     * Delete role for the given roles id.
-     */
 
     deleteRole() {
         console.log("in deleteRole()");
@@ -518,7 +544,54 @@ class SearchBar extends React.Component {
             globalUpdate(result);
 
         });
+    }
 
+    /**
+     * --------------------------------
+     * CRUD methods for Configure Locations.
+     * --------------------------------
+     */
+
+    // TODO: add location doesn't work b/c locations.id doesn't auto increment
+    addLocation() {
+        console.log("in addLocation()");
+
+        let json = {addLocationsName: this.state.addLocationsName, addLocationCode: this.state.addLocationsCode};
+        console.log(JSON.stringify(json));
+        let url = "/locations/";
+        let method = "POST";
+
+        this.sendHttpCall(method, server + url, json).then(function (result) {
+            globalUpdate(result);
+        });
+    }
+
+    updateLocation() {
+        console.log("in updateLocation()");
+        let json = {
+            updateLocationsId: this.state.updateLocationsId,
+            updateLocationsName: this.state.updateLocationsName,
+            updateLocationsCode: this.state.updateLocationsCode
+        };
+        let url = "/locations/";
+        let method = "PUT";
+
+        this.sendHttpCall(method, server + url, json).then(function (result) {
+            globalUpdate(result);
+        });
+    }
+
+    deleteLocation() {
+        console.log("in deleteLocation()");
+        let json = {deleteLocationsId: this.state.deleteLocationsId};
+        console.log(JSON.stringify(json));
+        let url = "/locations/";
+        let method = "DELETE";
+
+        this.sendHttpCall(method, server + url, json).then(function (result) {
+            globalUpdate(result);
+
+        });
     }
 
 
@@ -1273,8 +1346,6 @@ class SearchBar extends React.Component {
     }
 
 
-
-
     render() {
         return (
             <div>
@@ -1319,13 +1390,28 @@ class SearchBar extends React.Component {
                             className={classnames({active: this.state.activeTab === '4'})}
                             onClick={() => {
                                 this.toggleTab('4');
-                                this.populateConfigureTab();
+                                this.populateConfigureTab('4');
                             }}
                         >
                             Configure Roles
                         </NavLink>
                     </NavItem>
+
+                    <NavItem>
+                        <NavLink
+                            className={classnames({active: this.state.activeTab === '5'})}
+                            onClick={() => {
+                                this.toggleTab('5');
+                                this.populateConfigureTab('5');
+                            }}
+                        >
+                            Configure Locations
+                        </NavLink>
+                    </NavItem>
+
                 </Nav>
+
+
                 <TabContent activeTab={this.state.activeTab}>
                     <TabPane tabId="1">
                         <Row>
@@ -1857,7 +1943,6 @@ class SearchBar extends React.Component {
                     <TabPane tabId="4">
                         <Row>
                             <Col sm="20">
-
                                 <div className="animated fadeIn">
 
                                     <legend>Add New Role</legend>
@@ -1915,6 +2000,103 @@ class SearchBar extends React.Component {
                                             <Col sm={10}>
                                                 <Input type="text" name="deleteRolesId"
                                                        value={this.state.deleteRolesId}
+                                                       onChange={this.handleChange}/>
+                                            </Col>
+
+                                        </FormGroup>
+                                        <FormGroup row>
+                                            <Col sm={{size: 10, offset: 2}}>
+                                                <Button type="submit" id="submit-button" size="sm" color="secondary"
+                                                        value="submit">Delete</Button>
+                                            </Col>
+                                        </FormGroup>
+                                    </Form>
+                                </div>
+                            </Col>
+                        </Row>
+                    </TabPane>
+
+
+                    <TabPane tabId="5">
+                        <Row>
+                            <Col sm="20">
+                                <div className="animated fadeIn">
+                                    <legend>Add New Location</legend>
+                                    <Form onSubmit={this.addLocation}>
+
+                                        <FormGroup row>
+                                            <Label for="addLocationsName" sm={10}>Enter the new location name:</Label>
+                                            <Col sm={10}>
+                                                <Input type="text"
+                                                       name="addRolesName"
+                                                       value={this.state.addLocationsName}
+                                                       onChange={this.handleChange}/>
+                                            </Col>
+
+                                            <Label for="addLocationsCode" sm={10}>Enter the new location code:</Label>
+                                            <Col sm={10}>
+                                                <Input type="text"
+                                                       name="addRolesName"
+                                                       value={this.state.addLocationsCode}
+                                                       onChange={this.handleChange}/>
+                                            </Col>
+                                        </FormGroup>
+
+                                        <FormGroup row>
+                                            <Col sm={{size: 10, offset: 2}}>
+                                                <Button type="submit" id="submit-button" size="sm" color="secondary"
+                                                        value="submit">Add</Button>
+                                            </Col>
+                                        </FormGroup>
+                                    </Form>
+
+                                    <legend>Update Existing Location</legend>
+                                    <Form onSubmit={this.updateLocation}>
+                                        <FormGroup row>
+                                            <Label for="updateLocationsId" sm={10}>Enter the location ID you would like
+                                                to
+                                                update:</Label>
+                                            <Col sm={10}>
+                                                <Input type="text" name="updateLocationsId"
+                                                       value={this.state.updateLocationsId}
+                                                       onChange={this.handleChange}/>
+                                            </Col>
+
+                                            <Label for="updateLocationsName" sm={10}>Enter the new location name (leave
+                                                this box blank if you don't wish to update the name):</Label>
+                                            <Col sm={10}>
+                                                <Input type="text" name="updateLocationsName"
+                                                       value={this.state.updateLocationsName}
+                                                       onChange={this.handleChange}/>
+                                            </Col>
+
+                                            <Label for="updateLocationsCode" sm={10}>Enter the new location code (leave
+                                                this box blank if you don't wish to update the code):</Label>
+                                            <Col sm={10}>
+                                                <Input type="text" name="updateLocationsCode"
+                                                       value={this.state.updateLocationsCode}
+                                                       onChange={this.handleChange}/>
+                                            </Col>
+
+                                        </FormGroup>
+                                        <FormGroup row>
+                                            <Col sm={{size: 10, offset: 2}}>
+                                                <Button type="submit" id="submit-button" size="sm" color="secondary"
+                                                        value="submit">Update</Button>
+                                            </Col>
+                                        </FormGroup>
+                                    </Form>
+
+                                    <legend>Delete Location</legend>
+                                    <Form onSubmit={this.deleteLocation}>
+
+                                        <FormGroup row>
+                                            <Label for="deleteLocationsId" sm={10}>Enter the location ID you would like
+                                                to
+                                                delete:</Label>
+                                            <Col sm={10}>
+                                                <Input type="text" name="deleteLocationsId"
+                                                       value={this.state.deleteLocationsId}
                                                        onChange={this.handleChange}/>
                                             </Col>
 

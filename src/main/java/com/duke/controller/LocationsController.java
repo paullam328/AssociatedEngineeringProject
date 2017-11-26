@@ -26,6 +26,8 @@ public class LocationsController {
      *
      * Input ex: {"addLocationsName": "North Pole", "addLocationsCode": "npe" }
      *
+     * TODO: change locations table PK to auto_increment
+     *
      * @param params
      * @return
      */
