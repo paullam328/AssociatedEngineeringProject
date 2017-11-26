@@ -24,7 +24,9 @@ public class record {
 
     private String locationName;    // for locations.Name
     private String notesText;       // for notes.Text
-    private String clientName;      // for customattributevalues.Value
+    private String CustomerName;      // for customattributevalues.Value
+    private String CustomerType;
+    private String clientName;
 
     private java.sql.Timestamp containersCreatedAt;
     private Integer containersId;
@@ -35,7 +37,7 @@ public class record {
 
 
 
-    public record(int id, int AttrId, int RecordId, String Value, String title, String number, int scheduleId, int typeId, int stateId, int containerId, int locationId, Timestamp createdAt, Timestamp updatedAt, Timestamp closedAt, String consignmentCode, String recordStateName, String locationName, String notesText, String clientName, Timestamp containersCreatedAt, Integer containersId, String containersNumber, String containersTitle, Timestamp containersUpdatedAt){
+    public record(String CustomerType, int id, int AttrId, int RecordId, String Value, String title, String number, int scheduleId, int typeId, int stateId, int containerId, int locationId, Timestamp createdAt, Timestamp updatedAt, Timestamp closedAt, String consignmentCode, String recordStateName, String locationName, String notesText, String CustomerName, String clientName, Timestamp containersCreatedAt, Integer containersId, String containersNumber, String containersTitle, Timestamp containersUpdatedAt){
         this.id= id;
         this.AttrId = AttrId;
         this.RecordId=RecordId;
@@ -54,12 +56,14 @@ public class record {
         this.recordStateName = recordStateName;
         this.locationName = locationName;
         this.notesText = notesText;
+        this.CustomerName = CustomerName;
         this.clientName = clientName;
         this.containersCreatedAt = containersCreatedAt;
         this.containersId = containersId;
         this.containersNumber = containersNumber;
         this.containersTitle = containersTitle;
         this.containersUpdatedAt = containersUpdatedAt;
+        this.CustomerType = CustomerType;
     }
 
     // default constructor
@@ -206,12 +210,12 @@ public class record {
         this.notesText = notesText;
     }
 
-    public String getClientName() {
-        return clientName;
+    public String getCustomerName() {
+        return CustomerName;
     }
 
-    public void setClientName(String clientName) {
-        this.clientName = clientName;
+    public void setCustomerName(String CustomerName) {
+        this.CustomerName = CustomerName;
     }
 
     public Timestamp getContainersCreatedAt() {
@@ -252,5 +256,21 @@ public class record {
 
     public void setContainersUpdatedAt(Timestamp containersUpdatedAt) {
         this.containersUpdatedAt = containersUpdatedAt;
+    }
+
+    public String getCustomerType() {
+        return CustomerType;
+    }
+
+    public void setCustomerType(String customerType) {
+        CustomerType = customerType;
+    }
+
+    public String getClientName() {
+        return clientName;
+    }
+
+    public void setClientName(String clientName) {
+        this.clientName = clientName;
     }
 }

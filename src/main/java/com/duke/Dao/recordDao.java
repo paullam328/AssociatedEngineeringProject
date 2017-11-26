@@ -691,6 +691,7 @@ public class recordDao {
      * @return
      */
     public List<record> searchByQuickSearch(String quickSearchInput) {
+        System.out.println("in searchByQuickSearch");
         final String sql =
                         "SELECT records.*, " +
                         "COALESCE(locations.Name, 'NA') AS location_name, " +
@@ -758,4 +759,113 @@ public class recordDao {
     }
 
 
-}
+
+
+    public List<record> searchByProject(String projectSearchInput, String filterByFunction, String filterByPM, String filterByClientName) {
+
+        System.out.println("in RecordDao... searchByProject()");
+        Object[] params = new Object[] {};
+        int functionFilterLength = filterByFunction.length();
+        int PMFilterLength = filterByPM.length();
+        int CNFilterLength = filterByClientName.length();
+
+        String sql =
+                "SELECT 'Project' AS ProjectType, " +
+                        " records.Number AS RecordsNumber, " +
+                        " records.Title AS RecordsTitle, " +
+                        " records.ConsignmentCode AS ConsignmentCode, " +
+                        " locations.Name AS LocationName, " +
+                        " coalesce('NA', notes.Text) AS NotesText, " +
+                        " customattributevalues.Value AS CustomerName, " +
+                        " customattributes.Name AS CustomerType " +
+                        "FROM recordr.records  " +
+                        "LEFT JOIN locations ON locations.Id = records.LocationId " +
+                        "LEFT JOIN notes ON notes.RowId=records.Id AND notes.TableId = 26 " +
+                        "LEFT JOIN customattributevalues ON customattributevalues.RecordId = records.Id " +
+                        "LEFT JOIN customattributes ON customattributevalues.AttrId = customattributes.Id " +
+                        "LEFT JOIN containers ON containers.Id = records.ContainerId " +
+                        "LEFT JOIN recordtypes ON recordtypes.Id = records.TypeId and recordtypes.Id = 83 " +
+                        "WHERE ";
+
+
+        if (functionFilterLength > 1) {
+            // xyz AND
+            // TODO
+            params = appendValue(params, filterByFunction);
+
+        }
+
+        if (PMFilterLength > 1) {
+            // xyz AND
+            sql = sql + "customattributevalues.Value = ? AND customattributes.Id = 6 AND ";
+            params = appendValue(params, filterByPM);
+        }
+
+        if (CNFilterLength > 1) {
+            // xyz AND
+            sql = sql + "customattributevalues.Value = ? AND customattributes.Id = 9 AND ";
+            params = appendValue(params, filterByClientName);
+        }
+
+        sql = sql + "records.ConsignmentCode lIKE ? OR records.Number LIKE ? OR records.Title LIKE ? OR notes.Text LIKE ?";
+        params = params = appendValue(params, projectSearchInput);
+        params = params = appendValue(params, projectSearchInput);
+        params = params = appendValue(params, projectSearchInput);
+        params = params = appendValue(params, projectSearchInput);
+
+        System.out.println(sql);
+        System.out.println(params.toString());
+
+        final List<record> recordList;
+
+            recordList = jdbcTemplate.query(sql, new ResultSetExtractor<List<record>>() {
+
+                @Override
+                public List<record> extractData(ResultSet resultSet) throws SQLException, DataAccessException {
+                    List<record> list = new ArrayList<record>();
+
+                    while (resultSet.next()) {
+                        record l = new record();
+                        l.setContainersTitle("ProjectType");
+                        l.setNumber(resultSet.getString("RecordsNumber"));
+                        l.setTitle(resultSet.getString("RecordsTitle"));
+                        l.setConsignmentCode(resultSet.getString("ConsignmentCode"));
+                        l.setLocationName(resultSet.getString("LocationName"));
+                        l.setNotesText(resultSet.getString("NotesText"));
+                        l.setCustomerName(resultSet.getString("CustomerName"));
+                        l.setCustomerType(resultSet.getString("CustomerType"));
+
+                        list.add(l);
+                    }
+
+                    System.out.println(list);
+                    return list;
+                }
+            }, params);
+        return recordList;
+        }
+
+    }
+
+
+
+
+    /*
+
+    public List<JSONObject> getAllProjectClientNames() {
+        System.out.println("in getAllClientNames()");
+        final String sql = "SELECT customattributevalues.Id, customattributevalues.Value from customattributevalues WHERE  customattributevalues.AttrId = 9;";
+
+        List<JSONObject> allClients = jdbcTemplate.query(sql, new RowMapper<JSONObject>() {
+            public JSONObject mapRow(ResultSet resultSet, int Id) throws SQLException {
+                JSONObject Location = new JSONObject();
+                Location.put("CAVID", resultSet.getInt("Id"));
+                Location.put("ClientName", resultSet.getString("Value"));
+
+                return Location;
+            }
+        });
+        return allClients;
+    }
+    */
+
