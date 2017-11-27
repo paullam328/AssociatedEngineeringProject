@@ -411,5 +411,65 @@ public class GetController {
 
     }
 
+    /**
+     * Record type specific search by project
+     *
+     * /records/projectSearch
+     *
+     * { "projectSearchInput": "20053891.00.C.07.00","filterByFunction": "", "filterByPM": "", "filterbyClientName": "Ebert, Kovacek and Olson"}
+     * @param params
+     * @return
+     */
+
+    @CrossOrigin
+    @ResponseBody
+    @RequestMapping(
+            value = "/projectSearch",
+            method = RequestMethod.POST,
+            consumes= MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<String> searchByProject(@RequestBody String params) {
+        try {
+            System.out.println("In searchByProject()");
+            JSONObject obj = new JSONObject();
+            JSONObject jsonObj = new JSONObject(params);
+            System.out.println(jsonObj.toString());
+            String projectSearchInput = jsonObj.getString("projectSearchInput");
+            System.out.println(projectSearchInput);
+            String filterByFunction = jsonObj.getString("filterByFunction");
+            System.out.println(filterByFunction);
+            String filterByPM = jsonObj.getString("filterByPM");
+            System.out.println(filterByPM);
+            String filterbyClientName = jsonObj.getString("filterbyClientName");
+            System.out.println(filterbyClientName);
+
+            projectSearchInput = projectSearchInput.replaceAll("\\s", "");
+
+            List<record> results = RecordDao.searchByProject(projectSearchInput, filterByFunction, filterByPM, filterbyClientName);
+
+            if (results.size() < 1) {
+                // no results found
+                // return 404
+                return new ResponseEntity<String>("No results found", HttpStatus.NOT_FOUND);
+            } else {
+                // results found
+                // return 200
+                obj.put("results", results);
+                return new ResponseEntity<String>(obj.toString(), HttpStatus.OK);
+            }
+        } catch (Exception ex) {
+            //
+            String errorMessage = ex + " error";
+            return new ResponseEntity<String>(errorMessage, HttpStatus.BAD_REQUEST);
+
+        }
+
+    }
+
+
+
+
+
+
 
 }
