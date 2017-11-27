@@ -758,61 +758,83 @@ public class recordDao {
     }
 
 
-    public List<record> searchByProject(String projectSearchInput, String filterByFunction, String filterByPM, String filterByClientName) {
+    /**
+     * Record specific type search for projects.
+     *
+     * @param projectSearchInput - record number, box number, record title, box title, notes, or consignment code to be searched
+     * @param filterByFunction
+     * @param filterByPM
+     * @param filterByClientName
+     * @return
+     */
 
+    public List<record> searchByProject(String projectSearchInput, String filterByFunction, String filterByPM, String filterByClientName) {
         System.out.println("in RecordDao... searchByProject()");
+
         Object[] params = new Object[]{};
+        final List<record> recordList;
+
+        projectSearchInput = "%" + projectSearchInput + "%";
+
+        filterByFunction = filterByFunction.trim();
+        filterByPM = filterByPM.trim();
+        filterByClientName = filterByClientName.trim();
+
         int functionFilterLength = filterByFunction.length();
         int PMFilterLength = filterByPM.length();
         int CNFilterLength = filterByClientName.length();
 
         String sql =
-                "SELECT 'Project' AS ProjectType, " +
-                        " records.Number AS RecordsNumber, " +
-                        " records.Title AS RecordsTitle, " +
-                        " records.ConsignmentCode AS ConsignmentCode, " +
-                        " locations.Name AS LocationName, " +
-                        " coalesce('NA', notes.Text) AS NotesText, " +
-                        " customattributevalues.Value AS CustomerName, " +
-                        " customattributes.Name AS CustomerType " +
-                        "FROM recordr.records  " +
+                "SELECT 'Project' AS RecordType, " +
+                        "records.Number AS RecordsNumber, " +
+                        "records.Title AS RecordsTitle, " +
+                        "records.ConsignmentCode AS ConsignmentCode, " +
+                        "containers.Number AS ContainerNumber, " +
+                        "containers.Title AS ContainerTitle, " +
+                        "locations.Name AS LocationName, " +
+                        "coalesce('NA', notes.Text) AS NotesText, " +
+                        "customattributevalues.Value AS CustomerAttributeValue, " +
+                        "customattributes.Name AS CustomerAttribute " +
+                        "FROM records " +
                         "LEFT JOIN locations ON locations.Id = records.LocationId " +
                         "LEFT JOIN notes ON notes.RowId=records.Id AND notes.TableId = 26 " +
                         "LEFT JOIN customattributevalues ON customattributevalues.RecordId = records.Id " +
                         "LEFT JOIN customattributes ON customattributevalues.AttrId = customattributes.Id " +
                         "LEFT JOIN containers ON containers.Id = records.ContainerId " +
-                        "LEFT JOIN recordtypes ON recordtypes.Id = records.TypeId and recordtypes.Id = 83 " +
-                        "WHERE ";
+                        "INNER JOIN recordtypes ON recordtypes.Id = records.TypeId AND recordtypes.Id = 83 " +
+                        "WHERE " +
+                        "(records.ConsignmentCode LIKE ? " +
+                        "OR records.Number LIKE ? " +
+                        "OR containers.Number LIKE ? " +
+                        "OR records.Title LIKE ? " +
+                        "OR notes.Text LIKE ? " +
+                        "OR containers.Title LIKE ?) ";
 
+        for (int i = 0; i < 6; i++) {
+            params = appendValue(params, projectSearchInput);
+        }
 
         if (functionFilterLength > 1) {
-            // xyz AND
-            // TODO
+            // TODO: what's function?
+            filterByFunction = "%" + filterByFunction + "%";
+            sql = sql + "";
             params = appendValue(params, filterByFunction);
         }
 
         if (PMFilterLength > 1) {
-            // xyz AND
-            sql = sql + "customattributevalues.Value = ? AND customattributes.Id = 6 AND ";
+            sql = sql + "AND customattributevalues.Value LIKE ? AND customattributes.Id = 6 ";
+            filterByPM = "%" + filterByPM + "%";
             params = appendValue(params, filterByPM);
         }
 
         if (CNFilterLength > 1) {
-            // xyz AND
-            sql = sql + "customattributevalues.Value = ? AND customattributes.Id = 9 AND ";
+            sql = sql + "AND customattributevalues.Value LIKE ? AND customattributes.Id = 9 ";
+            filterByClientName = "%" + filterByClientName + "%";
             params = appendValue(params, filterByClientName);
         }
 
-        sql = sql + "records.ConsignmentCode lIKE ? OR records.Number LIKE ? OR records.Title LIKE ? OR notes.Text LIKE ?";
-        params = params = appendValue(params, projectSearchInput);
-        params = params = appendValue(params, projectSearchInput);
-        params = params = appendValue(params, projectSearchInput);
-        params = params = appendValue(params, projectSearchInput);
-
         System.out.println(sql);
         System.out.println(params.toString());
-
-        final List<record> recordList;
 
         recordList = jdbcTemplate.query(sql, new ResultSetExtractor<List<record>>() {
 
@@ -826,10 +848,12 @@ public class recordDao {
                     l.setNumber(resultSet.getString("RecordsNumber"));
                     l.setTitle(resultSet.getString("RecordsTitle"));
                     l.setConsignmentCode(resultSet.getString("ConsignmentCode"));
+                    l.setContainersNumber(resultSet.getString("ContainerNumber"));
+                    l.setContainersTitle(resultSet.getString("ContainerTitle"));
                     l.setLocationName(resultSet.getString("LocationName"));
                     l.setNotesText(resultSet.getString("NotesText"));
-                    l.setCustomerName(resultSet.getString("CustomerName"));
-                    l.setCustomerType(resultSet.getString("CustomerType"));
+                    l.setCustomerName(resultSet.getString("CustomerAttributeValue"));
+                    l.setCustomerType(resultSet.getString("CustomerAttribute"));
 
                     list.add(l);
                 }
@@ -841,62 +865,82 @@ public class recordDao {
         return recordList;
     }
 
+    /**
+     * Record specific type search for proposals.
+     *
+     *
+     * @param proposalSearchInput - record number, box number, record title, box title, notes, or consignment code to be searched
+     * @param filterByFOP
+     * @param filterByPM
+     * @param filterByClientName
+     * @return
+     */
 
     public List<record> searchByProposal(String proposalSearchInput, String filterByFOP, String filterByPM, String filterByClientName) {
-
         System.out.println("in RecordDao... searchByProposal()");
         Object[] params = new Object[]{};
+        final List<record> recordList;
+
+        proposalSearchInput = "%" + proposalSearchInput + "%";
+
+        filterByFOP = filterByFOP.trim();
+        filterByPM = filterByPM.trim();
+        filterByClientName = filterByClientName.trim();
+
         int FOPFilterLength = filterByFOP.length();
         int PMFilterLength = filterByPM.length();
         int CNFilterLength = filterByClientName.length();
 
         String sql =
-                "SELECT 'Proposal' AS ProjectType, " +
-                        " records.Number AS RecordsNumber, " +
-                        " records.Title AS RecordsTitle, " +
-                        " records.ConsignmentCode AS ConsignmentCode, " +
-                        " locations.Name AS LocationName, " +
-                        " coalesce('NA', notes.Text) AS NotesText, " +
-                        " customattributevalues.Value AS CustomerName, " +
-                        " customattributes.Name AS CustomerType " +
-                        "FROM recordr.records  " +
+                "SELECT 'Proposal' AS RecordType, " +
+                        "records.Number AS RecordsNumber, " +
+                        "records.Title AS RecordsTitle, " +
+                        "records.ConsignmentCode AS ConsignmentCode, " +
+                        "containers.Number AS ContainerNumber, " +
+                        "containers.Title AS ContainerTitle, " +
+                        "locations.Name AS LocationName, " +
+                        "coalesce('NA', notes.Text) AS NotesText, " +
+                        "customattributevalues.Value AS CustomerAttributeValue, " +
+                        "customattributes.Name AS CustomerAttribute " +
+                        "FROM records " +
                         "LEFT JOIN locations ON locations.Id = records.LocationId " +
                         "LEFT JOIN notes ON notes.RowId=records.Id AND notes.TableId = 26 " +
                         "LEFT JOIN customattributevalues ON customattributevalues.RecordId = records.Id " +
                         "LEFT JOIN customattributes ON customattributevalues.AttrId = customattributes.Id " +
                         "LEFT JOIN containers ON containers.Id = records.ContainerId " +
-                        "LEFT JOIN recordtypes ON recordtypes.Id = records.TypeId and recordtypes.Id = 32 " +
-                        "WHERE ";
+                        "INNER JOIN recordtypes ON recordtypes.Id = records.TypeId and recordtypes.Id = 32 " +
+                        "WHERE " +
+                        "(records.ConsignmentCode LIKE ? " +
+                        "OR records.Number LIKE ? " +
+                        "OR containers.Number LIKE ? " +
+                        "OR records.Title LIKE ? " +
+                        "OR notes.Text LIKE ? " +
+                        "OR containers.Title LIKE ?) ";
 
+        for (int i = 0; i < 6; i++) {
+            params = appendValue(params, proposalSearchInput);
+        }
 
         if (FOPFilterLength > 1) {
-            // xyz AND
-            sql = sql + "customattributevalues.Value = ? AND customattributes.Id = 4 AND ";
+            sql = sql + "AND customattributevalues.Value LIKE ? AND customattributes.Id = 4 ";
+            filterByFOP = "%" + filterByFOP + "%";
             params = appendValue(params, filterByFOP);
         }
 
         if (PMFilterLength > 1) {
-            // xyz AND
-            sql = sql + "customattributevalues.Value = ? AND customattributes.Id = 6 AND ";
+            sql = sql + "AND customattributevalues.Value LIKE ? AND customattributes.Id = 7 ";
+            filterByPM = "%" + filterByPM + "%";
             params = appendValue(params, filterByPM);
         }
 
         if (CNFilterLength > 1) {
-            // xyz AND
-            sql = sql + "customattributevalues.Value = ? AND customattributes.Id = 9 AND ";
+            sql = sql + "AND customattributevalues.Value LIKE ? AND customattributes.Id = 9 ";
+            filterByClientName = "%" + filterByClientName + "%";
             params = appendValue(params, filterByClientName);
         }
 
-        sql = sql + "records.ConsignmentCode lIKE ? OR records.Number LIKE ? OR records.Title LIKE ? OR notes.Text LIKE ?";
-        params = params = appendValue(params, proposalSearchInput);
-        params = params = appendValue(params, proposalSearchInput);
-        params = params = appendValue(params, proposalSearchInput);
-        params = params = appendValue(params, proposalSearchInput);
-
         System.out.println(sql);
         System.out.println(params.toString());
-
-        final List<record> recordList;
 
         recordList = jdbcTemplate.query(sql, new ResultSetExtractor<List<record>>() {
 
@@ -910,10 +954,12 @@ public class recordDao {
                     l.setNumber(resultSet.getString("RecordsNumber"));
                     l.setTitle(resultSet.getString("RecordsTitle"));
                     l.setConsignmentCode(resultSet.getString("ConsignmentCode"));
+                    l.setContainersNumber(resultSet.getString("ContainerNumber"));
+                    l.setContainersTitle(resultSet.getString("ContainerTitle"));
                     l.setLocationName(resultSet.getString("LocationName"));
                     l.setNotesText(resultSet.getString("NotesText"));
-                    l.setCustomerName(resultSet.getString("CustomerName"));
-                    l.setCustomerType(resultSet.getString("CustomerType"));
+                    l.setCustomerName(resultSet.getString("CustomerAttributeValue"));
+                    l.setCustomerType(resultSet.getString("CustomerAttribute"));
 
                     list.add(l);
                 }
