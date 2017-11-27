@@ -490,7 +490,7 @@ public class GetController {
 
             proposalSearchInput = proposalSearchInput.replaceAll("\\s", "");
 
-            List<record> results = RecordDao.searchByProject(proposalSearchInput, filterByFieldOfPractice, filterByPM, filterbyClientName);
+            List<record> results = RecordDao.searchByProposal(proposalSearchInput, filterByFieldOfPractice, filterByPM, filterbyClientName);
 
             if (results.size() < 1) {
                 // no results found
