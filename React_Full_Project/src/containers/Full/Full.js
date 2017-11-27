@@ -21,6 +21,9 @@ import FontAwesome from '../../views/Icons/FontAwesome/';
 import SimpleLineIcons from '../../views/Icons/SimpleLineIcons/';
 import PrintQueue from '../../components/PrintQueue/';
 
+// TODO: For authentication
+import Page403 from '../../views/Pages/Page403/';
+
 var server = "http://13.59.251.84:8080";
 //var server = "http://127.0.0.1:8080";
 
@@ -64,6 +67,11 @@ class Full extends Component {
         }.bind(this); //have to bind to the callback function so that it will callback properly
 
         request.send();
+
+        //TODO: Paul's authentication Code
+
+        this.getAuthorization();
+
     }
 
 
@@ -97,39 +105,105 @@ class Full extends Component {
         });
     }
 
-    render() {
-        return (
-            <div className="app">
-                <Header />
-                <div className="app-body">
-                    <Sidebar {...this.props}/>
-                    <main className="main">
-                        <Breadcrumb />
-                        <Container fluid>
-                            <Switch>
-                                <Route path="/dashboard" name="Dashboard" component={() => <Dashboard addToRecordLabels={this.addToRecordLabels} addToEndTabLabels={this.addToEndTabLabels} addToContainerReports={this.addToContainerReports}  />}/>
-                                <Route path="/components/buttons" name="Buttons" component={Buttons}/>
-                                <Route path="/components/cards" name="Cards" component={Cards}/>
-                                <Route path="/components/forms" name="Forms" component={Forms}/>
-                                <Route path="/components/modals" name="Modals" component={Modals}/>
-                                <Route path="/components/social-buttons" name="Social Buttons" component={SocialButtons}/>
-                                <Route path="/components/switches" name="Swithces" component={Switches}/>
-                                <Route path="/components/tables" name="Tables" component={Tables}/>
-                                <Route path="/components/tabs" name="Tabs" component={Tabs}/>
-                                <Route path="/icons/font-awesome" name="Font Awesome" component={FontAwesome}/>
-                                <Route path="/icons/simple-line-icons" name="Simple Line Icons" component={SimpleLineIcons}/>
-                                <Route path="/widgets" name="Widgets" component={Widgets}/>
-                                <Route path="/charts" name="Charts" component={Charts}/>
-                                <Redirect from="/" to="/dashboard"/>
-                            </Switch>
-                        </Container>
-                    </main>
-                    <PrintQueue state={this.state} flush={this.flush}/>
-                </div>
-                <Footer />
-            </div>
-        );
+
+    //TODO: Paul's Authentication Code
+
+
+
+    getAuthorization() {
+        var request = new XMLHttpRequest();
+        request.open('GET', 'http://localhost:8080/users/authorization', false);
+        request.setRequestHeader("Content-type", "application/json");
+        request.onload = function () {
+            if (request.status >= 200 && request.status < 400) {
+                console.log("Authentication from Server:");
+                console.log(JSON.parse(request.response));
+                console.log("request.response['results']: " + JSON.parse(request.response)['results']);
+                /*if (JSON.parse(request.response)['results'] == 'Administrator') {
+                    this.setState({
+                        authorization: true
+                    });
+                }*/
+                if (JSON.parse(request.response)['results'] == 'Access Denied') {
+                    this.setState({
+                        authorization: false
+                    });
+                }
+                else {
+                    this.setState({
+                        authorization: true
+                    });
+                }
+            } else {
+                console.error('Response received and there was an error');
+            }
+        }.bind(this);
+        request.onerror = function () {
+            //TODO: display error to user
+            console.error('Request error for locationDropDown');
+        };
+        request.send(); //don't forget to send the httprequest lmao
     }
+
+
+    render() {
+        console.log("this.state.authorization: "+this.state.authorization);
+        if (this.state.authorization) {
+            return (
+                <div className="app">
+                    <Header />
+                    <div className="app-body">
+                        <Sidebar {...this.props}/>
+                        <main className="main">
+                            <Breadcrumb />
+                            <Container fluid>
+                                <Switch>
+                                    <Route path="/dashboard" name="Dashboard" component={() => <Dashboard addToRecordLabels={this.addToRecordLabels} addToEndTabLabels={this.addToEndTabLabels} addToContainerReports={this.addToContainerReports}  />}/>
+                                    <Route path="/components/buttons" name="Buttons" component={Buttons}/>
+                                    <Route path="/components/cards" name="Cards" component={Cards}/>
+                                    <Route path="/components/forms" name="Forms" component={Forms}/>
+                                    <Route path="/components/modals" name="Modals" component={Modals}/>
+                                    <Route path="/components/social-buttons" name="Social Buttons" component={SocialButtons}/>
+                                    <Route path="/components/switches" name="Swithces" component={Switches}/>
+                                    <Route path="/components/tables" name="Tables" component={Tables}/>
+                                    <Route path="/components/tabs" name="Tabs" component={Tabs}/>
+                                    <Route path="/icons/font-awesome" name="Font Awesome" component={FontAwesome}/>
+                                    <Route path="/icons/simple-line-icons" name="Simple Line Icons" component={SimpleLineIcons}/>
+                                    <Route path="/widgets" name="Widgets" component={Widgets}/>
+                                    <Route path="/charts" name="Charts" component={Charts}/>
+                                    <Redirect from="/" to="/dashboard"/>
+                                </Switch>
+                            </Container>
+                        </main>
+                        <PrintQueue state={this.state} flush={this.flush}/>
+                    </div>
+                    <Footer />
+                </div>
+            );
+        }
+
+        if (!this.state.authorization) {
+            return (
+                <div className="app">
+                    <Header />
+                    <div className="app-body">
+                        <main className="main">
+                            <Breadcrumb />
+                            <Container fluid>
+                                <Switch>
+                                    <Route path="/403" name="Page403" component={Page403}/>
+                                    <Redirect from="/" to="/403"/>
+                                </Switch>
+                            </Container>
+                        </main>
+                    </div>
+                    <Footer />
+                </div>
+            );
+        }
+    }
+
+
 }
 
 export default Full;
