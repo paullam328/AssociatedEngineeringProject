@@ -34,6 +34,11 @@ div.app-body main.main {
     margin-left: 0;
 }
 
+body.sidebar-fixed div.app footer.app-footer {
+    margin-left: 0;
+}
+
+
 .selected-types {
     margin: 5px 5px 5px 5px;
 }

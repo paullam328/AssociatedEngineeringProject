@@ -33,6 +33,9 @@ import classnames from 'classnames';
 import ReactTable from 'react-table'
 import 'react-table/react-table.css'
 import './Dashboard.css'
+import {Switch, Route, Redirect} from 'react-router-dom';
+import Page403 from '../Pages/Page403/'
+
 
 var responseJSON = {"results": []};
 var records = [];
@@ -408,7 +411,7 @@ class SearchBar extends React.Component {
         this.deleteLocation = this.deleteLocation.bind(this);
 
 
-        this.isCheckedQuickSearchAttr = this.isCheckedQuickSearchAttr.bind(this);
+        //this.isCheckedQuickSearchAttr = this.isCheckedQuickSearchAttr.bind(this); No more radio boxes
 
         this.toggleCollapseCreated = this.toggleCollapseCreated.bind(this);
         this.toggleCollapseCreatedFrom = this.toggleCollapseCreatedFrom.bind(this);
@@ -448,6 +451,17 @@ class SearchBar extends React.Component {
         this.getClassFromServerThenTransformToHtml();
         this.getStateFromServerThenTransformToHtml();
         this.getSchedFromServerThenTransformToHtml();
+
+        //value = "/authorization"
+
+        /*
+        Hide everything and check before all these runs
+        If (get any result from (http://127.0.0.1:8080/users/authorization) = {"results":"Administrator"}) then authorized
+        If (empty/access-denied) then redirect to Page403.js
+
+         */
+
+
     }
 
     sendHttpCall(method, url, json) {
@@ -607,7 +621,7 @@ class SearchBar extends React.Component {
         } else {
             let json = {};
             let url = "";
-            if (this.state.quickSearchAttr == "recordNum") {
+            /*if (this.state.quickSearchAttr == "recordNum") {
                 console.log(JSON.stringify({Number: this.state.numberOrConsignmentCode}));
                 url = "/records/number";
                 json = {Number: this.state.numberOrConsignmentCode};
@@ -625,6 +639,14 @@ class SearchBar extends React.Component {
             this.sendHttpCall(method, server + url, json).then(function (result) {
                 globalUpdate(result);
             });
+            */
+            let method = "POST";
+            url = "/records/quickSearch";
+            json = {quickSearchInput: this.state.numberOrConsignmentCode};
+            this.sendHttpCall(method, server + url, json).then(function (result) {
+                globalUpdate(result);
+            });
+
         }
         event.preventDefault();
     }
@@ -1017,12 +1039,12 @@ class SearchBar extends React.Component {
     }
 
 //For Quicksearch
-    isCheckedQuickSearchAttr(e) {
+    /*isCheckedQuickSearchAttr(e) {
         this.setState({
             quickSearchAttr: e.currentTarget.value
         });
     }
-
+*/
     toggleTypeDropdown() {
         this.setState({
             typeDropDownOpen: !this.state.typeDropDownOpen
@@ -1419,29 +1441,7 @@ class SearchBar extends React.Component {
                                 <div className="animated fadeIn">
                                     <Form onSubmit={this.handleSubmitQuickSearch}>
                                         <FormGroup tag="fieldset">
-                                            <legend>Please select quick search attribute:</legend>
-                                            <FormGroup check>
-                                                <Label check>
-                                                    <Input type="radio" name="radio1" value="recordNum"
-                                                           onChange={this.isCheckedQuickSearchAttr}
-                                                           defaultChecked={true}/>{' '}
-                                                    Record Number
-                                                </Label>
-                                            </FormGroup>
-                                            <FormGroup check>
-                                                <Label check>
-                                                    <Input type="radio" name="radio1" value="consignmentCode"
-                                                           onChange={this.isCheckedQuickSearchAttr}/>{' '}
-                                                    Consignment Code
-                                                </Label>
-                                            </FormGroup>
-                                            <FormGroup check>
-                                                <Label check>
-                                                    <Input type="radio" name="radio1" value="boxNum"
-                                                           onChange={this.isCheckedQuickSearchAttr}/>{' '}
-                                                    Box Number
-                                                </Label>
-                                            </FormGroup>
+                                            <legend>Please enter a valid record number, box number, or consignment code:</legend>
                                         </FormGroup>
 
                                         <FormGroup row>
@@ -1545,13 +1545,16 @@ class SearchBar extends React.Component {
 
                                         <FormGroup row>
                                             <Label for="dateCreated" sm={2}>Date Created (yyyy/mm/dd): </Label>
-                                            <Col sm={{size: 10}}>
+                                            <Col sm={{size: 2}}>
+                                                <Input type="text" name="..."/>
+                                            </Col>
+                                            <Col sm={{size: 5}}>
                                                 {' '}<Input type="checkbox" onClick={this.toggleCollapseCreated}/>{' '}
                                                 Check this if you just want one specific date
                                             </Col>
                                         </FormGroup>
 
-                                        <Collapse sm={20} isOpen={this.state.collapseCreated}>
+                                        <Collapse isOpen={this.state.collapseCreated}>
                                             <FormGroup row>
                                                 <Col sm={2}>
                                                     <Input type="text" name="createdyyyy" value={this.state.createdyyyy}
