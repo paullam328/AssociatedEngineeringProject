@@ -61,12 +61,12 @@ public class recordDao {
     }
 
     public List<record> SearchRecordsByTitle(String title, String Number) {
-        Object[] obj = new Object[] {};
+        Object[] obj = new Object[]{};
 
         String likeExpression = "%" + title + "%";
         String numberExpression = "%" + Number + "%";
-        obj = appendValue(obj,likeExpression);
-        obj = appendValue(obj,numberExpression);
+        obj = appendValue(obj, likeExpression);
+        obj = appendValue(obj, numberExpression);
 
         final String sql = "SELECT * FROM records WHERE Title Like ? AND Number Like ?  LIMIT 0,5";
         List<record> Record = jdbcTemplate.query(sql, new RowMapper<record>() {
@@ -90,13 +90,13 @@ public class recordDao {
                 System.out.print(records);
                 return records;
             }
-        },obj);
+        }, obj);
         return Record;
     }
 
     /**
      * Quick search by ConsignmentCode.
-     *
+     * <p>
      * Returns all columns of records, location.Name (location_name),
      * notes.Text (notes), cutomattributevalues.Value (client_name),
      * and all columns of containers for the given consignment code.
@@ -176,10 +176,8 @@ public class recordDao {
                 int lastid = -1;
                 int lastChunk = -2;
                 int index = 0;
-                while(resultSet.next())
-                {
-                    if(resultSet.getInt("Id") == lastid && lastChunk + 1 == resultSet.getInt("Chunk"))
-                    {
+                while (resultSet.next()) {
+                    if (resultSet.getInt("Id") == lastid && lastChunk + 1 == resultSet.getInt("Chunk")) {
                         //Additional pieces of the same note
                         noteSearch old = arr.get(index);
                         old.Text = old.Text.concat(resultSet.getString("Text"));
@@ -216,7 +214,7 @@ public class recordDao {
 
     /**
      * Returns the location name of a record given record's Id.
-     *
+     * <p>
      * Inner join on locations and records tables.
      *
      * @param RecordId Id from records table
@@ -248,7 +246,7 @@ public class recordDao {
 
     /**
      * Returns all columns from customattributevalues for customattributevalues == 7 and the given record ID.
-     *
+     * <p>
      * Inner join on customattributevalues and records tables
      *
      * @param RecordId Id from records table
@@ -315,10 +313,9 @@ public class recordDao {
     }
 
 
-
     /**
      * Quick search by record number.
-     *
+     * <p>
      * Returns all columns of records, location.Name (location_name),
      * notes.Text (notes), cutomattributevalues.Value (client_name),
      * and all columns of containers for the given record number.
@@ -382,10 +379,9 @@ public class recordDao {
     }
 
 
-
     /**
      * FullText Search for record by a keyword
-     *
+     * <p>
      * Returns all matched records in FullText table
      *
      * @param keyword - keyword to search
@@ -393,13 +389,16 @@ public class recordDao {
      */
 
 
-
     public List<JSONObject> FullTextSearch(String keyword, JSONObject filters, Integer page, Integer pageSize) {
 
-        Object[] params = new Object[] {};
+        Object[] params = new Object[]{};
         keyword = "%" + keyword + "%";
-        params = appendValue(params,keyword);params = appendValue(params,keyword); params = appendValue(params,keyword);
-        params = appendValue(params,keyword);params = appendValue(params,keyword); params = appendValue(params,keyword);
+        params = appendValue(params, keyword);
+        params = appendValue(params, keyword);
+        params = appendValue(params, keyword);
+        params = appendValue(params, keyword);
+        params = appendValue(params, keyword);
+        params = appendValue(params, keyword);
 
 
         String classname;
@@ -407,44 +406,44 @@ public class recordDao {
         String sql = "SELECT * FROM FullTextTable WHERE (rNumber LIKE ? OR bNumber LIKE ? OR rTitle LIKE ? OR bTitle LIKE ? OR nTexts LIKE ? OR bcosign LIKE ?) ";
 
 
-        if(filters.has("CreatedStart")) {
+        if (filters.has("CreatedStart")) {
 
             sql = sql + "AND rCreatedAt >= ? ";
-            params = appendValue(params,filters.get("CreatedStart"));
+            params = appendValue(params, filters.get("CreatedStart"));
         }
-        if(filters.has("CreatedTo")) {
+        if (filters.has("CreatedTo")) {
             sql = sql + "AND rCreatedAt <= ? ";
-            params = appendValue(params,filters.get("CreatedTo"));
+            params = appendValue(params, filters.get("CreatedTo"));
         }
-        if(filters.has("CreatedAt")) {
+        if (filters.has("CreatedAt")) {
             sql = sql + "AND rCreatedAt == ? ";
-            params = appendValue(params,filters.get("CreatedAt"));
+            params = appendValue(params, filters.get("CreatedAt"));
         }
-        if(filters.has("UpdatedStart")) {
+        if (filters.has("UpdatedStart")) {
             sql = sql + "AND rUpdatedAt >= ? ";
-            params = appendValue(params,filters.get("UpdatedStart"));
+            params = appendValue(params, filters.get("UpdatedStart"));
         }
-        if(filters.has("UpdatedTo")) {
+        if (filters.has("UpdatedTo")) {
             sql = sql + "AND rUpdatedAt <= ? ";
-            params = appendValue(params,filters.get("UpdatedTo"));
+            params = appendValue(params, filters.get("UpdatedTo"));
         }
-        if(filters.has("UpdatedAt")) {
+        if (filters.has("UpdatedAt")) {
             sql = sql + "AND rUpdatedAt == ? ";
-            params = appendValue(params,filters.get("UpdatedAt"));
+            params = appendValue(params, filters.get("UpdatedAt"));
         }
-        if(filters.has("ClosedStart")) {
+        if (filters.has("ClosedStart")) {
             sql = sql + "AND rClosedAt >= ? ";
-            params = appendValue(params,filters.get("ClosedStart"));
+            params = appendValue(params, filters.get("ClosedStart"));
         }
-        if(filters.has("ClosedTo")) {
+        if (filters.has("ClosedTo")) {
             sql = sql + "AND rClosedAt <= ? ";
-            params = appendValue(params,filters.get("ClosedTo"));
+            params = appendValue(params, filters.get("ClosedTo"));
         }
-        if(filters.has("ClosedAt")) {
+        if (filters.has("ClosedAt")) {
             sql = sql + "AND rClosedAt == ? ";
-            params = appendValue(params,filters.get("ClosedAt"));
+            params = appendValue(params, filters.get("ClosedAt"));
         }
-        if(filters.has("LocationId")) {
+        if (filters.has("LocationId")) {
             if (filters.getJSONArray("LocationId").length() > 0) {
                 sql = sql + "AND (lid=? ";
                 params = appendValue(params, filters.getJSONArray("LocationId").get(0));
@@ -457,7 +456,7 @@ public class recordDao {
                 sql = sql + " ) ";
             }
         }
-        if(filters.has("TypeId")) {
+        if (filters.has("TypeId")) {
             if (filters.getJSONArray("TypeId").length() > 0) {
                 sql = sql + " AND (rtid=? ";
                 params = appendValue(params, filters.getJSONArray("TypeId").get(0));
@@ -470,7 +469,7 @@ public class recordDao {
                 sql = sql + " ) ";
             }
         }
-        if(filters.has("ClassName")) {
+        if (filters.has("ClassName")) {
             if (filters.getJSONArray("ClassName").length() > 0) {
                 classname = "%" + filters.getJSONArray("ClassName").get(0) + "%";
                 sql = sql + "AND (classList LIKE ? ";
@@ -485,7 +484,7 @@ public class recordDao {
                 sql = sql + " ) ";
             }
         }
-        if(filters.has("StateId")) {
+        if (filters.has("StateId")) {
             if (filters.getJSONArray("StateId").length() > 0) {
                 sql = sql + "AND (rsid=? ";
                 params = appendValue(params, filters.getJSONArray("StateId").get(0));
@@ -498,7 +497,7 @@ public class recordDao {
                 sql = sql + " ) ";
             }
         }
-        if(filters.has("SchedId")) {
+        if (filters.has("SchedId")) {
             if (filters.getJSONArray("SchedId").length() > 0) {
                 sql = sql + "AND (rscid=?  ";
                 params = appendValue(params, filters.getJSONArray("SchedId").get(0));
@@ -513,9 +512,9 @@ public class recordDao {
         }
 
         sql = sql + " LIMIT ?,?";
-        Integer offset =pageSize*(page-1);
-        params = appendValue(params,offset);
-        params = appendValue(params,pageSize);
+        Integer offset = pageSize * (page - 1);
+        params = appendValue(params, offset);
+        params = appendValue(params, pageSize);
 
         System.out.print(sql);
         System.out.print(params);
@@ -523,28 +522,28 @@ public class recordDao {
         List<JSONObject> FTresults = jdbcTemplate.query(sql, new RowMapper<JSONObject>() {
             public JSONObject mapRow(ResultSet resultSet, int Id) throws SQLException {
                 JSONObject FTresult = new JSONObject();
-                FTresult.put("RecordId",resultSet.getInt("rid"));
-                FTresult.put("RecordConsign",resultSet.getString("rconsign"));
-                FTresult.put("CreatedAt",resultSet.getDate("rCreatedAt"));
-                FTresult.put("ClosedAt",resultSet.getDate("rClosedAt"));
-                FTresult.put("RecordNumber",resultSet.getString("rNumber"));
-                FTresult.put("RecordTitle",resultSet.getString("rTitle"));
-                FTresult.put("UpdatedAt",resultSet.getDate("rUpdatedAt"));
-                FTresult.put("BoxId",resultSet.getInt("bid"));
-                FTresult.put("BoxConsign",resultSet.getString("bcosign"));
-                FTresult.put("BoxTitle",resultSet.getString("bTitle"));
-                FTresult.put("BoxNumber",resultSet.getString("bNumber"));
-                FTresult.put("NoteId",resultSet.getInt("nid"));
-                FTresult.put("Notes",resultSet.getString("nTexts"));
-                FTresult.put("LocationId",resultSet.getInt("lid"));
-                FTresult.put("LocationName",resultSet.getString("lName"));
-                FTresult.put("TypeId",resultSet.getInt("rtid"));
-                FTresult.put("TypeName",resultSet.getString("rtName"));
-                FTresult.put("Classifications",resultSet.getString("classList"));
-                FTresult.put("StateId",resultSet.getInt("rsid"));
-                FTresult.put("StateName",resultSet.getString("rsName"));
-                FTresult.put("ScheduleId",resultSet.getInt("rscid"));
-                FTresult.put("ScheduleName",resultSet.getString("rscName"));
+                FTresult.put("RecordId", resultSet.getInt("rid"));
+                FTresult.put("RecordConsign", resultSet.getString("rconsign"));
+                FTresult.put("CreatedAt", resultSet.getDate("rCreatedAt"));
+                FTresult.put("ClosedAt", resultSet.getDate("rClosedAt"));
+                FTresult.put("RecordNumber", resultSet.getString("rNumber"));
+                FTresult.put("RecordTitle", resultSet.getString("rTitle"));
+                FTresult.put("UpdatedAt", resultSet.getDate("rUpdatedAt"));
+                FTresult.put("BoxId", resultSet.getInt("bid"));
+                FTresult.put("BoxConsign", resultSet.getString("bcosign"));
+                FTresult.put("BoxTitle", resultSet.getString("bTitle"));
+                FTresult.put("BoxNumber", resultSet.getString("bNumber"));
+                FTresult.put("NoteId", resultSet.getInt("nid"));
+                FTresult.put("Notes", resultSet.getString("nTexts"));
+                FTresult.put("LocationId", resultSet.getInt("lid"));
+                FTresult.put("LocationName", resultSet.getString("lName"));
+                FTresult.put("TypeId", resultSet.getInt("rtid"));
+                FTresult.put("TypeName", resultSet.getString("rtName"));
+                FTresult.put("Classifications", resultSet.getString("classList"));
+                FTresult.put("StateId", resultSet.getInt("rsid"));
+                FTresult.put("StateName", resultSet.getString("rsName"));
+                FTresult.put("ScheduleId", resultSet.getInt("rscid"));
+                FTresult.put("ScheduleName", resultSet.getString("rscName"));
 
 //                System.out.print(records);
                 return FTresult;
@@ -555,7 +554,7 @@ public class recordDao {
 
     /**
      * FullText Search locations dropdown
-     *
+     * <p>
      * Returns a list of locations {locationId,locationName} for the dropdown menu
      */
 
@@ -566,8 +565,8 @@ public class recordDao {
         List<JSONObject> AllLocations = jdbcTemplate.query(sql, new RowMapper<JSONObject>() {
             public JSONObject mapRow(ResultSet resultSet, int Id) throws SQLException {
                 JSONObject Location = new JSONObject();
-                Location.put("LocationId",resultSet.getInt("Id"));
-                Location.put("LocationName",resultSet.getString("Name"));
+                Location.put("LocationId", resultSet.getInt("Id"));
+                Location.put("LocationName", resultSet.getString("Name"));
 
                 return Location;
             }
@@ -577,7 +576,7 @@ public class recordDao {
 
     /**
      * FullText Search classifications dropdown
-     *
+     * <p>
      * Returns a list of classifications {Id, Name} for the classifications dropdown menu
      */
 
@@ -588,8 +587,8 @@ public class recordDao {
         List<JSONObject> AllClassifications = jdbcTemplate.query(sql, new RowMapper<JSONObject>() {
             public JSONObject mapRow(ResultSet resultSet, int Id) throws SQLException {
                 JSONObject classification = new JSONObject();
-                classification.put("classId",resultSet.getInt("Id"));
-                classification.put("className",resultSet.getString("Name"));
+                classification.put("classId", resultSet.getInt("Id"));
+                classification.put("className", resultSet.getString("Name"));
 
                 return classification;
             }
@@ -599,7 +598,7 @@ public class recordDao {
 
     /**
      * FullText Search states dropdown
-     *
+     * <p>
      * Returns a list of states {Id, Name} for the states dropdown menu
      */
 
@@ -610,8 +609,8 @@ public class recordDao {
         List<JSONObject> Allstates = jdbcTemplate.query(sql, new RowMapper<JSONObject>() {
             public JSONObject mapRow(ResultSet resultSet, int Id) throws SQLException {
                 JSONObject state = new JSONObject();
-                state.put("stateId",resultSet.getInt("Id"));
-                state.put("stateName",resultSet.getString("Name"));
+                state.put("stateId", resultSet.getInt("Id"));
+                state.put("stateName", resultSet.getString("Name"));
 
                 return state;
             }
@@ -621,7 +620,7 @@ public class recordDao {
 
     /**
      * FullText Search record types dropdown
-     *
+     * <p>
      * Returns a list of types {Id, Name} for the types dropdown menu
      */
 
@@ -632,8 +631,8 @@ public class recordDao {
         List<JSONObject> Alltypes = jdbcTemplate.query(sql, new RowMapper<JSONObject>() {
             public JSONObject mapRow(ResultSet resultSet, int Id) throws SQLException {
                 JSONObject type = new JSONObject();
-                type.put("typeId",resultSet.getInt("Id"));
-                type.put("typeName",resultSet.getString("Name"));
+                type.put("typeId", resultSet.getInt("Id"));
+                type.put("typeName", resultSet.getString("Name"));
 
                 return type;
             }
@@ -652,8 +651,8 @@ public class recordDao {
         List<JSONObject> Allschedules = jdbcTemplate.query(sql, new RowMapper<JSONObject>() {
             public JSONObject mapRow(ResultSet resultSet, int Id) throws SQLException {
                 JSONObject sched = new JSONObject();
-                sched.put("schedId",resultSet.getInt("Id"));
-                sched.put("schedName",resultSet.getString("Name"));
+                sched.put("schedId", resultSet.getInt("Id"));
+                sched.put("schedName", resultSet.getString("Name"));
 
                 return sched;
             }
@@ -670,8 +669,8 @@ public class recordDao {
         List<JSONObject> allColours = jdbcTemplate.query(sql, new RowMapper<JSONObject>() {
             public JSONObject mapRow(ResultSet resultSet, int Id) throws SQLException {
                 JSONObject colour = new JSONObject();
-                colour.put("key",resultSet.getString("key"));
-                colour.put("colour",resultSet.getString("colour"));
+                colour.put("key", resultSet.getString("key"));
+                colour.put("colour", resultSet.getString("colour"));
 
                 return colour;
             }
@@ -681,7 +680,7 @@ public class recordDao {
 
     /**
      * Quick search
-     *
+     * <p>
      * Returns all columns of records, location.Name (location_name),
      * notes.Text (notes), cutomattributevalues.Value (client_name),
      * and all columns of containers for the given records number, records
@@ -693,7 +692,7 @@ public class recordDao {
     public List<record> searchByQuickSearch(String quickSearchInput) {
         System.out.println("in searchByQuickSearch");
         final String sql =
-                        "SELECT records.*, " +
+                "SELECT records.*, " +
                         "COALESCE(locations.Name, 'NA') AS location_name, " +
                         "COALESCE(notes.Text, 'NA') AS notes, " +
                         "COALESCE(customattributevalues.Value, 'NA') AS client_name, " +
@@ -759,12 +758,10 @@ public class recordDao {
     }
 
 
-
-
     public List<record> searchByProject(String projectSearchInput, String filterByFunction, String filterByPM, String filterByClientName) {
 
         System.out.println("in RecordDao... searchByProject()");
-        Object[] params = new Object[] {};
+        Object[] params = new Object[]{};
         int functionFilterLength = filterByFunction.length();
         int PMFilterLength = filterByPM.length();
         int CNFilterLength = filterByClientName.length();
@@ -792,7 +789,6 @@ public class recordDao {
             // xyz AND
             // TODO
             params = appendValue(params, filterByFunction);
-
         }
 
         if (PMFilterLength > 1) {
@@ -818,34 +814,118 @@ public class recordDao {
 
         final List<record> recordList;
 
-            recordList = jdbcTemplate.query(sql, new ResultSetExtractor<List<record>>() {
+        recordList = jdbcTemplate.query(sql, new ResultSetExtractor<List<record>>() {
 
-                @Override
-                public List<record> extractData(ResultSet resultSet) throws SQLException, DataAccessException {
-                    List<record> list = new ArrayList<record>();
+            @Override
+            public List<record> extractData(ResultSet resultSet) throws SQLException, DataAccessException {
+                List<record> list = new ArrayList<record>();
 
-                    while (resultSet.next()) {
-                        record l = new record();
-                        l.setRecordType("Project");
-                        l.setNumber(resultSet.getString("RecordsNumber"));
-                        l.setTitle(resultSet.getString("RecordsTitle"));
-                        l.setConsignmentCode(resultSet.getString("ConsignmentCode"));
-                        l.setLocationName(resultSet.getString("LocationName"));
-                        l.setNotesText(resultSet.getString("NotesText"));
-                        l.setCustomerName(resultSet.getString("CustomerName"));
-                        l.setCustomerType(resultSet.getString("CustomerType"));
+                while (resultSet.next()) {
+                    record l = new record();
+                    l.setRecordType("Project");
+                    l.setNumber(resultSet.getString("RecordsNumber"));
+                    l.setTitle(resultSet.getString("RecordsTitle"));
+                    l.setConsignmentCode(resultSet.getString("ConsignmentCode"));
+                    l.setLocationName(resultSet.getString("LocationName"));
+                    l.setNotesText(resultSet.getString("NotesText"));
+                    l.setCustomerName(resultSet.getString("CustomerName"));
+                    l.setCustomerType(resultSet.getString("CustomerType"));
 
-                        list.add(l);
-                    }
-
-                    System.out.println(list);
-                    return list;
+                    list.add(l);
                 }
-            }, params);
+
+                System.out.println(list);
+                return list;
+            }
+        }, params);
         return recordList;
+    }
+
+
+    public List<record> searchByProposal(String proposalSearchInput, String filterByFOP, String filterByPM, String filterByClientName) {
+
+        System.out.println("in RecordDao... searchByProposal()");
+        Object[] params = new Object[]{};
+        int FOPFilterLength = filterByFOP.length();
+        int PMFilterLength = filterByPM.length();
+        int CNFilterLength = filterByClientName.length();
+
+        String sql =
+                "SELECT 'Proposal' AS ProjectType, " +
+                        " records.Number AS RecordsNumber, " +
+                        " records.Title AS RecordsTitle, " +
+                        " records.ConsignmentCode AS ConsignmentCode, " +
+                        " locations.Name AS LocationName, " +
+                        " coalesce('NA', notes.Text) AS NotesText, " +
+                        " customattributevalues.Value AS CustomerName, " +
+                        " customattributes.Name AS CustomerType " +
+                        "FROM recordr.records  " +
+                        "LEFT JOIN locations ON locations.Id = records.LocationId " +
+                        "LEFT JOIN notes ON notes.RowId=records.Id AND notes.TableId = 26 " +
+                        "LEFT JOIN customattributevalues ON customattributevalues.RecordId = records.Id " +
+                        "LEFT JOIN customattributes ON customattributevalues.AttrId = customattributes.Id " +
+                        "LEFT JOIN containers ON containers.Id = records.ContainerId " +
+                        "LEFT JOIN recordtypes ON recordtypes.Id = records.TypeId and recordtypes.Id = 32 " +
+                        "WHERE ";
+
+
+        if (FOPFilterLength > 1) {
+            // xyz AND
+            sql = sql + "customattributevalues.Value = ? AND customattributes.Id = 4 AND ";
+            params = appendValue(params, filterByFOP);
         }
 
+        if (PMFilterLength > 1) {
+            // xyz AND
+            sql = sql + "customattributevalues.Value = ? AND customattributes.Id = 6 AND ";
+            params = appendValue(params, filterByPM);
+        }
+
+        if (CNFilterLength > 1) {
+            // xyz AND
+            sql = sql + "customattributevalues.Value = ? AND customattributes.Id = 9 AND ";
+            params = appendValue(params, filterByClientName);
+        }
+
+        sql = sql + "records.ConsignmentCode lIKE ? OR records.Number LIKE ? OR records.Title LIKE ? OR notes.Text LIKE ?";
+        params = params = appendValue(params, proposalSearchInput);
+        params = params = appendValue(params, proposalSearchInput);
+        params = params = appendValue(params, proposalSearchInput);
+        params = params = appendValue(params, proposalSearchInput);
+
+        System.out.println(sql);
+        System.out.println(params.toString());
+
+        final List<record> recordList;
+
+        recordList = jdbcTemplate.query(sql, new ResultSetExtractor<List<record>>() {
+
+            @Override
+            public List<record> extractData(ResultSet resultSet) throws SQLException, DataAccessException {
+                List<record> list = new ArrayList<record>();
+
+                while (resultSet.next()) {
+                    record l = new record();
+                    l.setRecordType("Proposal");
+                    l.setNumber(resultSet.getString("RecordsNumber"));
+                    l.setTitle(resultSet.getString("RecordsTitle"));
+                    l.setConsignmentCode(resultSet.getString("ConsignmentCode"));
+                    l.setLocationName(resultSet.getString("LocationName"));
+                    l.setNotesText(resultSet.getString("NotesText"));
+                    l.setCustomerName(resultSet.getString("CustomerName"));
+                    l.setCustomerType(resultSet.getString("CustomerType"));
+
+                    list.add(l);
+                }
+
+                System.out.println(list);
+                return list;
+            }
+        }, params);
+        return recordList;
     }
+
+}
 
 
 
