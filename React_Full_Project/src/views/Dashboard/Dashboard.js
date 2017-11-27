@@ -1,33 +1,20 @@
 import React, {Component} from "react";
-import axios from 'axios';
-import * as ReactDOM from 'react-dom'
 import {
-    Badge,
     Button,
     Row,
     Col,
     Collapse,
     Card,
-    CardHeader,
     CardBlock,
-    CardFooter,
     Form,
     FormGroup,
-    FormText,
     Label,
     Input,
-    InputGroup,
-    InputGroupAddon,
-    InputGroupButton,
-    Table,
-    Pagination,
-    PaginationItem,
-    PaginationLink,
     Dropdown,
     DropdownToggle,
     DropdownMenu,
     DropdownItem,
-    TabContent, TabPane, Nav, NavItem, NavLink, CardTitle, CardText,
+    TabContent, TabPane, Nav, NavItem, NavLink
 } from "reactstrap";
 import classnames from 'classnames';
 import ReactTable from 'react-table'
@@ -36,20 +23,14 @@ import './Dashboard.css'
 import {Switch, Route, Redirect} from 'react-router-dom';
 import Page403 from '../Pages/Page403/'
 
-
 var responseJSON = {"results": []};
 var records = [];
 var dashGlobal = {};
-//let filters = [];
-var filters = [{"column": "createdAt", "type": "LT", "value": [2009, 12, 31]}, {
-    "column": "createdAt",
-    "type": "GT",
-    "value": [2005, 1, 1]
-}];
+var filters = [];
+
 //var server = "http://13.59.251.84:8080";
 var server = "http://localhost:8080";
 var name;
-
 
 function getDate(input) { //converts the JSON's string date into an array of ints, [year, month, day]
     return input.split("-", 3).map(function (x) {
@@ -57,77 +38,15 @@ function getDate(input) { //converts the JSON's string date into an array of int
     });
 }
 
-//so u want me to change to column? I dont mind
-function callFilter(row, index, arr) {
-    //console.log("ensure the filters are correct" + JSON.stringify(filters));
-    //console.log("JSON.stringify(this): " + JSON.stringify(this));
-
-    for (let criterion of this)
-        //for (var criterion = 0; criterion < this.length; criterion++)
-    {
-        //console.log("criterion is" + JSON.stringify(criterion));
-        //criterion = {"column":"createdAt","type":"EQ","value":["2015","05","05"]}
-        //criterion is 0 now
-
-        //why dont we just try 2004/05/05 instead then
-
-        if (['typeId', 'locationId', 'stateId', 'classId'].indexOf(criterion.column) !== -1) {
-            //EQ means only include those with value,
-            //otherwise means exclude those with value
-            if (criterion.type === "EQ") {
-                if (criterion.value.indexOf(row[criterion.column]) === -1) return false;
-            }
-            else if (criterion.value.indexOf(row[criterion.column]) !== -1) return false;
-        }
-        else if (['UpdatedAt', 'CreatedAt', 'ClosedAt'].indexOf(criterion.column) !== -1)// but front end is not capitalized, so
-        // this will equate to if(false)
-        {
-            //console.log("row[criterion.column] is:" + JSON.stringify(row[criterion.column]));//why is it 2004?
-            //we can assume the hr
-            let date = getDate(row[criterion.column]);
-            console.log("date is: " + JSON.stringify(date));
-            console.log("criterion.value is: " + JSON.stringify(criterion.value));
-            switch (criterion.type) {
-                case 'GT': //after this date
-                    if (date[0] < parseInt(criterion.value[0]) || date[1] < parseInt(criterion.value[1]) || date[2] < parseInt(criterion.value[2])) return false;
-                    break;
-                case 'EQ': //at this date (probably more like year)
-                    if (date[0] !== parseInt(criterion.value[0]) || date[1] !== parseInt(criterion.value[1]) || date[2] !== parseInt(criterion.value[2])) return false;
-                    break;
-                case 'LT': //after this date
-                    if (date[0] > parseInt(criterion.value[0]) || date[1] > parseInt(criterion.value[1]) || date[2] > parseInt(criterion.value[2])) return false;
-                    break;
-                default: //invalid comparator
-                    throw "filter::invalid comparator " + criterion.type;
-            }
-        }
-    }
-    return true;
-}
-
-//filterJSON takes two parameters
-//input is an array of records
-//criteria is an array of criterions
-//each criterion has at least 3 elements
-//column indicates which record column it operates on
-//type is the comparator to use. GT, EQ, LT
-//value is the value to compare to
-
-function filterJSON(input, crit) {
-    console.log("input is: " + JSON.stringify(input));
-    if (input === null || input === undefined) return null;
-    return input.filter(callFilter, crit);
-}
-
 //given a valid JSON response, updates global variables and tables
 function globalUpdate(response) {
     //responseJSON = response;
-    console.log("length before " + response.results.length);
+    //console.log("length before " + response.results.length);
     //records = filterJSON(response.results, filters);
-    console.log("responseJSON.results: " + response.results);
+    //console.log("responseJSON.results: " + response.results);
     records = response.results;
-    console.log("length after" + records.length);
-    console.log(records);
+    //console.log("length after" + records.length);
+    //console.log(records);
     dashGlobal.update();
 }
 
@@ -216,11 +135,19 @@ class ResultsTable extends React.Component {
                 </div>
             );
         }
-        let columns = [];
+        let columns = [{
+	        header: '',
+	        accessor: 'editButton',
+	        render: (value) => (
+                <button onClick={this.props.onClick.bind(this, value)}>
+                    click me!
+                </button>
+	        ),
+	        maxWidth: 60
+        }];
         if (this.props.results.length > 0) {
             for (let key in this.props.results[0]) {
-                if (this.props.results[0].hasOwnProperty(key)) {
-                    //TODO: Replace header with user-readable string
+                if (this.props.results[0].hasOwnProperty(key) && !key.toLowerCase().endsWith("id")) {
                     columns.push({
                         "Header": key.replace(/([A-Z]+)/g, " $1").replace(/([A-Z][a-z])/g, " $1"),
                         "accessor": key
@@ -251,7 +178,6 @@ class ResultsTable extends React.Component {
 
 class SearchBar extends React.Component {
     //TODO: PAUL'S CODE
-
 
     constructor(props) {
         super(props);
@@ -339,7 +265,7 @@ class SearchBar extends React.Component {
 
             dropdownOpen: false,
 
-            dropdownValue: "Please select quick search attribute:",
+            dropdownValue: "Quick search attribute:",
 
             typeDropDownOpen: false,
 
@@ -446,26 +372,20 @@ class SearchBar extends React.Component {
 
     //fetch from server from the very beginning:
     componentWillMount() {
-        this.getTypeFromServerThenTransformToHtml();
-        this.getLocationFromServerThenTransformToHtml();
-        this.getClassFromServerThenTransformToHtml();
-        this.getStateFromServerThenTransformToHtml();
-        this.getSchedFromServerThenTransformToHtml();
+        this.getMappings();
 
-        //value = "/authorization"
+	    //value = "/authorization"
 
-        /*
-        Hide everything and check before all these runs
-        If (get any result from (http://127.0.0.1:8080/users/authorization) = {"results":"Administrator"}) then authorized
-        If (empty/access-denied) then redirect to Page403.js
+	    /*
+	     Hide everything and check before all these runs
+	     If (get any result from (http://127.0.0.1:8080/users/authorization) = {"results":"Administrator"}) then authorized
+	     If (empty/access-denied) then redirect to Page403.js
 
-         */
-
-
+	     */
     }
 
     sendHttpCall(method, url, json) {
-        console.log("in sendHttpCall()");
+        //console.log("in sendHttpCall()");
         return new Promise(function (resolve, reject) {
             let xhr = new XMLHttpRequest();
             xhr.open(method, url, true);
@@ -496,8 +416,8 @@ class SearchBar extends React.Component {
      * @param tabNum
      */
     populateConfigureTab(tabNum) {
-        console.log("in populateConfigureTab()");
-        console.log("tabNum: " + tabNum)
+        //console.log("in populateConfigureTab()");
+        //console.log("tabNum: " + tabNum)
 
         let json = {};
         let method = "GET";
@@ -510,7 +430,7 @@ class SearchBar extends React.Component {
             url = "/locations/";
         }
 
-        console.log(server + url);
+        //console.log(server + url);
 
         this.sendHttpCall(method, server + url, json).then(function (result) {
             globalUpdate(result);
@@ -524,10 +444,10 @@ class SearchBar extends React.Component {
      */
 
     addRole() {
-        console.log("in addRole()");
+        //console.log("in addRole()");
 
         let json = {addRolesName: this.state.addRolesName};
-        console.log(JSON.stringify(json));
+        //console.log(JSON.stringify(json));
         let url = "/roles/";
         let method = "POST";
 
@@ -537,7 +457,7 @@ class SearchBar extends React.Component {
     }
 
     updateRole() {
-        console.log("in updateRole()");
+        //console.log("in updateRole()");
         let json = {updateRolesId: this.state.updateRolesId, updateRolesName: this.state.updateRolesName};
         let url = "/roles/";
         let method = "PUT";
@@ -548,9 +468,9 @@ class SearchBar extends React.Component {
     }
 
     deleteRole() {
-        console.log("in deleteRole()");
+        //console.log("in deleteRole()");
         let json = {deleteRolesId: this.state.deleteRolesId};
-        console.log(JSON.stringify(json));
+        //console.log(JSON.stringify(json));
         let url = "/roles/";
         let method = "DELETE";
 
@@ -568,10 +488,10 @@ class SearchBar extends React.Component {
 
     // TODO: add location doesn't work b/c locations.id doesn't auto increment
     addLocation() {
-        console.log("in addLocation()");
+        //console.log("in addLocation()");
 
         let json = {addLocationsName: this.state.addLocationsName, addLocationCode: this.state.addLocationsCode};
-        console.log(JSON.stringify(json));
+        //console.log(JSON.stringify(json));
         let url = "/locations/";
         let method = "POST";
 
@@ -581,7 +501,7 @@ class SearchBar extends React.Component {
     }
 
     updateLocation() {
-        console.log("in updateLocation()");
+        //console.log("in updateLocation()");
         let json = {
             updateLocationsId: this.state.updateLocationsId,
             updateLocationsName: this.state.updateLocationsName,
@@ -596,9 +516,9 @@ class SearchBar extends React.Component {
     }
 
     deleteLocation() {
-        console.log("in deleteLocation()");
+        //console.log("in deleteLocation()");
         let json = {deleteLocationsId: this.state.deleteLocationsId};
-        console.log(JSON.stringify(json));
+        //console.log(JSON.stringify(json));
         let url = "/locations/";
         let method = "DELETE";
 
@@ -610,18 +530,20 @@ class SearchBar extends React.Component {
 
 
     handleSubmitQuickSearch(event) {
-        console.log("SearchButtonValueIs:" + this.state.quickSearchAttr);
+        //console.log("SearchButtonValueIs:" + this.state.quickSearchAttr);
 
         let input = this.state.numberOrConsignmentCode.replace(" ", "");
 
         if (input.length < 5) {
-            console.log("Invalid input - input too short");
+            //console.log("Invalid input - input too short");
             // TODO: show invalid input warning on UI
 
         } else {
-            let json = {};
+            /*let json = {};
             let url = "";
-            /*if (this.state.quickSearchAttr == "recordNum") {
+            if (this.state.quickSearchAttr == "recordNum") {
+                console.log(JSON.stringify({Number: this.state.numberOrConsignmentCode}));
+            if (this.state.quickSearchAttr == "recordNum") {
                 console.log(JSON.stringify({Number: this.state.numberOrConsignmentCode}));
                 url = "/records/number";
                 json = {Number: this.state.numberOrConsignmentCode};
@@ -640,10 +562,7 @@ class SearchBar extends React.Component {
                 globalUpdate(result);
             });
             */
-            let method = "POST";
-            url = "/records/quickSearch";
-            json = {quickSearchInput: this.state.numberOrConsignmentCode};
-            this.sendHttpCall(method, server + url, json).then(function (result) {
+            this.sendHttpCall("POST", server + "/records/quickSearch", {quickSearchInput: this.state.numberOrConsignmentCode}).then(function (result) {
                 globalUpdate(result);
             });
 
@@ -651,28 +570,24 @@ class SearchBar extends React.Component {
         event.preventDefault();
     }
 
-//var sampleFilterParam = {"filter":[{"name":"locationId","type":"EQ","value":"5"},{"name":"year","type":"GT","value":"2005"}]}
-
-
     handleSubmitFullTextSearch(event) {
         var arrayOfFilters = [];
         var sampleFilterParam = {"CreatedStart": 'a', "UpdatedStart": "b", "TypeId": [5, 20, 25]};
 
-
         //push into array of filter one by one would be easier I guess
-//result[1]['filter']
+        //result[1]['filter']
 
         //Beginning of Old Filter
-        for (var i = 0; i < this.state.arrayOfSelectedTypes.length; i++) {
+        for (let i = 0; i < this.state.arrayOfSelectedTypes.length; i++) {
             arrayOfFilters.push({name: "TypeId", type: "EQ", value: this.state.arrayOfSelectedTypes[i]['id']});
         }
 
-        for (var i = 0; i < this.state.arrayOfSelectedLocations.length; i++) {
+        for (let i = 0; i < this.state.arrayOfSelectedLocations.length; i++) {
             arrayOfFilters.push({name: "LocationId", type: "EQ", value: this.state.arrayOfSelectedLocations[i]});
         }
 
 
-        for (var i = 0; i < this.state.arrayOfSelectedClasses.length; i++) {
+        for (let i = 0; i < this.state.arrayOfSelectedClasses.length; i++) {
             arrayOfFilters.push({name: "ClassId", type: "EQ", value: this.state.arrayOfSelectedClasses[i]});
         }
 
@@ -932,11 +847,11 @@ class SearchBar extends React.Component {
             ];
 
 
-        console.log('A bunch of record queries are submitted: ' + JSON.stringify(result));
+        //console.log('A bunch of record queries are submitted: ' + JSON.stringify(result));
         this.state.result = [];//CLEAR RESULTS for initialization
 
         //TODO: Vincent's call
-        console.log('filters is:' + JSON.stringify(result[1]));
+        //console.log('filters is:' + JSON.stringify(result[1]));
         this.sendHttpCall("POST", server + "/records/fulltext", {
             "keyword": result[0]['fullTextSearch'],
             "page": 1,
@@ -952,7 +867,7 @@ class SearchBar extends React.Component {
     }
 
     handleSubmitRecordTypeSpecificSearch(event) {
-        console.log('A bunch of record queries are submitted: ' +
+        /*console.log('A bunch of record queries are submitted: ' +
             JSON.stringify(
                 {
                     FilterBy:
@@ -966,7 +881,7 @@ class SearchBar extends React.Component {
                         }
                 }
             )
-        );
+        );*/
         event.preventDefault();
     }
 
@@ -1038,7 +953,7 @@ class SearchBar extends React.Component {
         this.setState({collapseClosedTill: !this.state.collapseClosedTill});
     }
 
-//For Quicksearch
+    //For Quicksearch
     /*isCheckedQuickSearchAttr(e) {
         this.setState({
             quickSearchAttr: e.currentTarget.value
@@ -1057,12 +972,12 @@ class SearchBar extends React.Component {
 
         //convert to a string and try
 
-        console.log("arrayOfSelectedTypes:" + JSON.stringify(this.state.arrayOfSelectedTypes));
-        console.log("{id:id,name:name}:" + JSON.stringify({id: id, name: name}));
-        console.log("this.state.arrayOfSelectedTypes.includes({id:id,name:name}):" + this.state.arrayOfSelectedTypes.includes({
+        //console.log("arrayOfSelectedTypes:" + JSON.stringify(this.state.arrayOfSelectedTypes));
+        //console.log("{id:id,name:name}:" + JSON.stringify({id: id, name: name}));
+        /*console.log("this.state.arrayOfSelectedTypes.includes({id:id,name:name}):" + this.state.arrayOfSelectedTypes.includes({
             id: id,
             name: name
-        }));
+        }));*/
 
         if (!JSON.stringify(this.state.arrayOfSelectedTypes).includes(JSON.stringify({id: id, name: name}))) {
             this.state.arrayOfSelectedTypes.push({id: id, name: name})
@@ -1116,7 +1031,6 @@ class SearchBar extends React.Component {
     toggleClassCheckbox(event) {
         var id = event.target.id;
 
-
         if (!this.state.arrayOfSelectedClasses.includes(event.target.id)) {
             this.state.arrayOfSelectedClasses.push(event.target.id)
         }
@@ -1136,7 +1050,6 @@ class SearchBar extends React.Component {
 
     toggleStateCheckbox(event) {
         var id = event.target.id;
-
 
         if (!this.state.arrayOfSelectedStates.includes(event.target.id)) {
             this.state.arrayOfSelectedStates.push(event.target.id)
@@ -1169,204 +1082,94 @@ class SearchBar extends React.Component {
         }
     }
 
-
     //TODO: Sample Location Param
+	getMappings()
+	{
+		this.sendHttpCall("GET", server + "/records/mappings", null).then(function(response){
+			let listOfLocationDropDownItems = [];
+			for(const loc of response["dropdownlocation"])
+			{
+				listOfLocationDropDownItems.push(
+                    <NavItem>
+                        <Label check>
+                            <Input type="checkbox" id={loc['LocationId']}
+                                   name={loc['LocationName']}
+                                   onClick={this.toggleLocationCheckbox}/>{' '}
+							{loc['LocationName']}
+                        </Label>
+                    </NavItem>
+				);
+			}
 
-    getLocationFromServerThenTransformToHtml() {
-        var request = new XMLHttpRequest();
-        request.open('GET', server + '/records/dropdownlocation', false);
-        request.setRequestHeader("Content-type", "application/json");
-        request.onload = function () {
-            if (request.status >= 200 && request.status < 400) {
-                console.log("LocationName from Server:");
-                console.log(JSON.parse(request.response)["results"]);
-
-                var listOfLocationDropDownItems = [];
-
-                var serverLocationDropDownResults = JSON.parse(request.response)["results"];
-                for (var i = 0; i < serverLocationDropDownResults.length; i++) {
-                    listOfLocationDropDownItems.push(
-                        <NavItem>
-                            <Label check>
-                                <Input type="checkbox" id={serverLocationDropDownResults[i]['LocationId']}
-                                       name={serverLocationDropDownResults[i]['LocationName']}
-                                       onClick={this.toggleLocationCheckbox}/>{' '}
-                                {serverLocationDropDownResults[i]['LocationName']}
-                            </Label>
-                        </NavItem>
-                    );
-                }
-
-                this.setState({
-                    listOfLocationDropDownItemsStateForm: listOfLocationDropDownItems
-                });
-            } else {
-                console.error('Response received and there was an error');
+			let listOfClassDropDownItems = [];
+			for(const cla of response["dropdownclass"])
+            {
+	            listOfClassDropDownItems.push(
+                    <NavItem>
+                        <Label check>
+                            <Input type="checkbox" id={cla['classId']}
+                                   name={cla['className']}
+                                   onClick={this.toggleClassCheckbox}/>{' '}
+				            {cla['className']}
+                        </Label>
+                    </NavItem>
+	            );
             }
-        }.bind(this); //have to bind to the callback function so that it will callback properly
-        request.onerror = function () {
-            //TODO: display error to user
-            console.error('Request error for locationDropDown');
-        };
-        request.send(); //don't forget to send the httprequest lmao
-    }
 
-    getClassFromServerThenTransformToHtml() {
-        var request = new XMLHttpRequest();
-        request.open('GET', server + '/records/dropdownclass', false);
-        request.setRequestHeader("Content-type", "application/json");
-        request.onload = function () {
-            if (request.status >= 200 && request.status < 400) {
-                console.log("ClassName from Server: ");
-                console.log(JSON.parse(request.response)["results"]);
-
-                var listOfClassDropDownItems = [];
-
-                var serverClassDropDownResults = JSON.parse(request.response)["results"];
-                for (var i = 0; i < serverClassDropDownResults.length; i++) {
-                    listOfClassDropDownItems.push(
-                        <NavItem>
-                            <Label check>
-                                <Input type="checkbox" id={serverClassDropDownResults[i]['classId']}
-                                       name={serverClassDropDownResults[i]['className']}
-                                       onClick={this.toggleClassCheckbox}/>{' '}
-                                {serverClassDropDownResults[i]['className']}
-                            </Label>
-                        </NavItem>
-                    );
-                }
-
-                this.setState({
-                    listOfClassDropDownItemsStateForm: listOfClassDropDownItems
-                });
-            } else {
-                console.error('Response received and there was an error');
+			let listOfTypeDropDownItems = [];
+			for(const type of response["dropdowntype"])
+            {
+	            listOfTypeDropDownItems.push(
+                    <NavItem>
+                        <Label check>
+                            <Input type="checkbox" id={type['typeId']}
+                                   name={type['typeName']}
+                                   onClick={this.toggleTypeCheckbox}/>{' '}
+				            {type['typeName']}
+                        </Label>
+                    </NavItem>
+	            );
             }
-        }.bind(this); //have to bind to the callback function so that it will callback properly
-        request.onerror = function () {
-            //TODO: display error to user
-            console.error('Request error for classDropDown');
-        };
-        request.send(); //don't forget to send the httprequest lmao
-    }
 
-    getTypeFromServerThenTransformToHtml() {
-        var request = new XMLHttpRequest();
-        request.open('GET', server + '/records/dropdowntype', false);
-        request.setRequestHeader("Content-type", "application/json");
-        request.onload = function () {
-            if (request.status >= 200 && request.status < 400) {
-                console.log("TypeName from Server: ");
-                console.log(JSON.parse(request.response)["results"]);
-
-                var listOfTypeDropDownItems = [];
-
-                var serverTypeDropDownResults = JSON.parse(request.response)["results"];
-                for (var i = 0; i < serverTypeDropDownResults.length; i++) {
-                    listOfTypeDropDownItems.push(
-                        <NavItem>
-                            <Label check>
-                                <Input type="checkbox" id={serverTypeDropDownResults[i]['typeId']}
-                                       name={serverTypeDropDownResults[i]['typeName']}
-                                       onClick={this.toggleTypeCheckbox}/>{' '}
-                                {serverTypeDropDownResults[i]['typeName']}
-                            </Label>
-                        </NavItem>
-                    );
-                }
-
-                this.setState({
-                    listOfTypeDropDownItemsStateForm: listOfTypeDropDownItems
-                });
-            } else {
-                console.error('Response received and there was an error');
+            let listOfStateDropDownItems = [];
+			for(const state of response["dropdownstate"])
+            {
+	            listOfStateDropDownItems.push(
+                    <NavItem>
+                        <Label check>
+                            <Input type="checkbox" id={state['stateId']}
+                                   name={state['stateName']}
+                                   onClick={this.toggleStateCheckbox}/>{' '}
+				            {state['stateName']}
+                        </Label>
+                    </NavItem>
+	            );
             }
-        }.bind(this); //have to bind to the callback function so that it will callback properly
-        request.onerror = function () {
-            //TODO: display error to user
-            console.error('Request error for typeDropDown');
-        };
-        request.send(); //don't forget to send the httprequest lmao
-    }
 
-    getStateFromServerThenTransformToHtml() {
-        var request = new XMLHttpRequest();
-        request.open('GET', server + '/records/dropdownstate', false);
-        request.setRequestHeader("Content-type", "application/json");
-        request.onload = function () {
-            if (request.status >= 200 && request.status < 400) {
-                console.log("StateName from Server: ");
-                console.log(JSON.parse(request.response)["results"]);
-
-                var listOfStateDropDownItems = [];
-
-                var serverStateDropDownResults = JSON.parse(request.response)["results"];
-                for (var i = 0; i < serverStateDropDownResults.length; i++) {
-                    listOfStateDropDownItems.push(
-                        <NavItem>
-                            <Label check>
-                                <Input type="checkbox" id={serverStateDropDownResults[i]['stateId']}
-                                       name={serverStateDropDownResults[i]['stateName']}
-                                       onClick={this.toggleStateCheckbox}/>{' '}
-                                {serverStateDropDownResults[i]['stateName']}
-                            </Label>
-                        </NavItem>
-                    );
-                }
-
-                this.setState({
-                    listOfStateDropDownItemsStateForm: listOfStateDropDownItems
-                });
-            } else {
-                console.error('Response received and there was an error');
+            let listOfSchedDropDownItems = [];
+			for(const sched of response["dropdownsched"])
+            {
+	            listOfSchedDropDownItems.push(
+                    <NavItem>
+                        <Label check>
+                            <Input type="checkbox" id={sched['schedId']}
+                                   name={sched['schedName']}
+                                   onClick={this.toggleSchedCheckbox}/>{' '}
+				            {sched['schedName']}
+                        </Label>
+                    </NavItem>
+	            );
             }
-        }.bind(this); //have to bind to the callback function so that it will callback properly
-        request.onerror = function () {
-            //TODO: display error to user
-            console.error('Request error for stateDropDown');
-        };
-        request.send(); //don't forget to send the httprequest lmao
-    }
 
-    getSchedFromServerThenTransformToHtml() {
-        var request = new XMLHttpRequest();
-        request.open('GET', server + '/records/dropdownsched', false);
-        request.setRequestHeader("Content-type", "application/json");
-        request.onload = function () {
-            if (request.status >= 200 && request.status < 400) {
-                console.log("SchedName from Server: ");
-                console.log(JSON.parse(request.response)["results"]);
-
-                var listOfSchedDropDownItems = [];
-
-                var serverSchedDropDownResults = JSON.parse(request.response)["results"];
-                for (var i = 0; i < serverSchedDropDownResults.length; i++) {
-                    listOfSchedDropDownItems.push(
-                        <NavItem>
-                            <Label check>
-                                <Input type="checkbox" id={serverSchedDropDownResults[i]['schedId']}
-                                       name={serverSchedDropDownResults[i]['schedName']}
-                                       onClick={this.toggleSchedCheckbox}/>{' '}
-                                {serverSchedDropDownResults[i]['schedName']}
-                            </Label>
-                        </NavItem>
-                    );
-                }
-
-                this.setState({
-                    listOfSchedDropDownItemsStateForm: listOfSchedDropDownItems
-                });
-            } else {
-                console.error('Response received and there was an error');
-            }
-        }.bind(this); //have to bind to the callback function so that it will callback properly
-        request.onerror = function () {
-            //TODO: display error to user
-            console.error('Request error for schedDropDown');
-        };
-        request.send(); //don't forget to send the httprequest lmao
-    }
-
+			this.setState({
+				listOfLocationDropDownItemsStateForm: listOfLocationDropDownItems,
+				listOfClassDropDownItemsStateForm: listOfClassDropDownItems,
+				listOfTypeDropDownItemsStateForm: listOfTypeDropDownItems,
+				listOfStateDropDownItemsStateForm: listOfStateDropDownItems,
+				listOfSchedDropDownItemsStateForm: listOfSchedDropDownItems
+			});
+		}.bind(this));
+	}
 
     render() {
         return (
@@ -1440,9 +1243,6 @@ class SearchBar extends React.Component {
                             <Col sm="20">
                                 <div className="animated fadeIn">
                                     <Form onSubmit={this.handleSubmitQuickSearch}>
-                                        <FormGroup tag="fieldset">
-                                            <legend>Please enter a valid record number, box number, or consignment code:</legend>
-                                        </FormGroup>
 
                                         <FormGroup row>
                                             <Col sm={10}>
@@ -1469,8 +1269,6 @@ class SearchBar extends React.Component {
                                 <div className="animated fadeIn">
                                     <Form onSubmit={this.handleSubmitFullTextSearch}>
                                         <FormGroup row>
-                                            <Label for="fullTextSearch" sm={10}> Enter a valid Record/Box Number,
-                                                Record/Box Title, Record/Box Notes or Box Consignment Id:</Label>
                                             <Col sm={10}>
                                                 <Input type="text" name="fullTextSearch"
                                                        value={this.state.fullTextSearch} onChange={this.handleChange}/>
@@ -1483,8 +1281,7 @@ class SearchBar extends React.Component {
                                                     <Dropdown group isOpen={this.state.typeDropDownOpen}
                                                               toggle={this.toggleTypeDropdown}>
                                                         <DropdownToggle caret>
-                                                            Record Type (Click on the words of the ones you would like
-                                                            to filter)
+                                                            Record Type
                                                         </DropdownToggle>
                                                         <DropdownMenu>
                                                             <DropdownItem>
@@ -1507,8 +1304,7 @@ class SearchBar extends React.Component {
                                                     <Dropdown group isOpen={this.state.locationDropDownOpen}
                                                               toggle={this.toggleLocationDropdown}>
                                                         <DropdownToggle caret>
-                                                            Location (Click on the words of the ones you would like to
-                                                            filter)
+                                                            Location
                                                         </DropdownToggle>
                                                         <DropdownMenu>
                                                             <DropdownItem>
@@ -1528,8 +1324,7 @@ class SearchBar extends React.Component {
                                                     <Dropdown group isOpen={this.state.classDropDownOpen}
                                                               toggle={this.toggleClassDropdown}>
                                                         <DropdownToggle caret>
-                                                            Classification (Click on the words of the ones you would
-                                                            like to filter)
+                                                            Classification
                                                         </DropdownToggle>
                                                         <DropdownMenu>
                                                             <DropdownItem>
@@ -1550,7 +1345,7 @@ class SearchBar extends React.Component {
                                             </Col>
                                             <Col sm={{size: 5}}>
                                                 {' '}<Input type="checkbox" onClick={this.toggleCollapseCreated}/>{' '}
-                                                Check this if you just want one specific date
+                                                Exact date
                                             </Col>
                                         </FormGroup>
 
@@ -1641,7 +1436,7 @@ class SearchBar extends React.Component {
                                             <Label for="dateCreated" sm={2}>Date Updated (yyyy/mm/dd): </Label>
                                             <Col sm={{size: 10}}>
                                                 {' '}<Input type="checkbox" onClick={this.toggleCollapseUpdated}/>{' '}
-                                                Check this if you just want one specific date
+                                                Exact date
                                             </Col>
                                         </FormGroup>
 
@@ -1733,7 +1528,7 @@ class SearchBar extends React.Component {
                                             <Label for="dateClosed" sm={2}>Date Closed (yyyy/mm/dd): </Label>
                                             <Col sm={{size: 10}}>
                                                 {' '}<Input type="checkbox" onClick={this.toggleCollapseClosed}/>{' '}
-                                                Check this if you just want one specific date
+                                                Exact date
                                             </Col>
                                         </FormGroup>
 
@@ -1828,8 +1623,7 @@ class SearchBar extends React.Component {
                                                     <Dropdown group isOpen={this.state.stateDropDownOpen}
                                                               toggle={this.toggleStateDropdown}>
                                                         <DropdownToggle caret>
-                                                            Record State (Click on the words of the ones you would like
-                                                            to filter)
+                                                            Record State
                                                         </DropdownToggle>
                                                         <DropdownMenu>
                                                             <DropdownItem>
@@ -1849,8 +1643,7 @@ class SearchBar extends React.Component {
                                                     <Dropdown group isOpen={this.state.schedDropDownOpen}
                                                               toggle={this.toggleSchedDropdown}>
                                                         <DropdownToggle caret>
-                                                            Retention Schedule (Click on the words of the ones you would
-                                                            like to filter)
+                                                            Retention Schedule
                                                         </DropdownToggle>
                                                         <DropdownMenu>
                                                             <DropdownItem>
@@ -2136,12 +1929,17 @@ class Dashboard extends React.Component {
         };
     }
 
+    rowSelect(obj)
+    {
+        console.log(JSON.stringify(obj));
+    }
+
     render() {
         return (
             <div>
                 <div>
                     <SearchBar/>
-                    <ResultsTable results={records}/>
+                    <ResultsTable results={records} loadingText="Loading results..." noDataText="No results found" onClick={this.rowSelect.bind(this)}/>
                 </div>
             </div>
         );

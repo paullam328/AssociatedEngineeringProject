@@ -300,57 +300,17 @@ public class GetController {
     }
 
     @CrossOrigin
-    @ResponseBody @RequestMapping(value = "/dropdownlocation", method = RequestMethod.GET)
-    public java.lang.String GetAllLocations() {
-        System.out.print("this GetAllLocation function called");
-
+    @ResponseBody @RequestMapping(value = "/mappings", method = RequestMethod.GET)
+    public java.lang.String GetMappings() {
         JSONObject obj = new JSONObject();
-        List<JSONObject> results=RecordDao.GetAllLocation();
-        obj.put("results", results);
+        obj.put("dropdownlocation", RecordDao.GetAllLocation());
+        obj.put("dropdownclass", RecordDao.GetAllclassifications());
+        obj.put("dropdownstate", RecordDao.GetAllstates());
+        obj.put("dropdowntype", RecordDao.GetAllTypes());
+        obj.put("dropdownsched", RecordDao.GetAllschedules());
         return obj.toString();
     }
 
-    @CrossOrigin
-    @ResponseBody @RequestMapping(value = "/dropdownclass", method = RequestMethod.GET)
-    public java.lang.String GetAllClassifictions() {
-        System.out.print("this GetAllClassification function called");
-
-        JSONObject obj = new JSONObject();
-        List<JSONObject> results=RecordDao.GetAllclassifications();
-        obj.put("results", results);
-        return obj.toString();
-    }
-
-    @CrossOrigin
-    @ResponseBody @RequestMapping(value = "/dropdownstate", method = RequestMethod.GET)
-    public java.lang.String GetAllstates() {
-        System.out.print("this GetAllstates function called");
-
-        JSONObject obj = new JSONObject();
-        List<JSONObject> results=RecordDao.GetAllstates();
-        obj.put("results", results);
-        return obj.toString();
-    }
-    @CrossOrigin
-    @ResponseBody @RequestMapping(value = "/dropdowntype", method = RequestMethod.GET)
-    public java.lang.String GetAlltypes() {
-        System.out.print("this GetAlltypes function called");
-
-        JSONObject obj = new JSONObject();
-        List<JSONObject> results=RecordDao.GetAllTypes();
-        obj.put("results", results);
-        return obj.toString();
-    }
-    @CrossOrigin
-    @ResponseBody @RequestMapping(value = "/dropdownsched", method = RequestMethod.GET)
-    public java.lang.String GetAllscheds() {
-        System.out.print("this GetAllscheds function called");
-
-        JSONObject obj = new JSONObject();
-        List<JSONObject> results=RecordDao.GetAllschedules();
-        obj.put("results", results);
-        return obj.toString();
-    }
     @CrossOrigin
     @ResponseBody @RequestMapping(value = "/colours", method = RequestMethod.GET)
     public java.lang.String GetAllColours() {
