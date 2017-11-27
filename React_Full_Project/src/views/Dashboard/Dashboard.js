@@ -311,7 +311,9 @@ class SearchBar extends React.Component {
             updateLocationsName: '',
             updateLocationsCode: '',
 
-            deleteLocationsId: ''
+            deleteLocationsId: '',
+
+            recordTypeSpecificSearch: ''
 
             //serverLocationDropDown: []
 
@@ -867,21 +869,55 @@ class SearchBar extends React.Component {
     }
 
     handleSubmitRecordTypeSpecificSearch(event) {
-        /*console.log('A bunch of record queries are submitted: ' +
+        console.log('A bunch of record queries are submitted: ' +
             JSON.stringify(
-                {
-                    FilterBy:
+                [
                         {
-                            projectFunction: this.state.projectFunction,
-                            projectManager: this.state.projectManager,
-                            projectClientName: this.state.projectClientName,
-                            proposalFieldOfPractice: this.state.proposalFieldOfPractice,
-                            proposalManager: this.state.proposalManager,
-                            proposalClientName: this.state.proposalClientName
-                        }
-                }
+                            projectSearchInput: this.state.recordTypeSpecificSearch,
+                            filterByFunction: this.state.projectFunction,
+                            filterByPM: this.state.projectManager,
+                            filterbyClientName: this.state.projectClientName},
+                    {
+                        proposalSearchInput: this.state.recordTypeSpecificSearch,
+                        filterByFieldOfPractice: this.state.proposalFieldOfPractice,
+                        filterByPM: this.state.proposalManager,
+                        filterbyClientName: this.state.proposalClientName}
+                ]
             )
-        );*/
+        );
+
+
+
+        var projectJson = this.sendHttpCall("POST", server + "/records/projectSearch", {
+            projectSearchInput: this.state.recordTypeSpecificSearch,
+            filterByFunction: this.state.projectFunction,
+            filterByPM: this.state.projectManager,
+            filterbyClientName: this.state.projectClientName}).then(function (response) {
+                return Promise.resolve(response);
+        });
+
+        var proposalJson = this.sendHttpCall("POST", server + "/records/proposalSearch", {
+            proposalSearchInput: this.state.recordTypeSpecificSearch,
+            filterByFieldOfPractice: this.state.proposalFieldOfPractice,
+            filterByPM: this.state.proposalManager,
+            filterbyClientName: this.state.proposalClientName}).then(function (response) {
+                return Promise.resolve(response);
+        });
+
+        Promise.all([projectJson,proposalJson]).then(function (values) {
+
+            var projectAndProposal = {
+                results: values[0]['results'].concat(values[1]['results'])
+            };
+
+            console.log('project and proposal values are: ');
+            console.log(projectAndProposal);
+            globalUpdate(projectAndProposal);
+
+        }).catch(function (error) {
+            console.log("projectAndProposal error: " + error);
+        });
+
         event.preventDefault();
     }
 
@@ -1674,6 +1710,14 @@ class SearchBar extends React.Component {
                             <Col sm="20">
                                 <div className="animated fadeIn">
                                     <Form onSubmit={this.handleSubmitRecordTypeSpecificSearch}>
+                                        <FormGroup row>
+                                            <Label for="recordTypeSpecificSearch" sm={10}> Enter a valid Record/Box Number,
+                                                Record/Box Title, Record/Box Notes or Box Consignment Id:</Label>
+                                            <Col sm={10}>
+                                                <Input type="text" name="recordTypeSpecificSearch"
+                                                       value={this.state.recordTypeSpecificSearch} onChange={this.handleChange}/>
+                                            </Col>
+                                        </FormGroup>
                                         <h3>Project Filters:</h3>
                                         <FormGroup row>
                                             <Label for="projectFunction" sm={20}>Function:</Label>
