@@ -23,6 +23,8 @@ import './Dashboard.css'
 import {Switch, Route, Redirect} from 'react-router-dom';
 import Page403 from '../Pages/Page403/'
 
+import Full from '../../containers/Full/'
+
 var responseJSON = {"results": []};
 var records = [];
 var dashGlobal = {};
@@ -31,6 +33,8 @@ var filters = [];
 //var server = "http://13.59.251.84:8080";
 var server = "http://localhost:8080";
 var name;
+
+var isAdministrator = false;
 
 function getDate(input) { //converts the JSON's string date into an array of ints, [year, month, day]
     return input.split("-", 3).map(function (x) {
@@ -313,7 +317,11 @@ class SearchBar extends React.Component {
 
             deleteLocationsId: '',
 
-            recordTypeSpecificSearch: ''
+            recordTypeSpecificSearch: '',
+
+            //isAdministration: this.props['isAdmin'],
+
+            userType: {}
 
             //serverLocationDropDown: []
 
@@ -370,9 +378,17 @@ class SearchBar extends React.Component {
 
         //TODO: list out dropdown items
         this.displaySelectedTypeButtons = this.displaySelectedTypeButtons.bind(this);
+        this.displaySelectedLocationButtons = this.displaySelectedLocationButtons.bind(this);
+        this.displaySelectedClassButtons = this.displaySelectedClassButtons.bind(this);
+        this.displaySelectedStateButtons = this.displaySelectedStateButtons.bind(this);
+        this.displaySelectedSchedButtons = this.displaySelectedSchedButtons.bind(this);
+
+        //this.claimAuthorization = this.claimAuthorization.bind(this);
+
     }
 
     //fetch from server from the very beginning:
+
     componentWillMount() {
         this.getMappings();
 
@@ -384,6 +400,13 @@ class SearchBar extends React.Component {
 	     If (empty/access-denied) then redirect to Page403.js
 
 	     */
+	    /*console.log("props in will mount");
+        console.log(this.props);
+        this.setState({
+            isAdministration: this.props['isAdmin']
+        }).bind();
+
+        console.log("Dashboard:this.state.isAdmin:" + this.state.isAdministration);*/
     }
 
     sendHttpCall(method, url, json) {
@@ -573,163 +596,14 @@ class SearchBar extends React.Component {
     }
 
     handleSubmitFullTextSearch(event) {
-        var arrayOfFilters = [];
         var sampleFilterParam = {"CreatedStart": 'a', "UpdatedStart": "b", "TypeId": [5, 20, 25]};
-
-        //push into array of filter one by one would be easier I guess
-        //result[1]['filter']
-
-        //Beginning of Old Filter
-        for (let i = 0; i < this.state.arrayOfSelectedTypes.length; i++) {
-            arrayOfFilters.push({name: "TypeId", type: "EQ", value: this.state.arrayOfSelectedTypes[i]['id']});
-        }
-
-        for (let i = 0; i < this.state.arrayOfSelectedLocations.length; i++) {
-            arrayOfFilters.push({name: "LocationId", type: "EQ", value: this.state.arrayOfSelectedLocations[i]});
-        }
-
-
-        for (let i = 0; i < this.state.arrayOfSelectedClasses.length; i++) {
-            arrayOfFilters.push({name: "ClassId", type: "EQ", value: this.state.arrayOfSelectedClasses[i]});
-        }
-
-        arrayOfFilters.push(
-            //for: createdAt
-            //first case: one date
-            (this.state.collapseCreated
-            && this.state.createdyyyy != ""
-            && this.state.createdmm != ""
-            && this.state.createddd != ""
-                ? {
-                    column: "CreatedAt",
-                    type: "EQ",
-                    value: [this.state.createdyyyy, this.state.createdmm, this.state.createddd]
-                } : undefined),
-
-
-            //second case: from beginning to date
-
-            (!this.state.collapseCreated
-            && this.state.collapseCreatedTill
-            && this.state.createdTillyyyy != ""
-            && this.state.createdTillmm != ""
-            && this.state.createdTilldd != ""
-                ? {
-                    column: "CreatedAt",
-                    type: "LT",
-                    value: [this.state.createdTillyyyy, this.state.createdTillmm, this.state.createdTilldd]
-                } : undefined),
-
-            //third case: from date to beginning
-
-            (!this.state.collapseCreated
-            && this.state.collapseCreatedFrom
-            && this.state.createdFromyyyy != ""
-            && this.state.createdFrommm != ""
-            && this.state.createdFromdd != ""
-                ? {
-                    column: "CreatedAt",
-                    type: "GT",
-                    value: [this.state.createdFromyyyy, this.state.createdFrommm, this.state.createdFromdd]
-                } : undefined),
-
-
-            //for: updatedAt
-            //first case: one date
-            (this.state.collapseUpdated
-            && this.state.updatedyyyy != ""
-            && this.state.updatedmm != ""
-            && this.state.updateddd != ""
-                ? {
-                    column: "UpdatedAt",
-                    type: "EQ",
-                    value: [this.state.updatedyyyy, this.state.updatedmm, this.state.updateddd]
-                } : undefined),
-
-
-            //second case: from beginning to date
-
-            (!this.state.collapseUpdated
-            && this.state.collapseUpdatedTill
-            && this.state.updatedTillyyyy != ""
-            && this.state.updatedTillmm != ""
-            && this.state.updatedTilldd != ""
-                ? {
-                    column: "UpdatedAt",
-                    type: "LT",
-                    value: [this.state.updatedTillyyyy, this.state.updatedTillmm, this.state.updatedTilldd]
-                } : undefined),
-
-            //third case: from date to beginning
-
-            (!this.state.collapseUpdated
-            && this.state.collapseUpdatedFrom
-            && this.state.updatedFromyyyy != ""
-            && this.state.updatedFrommm != ""
-            && this.state.updatedFromdd != ""
-                ? {
-                    column: "UpdatedAt",
-                    type: "GT",
-                    value: [this.state.updatedFromyyyy, this.state.updatedFrommm, this.state.updatedFromdd]
-                } : undefined),
-
-
-            //TODO: closedAt
-
-            (this.state.collapseClosed
-            && this.state.closedyyyy != ""
-            && this.state.closedmm != ""
-            && this.state.closeddd != ""
-                ? {
-                    column: "ClosedAt",
-                    type: "EQ",
-                    value: [this.state.closedyyyy, this.state.closedmm, this.state.closeddd]
-                } : undefined),
-
-
-            //second case: from beginning to date
-
-            (!this.state.collapseClosed
-            && this.state.collapseClosedTill
-            && this.state.closedTillyyyy != ""
-            && this.state.closedTillmm != ""
-            && this.state.closedTilldd != ""
-                ? {
-                    column: "ClosedAt",
-                    type: "LT",
-                    value: [this.state.closedTillyyyy, this.state.closedTillmm, this.state.closedTilldd]
-                } : undefined),
-
-
-            (!this.state.collapseClosed
-            && this.state.collapseClosedFrom
-            && this.state.closedFromyyyy != ""
-            && this.state.closedFrommm != ""
-            && this.state.closedFromdd != ""
-                ? {
-                    column: "ClosedAt",
-                    type: "GT",
-                    value: [this.state.closedFromyyyy, this.state.closedFrommm, this.state.closedFromdd]
-                } : undefined),
-        );
-
-        for (var i = 0; i < this.state.arrayOfSelectedStates.length; i++) {
-            arrayOfFilters.push({name: "StateId", type: "EQ", value: this.state.arrayOfSelectedStates[i]});
-        }
-
-        for (var i = 0; i < this.state.arrayOfSelectedScheds.length; i++) {
-            arrayOfFilters.push({name: "SchedId", type: "EQ", value: this.state.arrayOfSelectedScheds[i]});
-        }
-//End of Old Filter
-
-        var arrayOfNonNullFilters = arrayOfFilters.filter(function (x) {
-            x !== null;
-            return x;
-        });
-
-
         var backendFilter = {};
+
         var arrayOfSelectedTypesId = [];
+        var arrayOfSelectedLocationsId = [];
+        var arrayOfSelectedClassesId = [];
+        var arrayOfSelectedStatesId = [];
+        var arrayOfSelectedSchedsId = [];
 
         for (var i = 0; i < this.state.arrayOfSelectedTypes.length; i++) {
             arrayOfSelectedTypesId.push(this.state.arrayOfSelectedTypes[i]['id']);
@@ -737,14 +611,17 @@ class SearchBar extends React.Component {
 
         backendFilter["TypeId"] = arrayOfSelectedTypesId;
 
-        /* for (var i = 0; i < this.state.arrayOfSelectedLocations.length; i++) {
-             backendFilter["LocationId"] = this.state.arrayOfSelectedLocations[i];
-         }*/
-        backendFilter["LocationId"] = this.state.arrayOfSelectedLocations;
+        for (var i = 0; i < this.state.arrayOfSelectedLocations.length; i++) {
+            arrayOfSelectedLocationsId.push(this.state.arrayOfSelectedLocations[i]['id']);
+        }
 
+        backendFilter["LocationId"] = arrayOfSelectedLocationsId;
 
-        backendFilter["ClassId"] = this.state.arrayOfSelectedClasses;
+        for (var i = 0; i < this.state.arrayOfSelectedClasses.length; i++) {
+            arrayOfSelectedClassesId.push(this.state.arrayOfSelectedClasses[i]['id']);
+        }
 
+        backendFilter["ClassId"] = arrayOfSelectedClassesId;
 
         //for: createdAt
         //first case: one date
@@ -830,26 +707,24 @@ class SearchBar extends React.Component {
         && this.state.closedFromdd != ""
             ? backendFilter["ClosedStart"] = this.state.closedFromyyyy + "-" + this.state.closedFrommm + "-" + this.state.closedFromdd : undefined);
 
-        /*for (var i = 0; i < this.state.arrayOfSelectedStates.length; i++) {
-            backendFilter["StateId"] = this.state.arrayOfSelectedStates[i];
+
+        for (var i = 0; i < this.state.arrayOfSelectedStates.length; i++) {
+            arrayOfSelectedStatesId.push(this.state.arrayOfSelectedStates[i]['id']);
         }
+        backendFilter["StateId"] = arrayOfSelectedStatesId;
+
 
         for (var i = 0; i < this.state.arrayOfSelectedScheds.length; i++) {
-            backendFilter["SchedId"] = this.state.arrayOfSelectedScheds[i];
-        }*/
-        backendFilter["StateId"] = this.state.arrayOfSelectedStates;
-        backendFilter["SchedId"] = this.state.arrayOfSelectedScheds;
+            arrayOfSelectedSchedsId.push(this.state.arrayOfSelectedScheds[i]['id']);
+        }
+
+        backendFilter["SchedId"] = arrayOfSelectedSchedsId;
 
 
-        var result =
-            [{
-                fullTextSearch: this.state.fullTextSearch
-            }, /*{filter: arrayOfNonNullFilters}*/
-                backendFilter
-            ];
+        var result = [{fullTextSearch: this.state.fullTextSearch}, backendFilter];
 
 
-        //console.log('A bunch of record queries are submitted: ' + JSON.stringify(result));
+        console.log('A bunch of record queries are submitted: ' + JSON.stringify(result));
         this.state.result = [];//CLEAR RESULTS for initialization
 
         //TODO: Vincent's call
@@ -869,7 +744,7 @@ class SearchBar extends React.Component {
     }
 
     handleSubmitRecordTypeSpecificSearch(event) {
-        console.log('A bunch of record queries are submitted: ' +
+        /*console.log('A bunch of record queries are submitted: ' +
             JSON.stringify(
                 [
                         {
@@ -884,38 +759,54 @@ class SearchBar extends React.Component {
                         filterbyClientName: this.state.proposalClientName}
                 ]
             )
-        );
-
-
+        );*/
 
         var projectJson = this.sendHttpCall("POST", server + "/records/projectSearch", {
             projectSearchInput: this.state.recordTypeSpecificSearch,
             filterByFunction: this.state.projectFunction,
             filterByPM: this.state.projectManager,
             filterbyClientName: this.state.projectClientName}).then(function (response) {
+                console.log("project response:");
+                console.log(response);
                 return Promise.resolve(response);
-        });
+        })
+        .catch(function (error) {
+                console.log("project error:");
+                console.log(error);
+         });
 
         var proposalJson = this.sendHttpCall("POST", server + "/records/proposalSearch", {
             proposalSearchInput: this.state.recordTypeSpecificSearch,
             filterByFieldOfPractice: this.state.proposalFieldOfPractice,
             filterByPM: this.state.proposalManager,
             filterbyClientName: this.state.proposalClientName}).then(function (response) {
+                console.log("proposal response:");
+                console.log(response);
                 return Promise.resolve(response);
+        }).catch(function (error) {
+                console.log("proposal error:");
+                console.log(error);
         });
 
         Promise.all([projectJson,proposalJson]).then(function (values) {
 
-            var projectAndProposal = {
-                results: values[0]['results'].concat(values[1]['results'])
-            };
+            var projectAndProposal = {};
 
-            console.log('project and proposal values are: ');
-            console.log(projectAndProposal);
+            if (typeof values[0] !== "undefined" && typeof values[1] !== "undefined") {
+                projectAndProposal.results = values[0]['results'].concat(values[1]['results']);
+            } else if (typeof values[0] !== "undefined" && typeof values[1] === "undefined") {
+                projectAndProposal.results = values[0]['results'];
+            } else if (typeof values[0] === "undefined" && typeof values[1] !== "undefined") {
+                projectAndProposal.results = values[1]['results'];
+            } else {
+                projectAndProposal = null;
+                alert("No results are returned");
+            }
             globalUpdate(projectAndProposal);
 
         }).catch(function (error) {
-            console.log("projectAndProposal error: " + error);
+            console.log("projectAndProposal error:");
+            console.log(error);
         });
 
         event.preventDefault();
@@ -1006,20 +897,10 @@ class SearchBar extends React.Component {
         var id = event.target.id;
         var name = event.target.name;
 
-        //convert to a string and try
-
-        //console.log("arrayOfSelectedTypes:" + JSON.stringify(this.state.arrayOfSelectedTypes));
-        //console.log("{id:id,name:name}:" + JSON.stringify({id: id, name: name}));
-        /*console.log("this.state.arrayOfSelectedTypes.includes({id:id,name:name}):" + this.state.arrayOfSelectedTypes.includes({
-            id: id,
-            name: name
-        }));*/
-
         if (!JSON.stringify(this.state.arrayOfSelectedTypes).includes(JSON.stringify({id: id, name: name}))) {
             this.state.arrayOfSelectedTypes.push({id: id, name: name})
         }
         else {
-            //var index = this.state.arrayOfSelectedTypes.indexOf({id: id, name: name});
             var index = this.state.arrayOfSelectedTypes.findIndex((i => i.id === id));
             if (index > -1) {
                 this.state.arrayOfSelectedTypes.splice(index, 1);
@@ -1031,8 +912,7 @@ class SearchBar extends React.Component {
         var arrayOfSelectedTypeButtons = [];
         for (var i = 0; i < this.state.arrayOfSelectedTypes.length; i++) {
             arrayOfSelectedTypeButtons.push(
-                <Button className="selected-types" color="primary">{this.state.arrayOfSelectedTypes[i]['name']}
-                    X </Button>
+                <Button className="selected-types" color="primary">{this.state.arrayOfSelectedTypes[i]['name']}</Button>
             )
         }
         return arrayOfSelectedTypeButtons;
@@ -1046,16 +926,26 @@ class SearchBar extends React.Component {
 
     toggleLocationCheckbox(event) {
         var id = event.target.id;
+        var name = event.target.name;
 
-        if (!this.state.arrayOfSelectedLocations.includes(event.target.id)) {
-            this.state.arrayOfSelectedLocations.push(event.target.id)
+        if (!JSON.stringify(this.state.arrayOfSelectedLocations).includes(JSON.stringify({id: id, name: name}))) {
+            this.state.arrayOfSelectedLocations.push({id: id, name: name})
         }
         else {
-            var index = this.state.arrayOfSelectedLocations.indexOf(event.target.id);
+            var index = this.state.arrayOfSelectedLocations.findIndex((i => i.id === id));
             if (index > -1) {
                 this.state.arrayOfSelectedLocations.splice(index, 1);
             }
         }
+    }
+    displaySelectedLocationButtons() {
+        var arrayOfSelectedLocationButtons = [];
+        for (var i = 0; i < this.state.arrayOfSelectedLocations.length; i++) {
+            arrayOfSelectedLocationButtons.push(
+                <Button className="selected-locations" color="primary">{this.state.arrayOfSelectedLocations[i]['name']}</Button>
+            )
+        }
+        return arrayOfSelectedLocationButtons;
     }
 
     toggleClassDropdown() {
@@ -1066,16 +956,27 @@ class SearchBar extends React.Component {
 
     toggleClassCheckbox(event) {
         var id = event.target.id;
+        var name = event.target.name;
 
-        if (!this.state.arrayOfSelectedClasses.includes(event.target.id)) {
-            this.state.arrayOfSelectedClasses.push(event.target.id)
+        if (!JSON.stringify(this.state.arrayOfSelectedClasses).includes(JSON.stringify({id: id, name: name}))) {
+            this.state.arrayOfSelectedClasses.push({id: id, name: name})
         }
         else {
-            var index = this.state.arrayOfSelectedClasses.indexOf(event.target.id);
+            var index = this.state.arrayOfSelectedClasses.findIndex((i => i.id === id));
             if (index > -1) {
                 this.state.arrayOfSelectedClasses.splice(index, 1);
             }
         }
+    }
+
+    displaySelectedClassButtons() {
+        var arrayOfSelectedClassButtons = [];
+        for (var i = 0; i < this.state.arrayOfSelectedClasses.length; i++) {
+            arrayOfSelectedClassButtons.push(
+                <Button className="selected-classes" color="primary">{this.state.arrayOfSelectedClasses[i]['name']}</Button>
+            )
+        }
+        return arrayOfSelectedClassButtons;
     }
 
     toggleStateDropdown() {
@@ -1086,16 +987,27 @@ class SearchBar extends React.Component {
 
     toggleStateCheckbox(event) {
         var id = event.target.id;
+        var name = event.target.name;
 
-        if (!this.state.arrayOfSelectedStates.includes(event.target.id)) {
-            this.state.arrayOfSelectedStates.push(event.target.id)
+        if (!JSON.stringify(this.state.arrayOfSelectedStates).includes(JSON.stringify({id: id, name: name}))) {
+            this.state.arrayOfSelectedStates.push({id: id, name: name})
         }
         else {
-            var index = this.state.arrayOfSelectedStates.indexOf(event.target.id);
+            var index = this.state.arrayOfSelectedStates.findIndex((i => i.id === id));
             if (index > -1) {
                 this.state.arrayOfSelectedStates.splice(index, 1);
             }
         }
+    }
+
+    displaySelectedStateButtons() {
+        var arrayOfSelectedStateButtons = [];
+        for (var i = 0; i < this.state.arrayOfSelectedStates.length; i++) {
+            arrayOfSelectedStateButtons.push(
+                <Button className="selected-states" color="primary">{this.state.arrayOfSelectedStates[i]['name']}</Button>
+            )
+        }
+        return arrayOfSelectedStateButtons;
     }
 
     toggleSchedDropdown() {
@@ -1106,16 +1018,27 @@ class SearchBar extends React.Component {
 
     toggleSchedCheckbox(event) {
         var id = event.target.id;
+        var name = event.target.name;
 
-        if (!this.state.arrayOfSelectedScheds.includes(event.target.id)) {
-            this.state.arrayOfSelectedScheds.push(event.target.id)
+        if (!JSON.stringify(this.state.arrayOfSelectedScheds).includes(JSON.stringify({id: id, name: name}))) {
+            this.state.arrayOfSelectedScheds.push({id: id, name: name});
         }
         else {
-            var index = this.state.arrayOfSelectedScheds.indexOf(event.target.id);
+            var index = this.state.arrayOfSelectedScheds.findIndex((i => i.id === id));
             if (index > -1) {
                 this.state.arrayOfSelectedScheds.splice(index, 1);
             }
         }
+    }
+
+    displaySelectedSchedButtons() {
+        var arrayOfSelectedScedButtons = [];
+        for (var i = 0; i < this.state.arrayOfSelectedScheds.length; i++) {
+            arrayOfSelectedScedButtons.push(
+                <Button className="selected-scheds" color="primary">{this.state.arrayOfSelectedScheds[i]['name']}</Button>
+            )
+        }
+        return arrayOfSelectedScedButtons;
     }
 
     //TODO: Sample Location Param
@@ -1208,8 +1131,11 @@ class SearchBar extends React.Component {
 	}
 
     render() {
+        // this.props.isAdmin here will return false, since it's returning too slowly, and that's why I set a global var instead
+        // for the admin value
+        //console.log('isAdministrator:' + isAdministrator); //TODO: This keeps printing out (runtime issue)
         return (
-            <div>
+            <div className="search-bar">
                 <Nav tabs>
                     <NavItem>
                         <NavLink
@@ -1246,29 +1172,33 @@ class SearchBar extends React.Component {
                     </NavItem>
 
 
-                    <NavItem>
-                        <NavLink
-                            className={classnames({active: this.state.activeTab === '4'})}
-                            onClick={() => {
-                                this.toggleTab('4');
-                                this.populateConfigureTab('4');
-                            }}
-                        >
-                            Configure Roles
-                        </NavLink>
-                    </NavItem>
+                    {isAdministrator ?
+                        [<NavItem>
+                            <NavLink
+                                className={classnames({active: this.state.activeTab === '4'})}
+                                onClick={() => {
+                                    this.toggleTab('4');
+                                    this.populateConfigureTab('4');
+                                }}
+                            >
+                                Configure Roles
+                            </NavLink>
+                        </NavItem>,
 
-                    <NavItem>
-                        <NavLink
-                            className={classnames({active: this.state.activeTab === '5'})}
-                            onClick={() => {
-                                this.toggleTab('5');
-                                this.populateConfigureTab('5');
-                            }}
-                        >
-                            Configure Locations
-                        </NavLink>
-                    </NavItem>
+                        <NavItem>
+                            <NavLink
+                                className={classnames({active: this.state.activeTab === '5'})}
+                                onClick={() => {
+                                    this.toggleTab('5');
+                                    this.populateConfigureTab('5');
+                                }}
+                            >
+                                Configure Locations
+                            </NavLink>
+                        </NavItem>]
+                        : null}
+
+
 
                 </Nav>
 
@@ -1279,7 +1209,8 @@ class SearchBar extends React.Component {
                             <Col sm="20">
                                 <div className="animated fadeIn">
                                     <Form onSubmit={this.handleSubmitQuickSearch}>
-
+                                        <Label for="fullTextSearch" sm={10}> Enter a valid Record/Box Number,
+                                            Record/Box Title, Record/Box Notes or Box Consignment Id:</Label>
                                         <FormGroup row>
                                             <Col sm={10}>
                                                 <Input type="text" name="numberOrConsignmentCode"
@@ -1305,6 +1236,8 @@ class SearchBar extends React.Component {
                                 <div className="animated fadeIn">
                                     <Form onSubmit={this.handleSubmitFullTextSearch}>
                                         <FormGroup row>
+                                            <Label for="fullTextSearch" sm={10}> Enter a valid Record/Box Number,
+                                                Record/Box Title, Record/Box Notes or Box Consignment Id:</Label>
                                             <Col sm={10}>
                                                 <Input type="text" name="fullTextSearch"
                                                        value={this.state.fullTextSearch} onChange={this.handleChange}/>
@@ -1352,6 +1285,9 @@ class SearchBar extends React.Component {
                                                     </Dropdown>
                                                 </Col>
                                             </div>
+                                            <div className="btn-toolbar">
+                                                {this.displaySelectedLocationButtons()}
+                                            </div>
                                         </FormGroup>
 
                                         <FormGroup row>
@@ -1372,14 +1308,14 @@ class SearchBar extends React.Component {
                                                     </Dropdown>
                                                 </Col>
                                             </div>
+                                            <div className="btn-toolbar">
+                                                {this.displaySelectedClassButtons()}
+                                            </div>
                                         </FormGroup>
 
                                         <FormGroup row>
-                                            <Label for="dateCreated" sm={2}>Date Created (yyyy/mm/dd): </Label>
+                                            <Label for="dateCreated" sm={3}>Date Created (yyyy/mm/dd): </Label>
                                             <Col sm={{size: 2}}>
-                                                <Input type="text" name="..."/>
-                                            </Col>
-                                            <Col sm={{size: 5}}>
                                                 {' '}<Input type="checkbox" onClick={this.toggleCollapseCreated}/>{' '}
                                                 Exact date
                                             </Col>
@@ -1404,79 +1340,72 @@ class SearchBar extends React.Component {
                                             </FormGroup>
                                         </Collapse>
 
-                                        <Collapse sm={20} isOpen={this.state.collapseCreatedFromTill}>
-                                            <FormGroup row>
-                                                <Label for="dateCreated" sm={2}>From{' '}</Label>
-                                                <Col sm={{size: 10}}>
+                                        <Collapse isOpen={this.state.collapseCreatedFromTill}>
+                                            <FormGroup className='rowControl' row>
+                                                <Col className='boxControl' sm={{size: 2}}>
                                                     {' '}<Input type="checkbox"
                                                                 onClick={this.toggleCollapseCreatedFrom}/>{' '}
                                                     Beginning
                                                 </Col>
-                                            </FormGroup>
 
-                                            <Collapse sm={20} isOpen={this.state.collapseCreatedFrom}>
-                                                <FormGroup row>
-                                                    <Col sm={2}>
+                                            <Collapse isOpen={this.state.collapseCreatedFrom}>
+                                                    <Col className='rowsControl' sm={3}>
                                                         <Input type="text" name="createdFromyyyy"
                                                                value={this.state.createdFromyyyy}
                                                                onChange={this.handleChange}/>
                                                     </Col>
                                                     /
-                                                    <Col sm={2}>
+                                                    <Col className='rowsControl' sm={3}>
                                                         <Input type="text" name="createdFrommm"
                                                                value={this.state.createdFrommm}
                                                                onChange={this.handleChange}/>
                                                     </Col>
                                                     /
-                                                    <Col sm={2}>
+                                                    <Col className='rowsControl' sm={3}>
                                                         <Input type="text" name="createdFromdd"
                                                                value={this.state.createdFromdd}
                                                                onChange={this.handleChange}/>
                                                     </Col>
-                                                </FormGroup>
                                             </Collapse>
 
-                                            <FormGroup row>
-                                                <Label for="dateCreated" sm={2}>Till</Label>
-                                                <Col sm={{size: 10}}>
+                                                <Label for="dateCreated" sm={1}>-</Label>
+                                                <Col className='boxControl' sm={{size: 2}}>
                                                     {' '}<Input type="checkbox"
                                                                 onClick={this.toggleCollapseCreatedTill}/>{' '}
                                                     Now
                                                 </Col>
-                                            </FormGroup>
 
-                                            <Collapse sm={20} isOpen={this.state.collapseCreatedTill}>
-                                                <FormGroup row>
-                                                    <Col sm={2}>
+                                            <Collapse isOpen={this.state.collapseCreatedTill}>
+                                                    <Col className='rowsControl' sm={3}>
                                                         <Input type="text" name="createdTillyyyy"
                                                                value={this.state.createdTillyyyy}
                                                                onChange={this.handleChange}/>
                                                     </Col>
                                                     /
-                                                    <Col sm={2}>
+                                                    <Col className='rowsControl' sm={3}>
                                                         <Input type="text" name="createdTillmm"
                                                                value={this.state.createdTillmm}
                                                                onChange={this.handleChange}/>
                                                     </Col>
                                                     /
-                                                    <Col sm={2}>
+                                                    <Col className='rowsControl' sm={3}>
                                                         <Input type="text" name="createdTilldd"
                                                                value={this.state.createdTilldd}
                                                                onChange={this.handleChange}/>
                                                     </Col>
-                                                </FormGroup>
                                             </Collapse>
+                                            </FormGroup>
 
                                         </Collapse>
                                         <FormGroup row>
-                                            <Label for="dateCreated" sm={2}>Date Updated (yyyy/mm/dd): </Label>
-                                            <Col sm={{size: 10}}>
+                                            <Label for="dateCreated" sm={3}>Date Updated (yyyy/mm/dd): </Label>
+                                            <Col sm={{size: 2}}>
                                                 {' '}<Input type="checkbox" onClick={this.toggleCollapseUpdated}/>{' '}
                                                 Exact date
                                             </Col>
                                         </FormGroup>
 
-                                        <Collapse sm={20} isOpen={this.state.collapseUpdated}>
+                                        <Collapse isOpen={this.state.collapseUpdated}>
                                             <FormGroup row>
                                                 <Col sm={2}>
                                                     <Input type="text" name="updatedyyyy" value={this.state.updatedyyyy}
@@ -1495,80 +1424,73 @@ class SearchBar extends React.Component {
                                             </FormGroup>
                                         </Collapse>
 
-                                        <Collapse sm={20} isOpen={this.state.collapseUpdatedFromTill}>
+                                        <Collapse isOpen={this.state.collapseUpdatedFromTill}>
 
-                                            <FormGroup row>
-                                                <Label for="dateCreated" sm={2}>From{' '}</Label>
-                                                <Col sm={{size: 10}}>
+                                            <FormGroup className='rowControl' row>
+                                                <Col className='boxControl' sm={{size: 2}}>
                                                     {' '}<Input type="checkbox"
                                                                 onClick={this.toggleCollapseUpdatedFrom}/>{' '}
                                                     Beginning
                                                 </Col>
-                                            </FormGroup>
 
-                                            <Collapse sm={20} isOpen={this.state.collapseUpdatedFrom}>
-                                                <FormGroup row>
-                                                    <Col sm={2}>
+                                            <Collapse isOpen={this.state.collapseUpdatedFrom}>
+                                                    <Col className='rowsControl' sm={3}>
                                                         <Input type="text" name="updatedFromyyyy"
                                                                value={this.state.updatedFromyyyy}
                                                                onChange={this.handleChange}/>
                                                     </Col>
                                                     /
-                                                    <Col sm={2}>
+                                                    <Col className='rowsControl' sm={3}>
                                                         <Input type="text" name="updatedFrommm"
                                                                value={this.state.updatedFrommm}
                                                                onChange={this.handleChange}/>
                                                     </Col>
                                                     /
-                                                    <Col sm={2}>
+                                                    <Col className='rowsControl' sm={3}>
                                                         <Input type="text" name="updatedFromdd"
                                                                value={this.state.updatedFromdd}
                                                                onChange={this.handleChange}/>
                                                     </Col>
-                                                </FormGroup>
                                             </Collapse>
 
-                                            <FormGroup row>
-                                                <Label for="dateCreated" sm={2}>Till{' '}</Label>
-                                                <Col sm={{size: 10}}>
+                                                <Label for="dateCreated" sm={1}>-</Label>
+                                                <Col className='boxControl' sm={{size: 2}}>
                                                     {' '}<Input type="checkbox"
                                                                 onClick={this.toggleCollapseUpdatedTill}/>{' '}
                                                     Now
                                                 </Col>
-                                            </FormGroup>
 
-                                            <Collapse sm={20} isOpen={this.state.collapseUpdatedTill}>
-                                                <FormGroup row>
-                                                    <Col sm={2}>
+                                            <Collapse isOpen={this.state.collapseUpdatedTill}>
+                                                    <Col className='rowsControl' sm={3}>
                                                         <Input type="text" name="updatedTillyyyy"
                                                                value={this.state.updatedTillyyyy}
                                                                onChange={this.handleChange}/>
                                                     </Col>
                                                     /
-                                                    <Col sm={2}>
+                                                    <Col className='rowsControl' sm={3}>
                                                         <Input type="text" name="updatedTillmm"
                                                                value={this.state.updatedTillmm}
                                                                onChange={this.handleChange}/>
                                                     </Col>
                                                     /
-                                                    <Col sm={2}>
+                                                    <Col className='rowsControl' sm={3}>
                                                         <Input type="text" name="updatedTilldd"
-                                                               value={this.state.updatedTillddd}
+                                                               value={this.state.updatedTilldd}
                                                                onChange={this.handleChange}/>
                                                     </Col>
-                                                </FormGroup>
                                             </Collapse>
+                                            </FormGroup>
                                         </Collapse>
 
                                         <FormGroup row>
-                                            <Label for="dateClosed" sm={2}>Date Closed (yyyy/mm/dd): </Label>
-                                            <Col sm={{size: 10}}>
+                                            <Label for="dateClosed" sm={3}>Date Closed (yyyy/mm/dd): </Label>
+                                            <Col sm={{size: 2}}>
                                                 {' '}<Input type="checkbox" onClick={this.toggleCollapseClosed}/>{' '}
                                                 Exact date
                                             </Col>
                                         </FormGroup>
 
-                                        <Collapse sm={20} isOpen={this.state.collapseClosed}>
+                                        <Collapse isOpen={this.state.collapseClosed}>
                                             <FormGroup row>
                                                 <Col sm={2}>
                                                     <Input type="text" name="closedyyyy" value={this.state.closedyyyy}
@@ -1587,69 +1509,61 @@ class SearchBar extends React.Component {
                                             </FormGroup>
                                         </Collapse>
 
-                                        <Collapse sm={20} isOpen={this.state.collapseClosedFromTill}>
-                                            <FormGroup row>
-                                                <Label for="dateClosed" sm={2}>From{' '}</Label>
-                                                <Col sm={{size: 10}}>
+                                        <Collapse isOpen={this.state.collapseClosedFromTill}>
+                                            <FormGroup className='rowControl' row>
+                                                <Col className='boxControl' sm={{size: 2}}>
                                                     {' '}<Input type="checkbox"
                                                                 onClick={this.toggleCollapseClosedFrom}/>{' '}
                                                     Beginning
                                                 </Col>
-                                            </FormGroup>
 
-                                            <Collapse sm={20} isOpen={this.state.collapseClosedFrom}>
-                                                <FormGroup row>
-                                                    <Col sm={2}>
+                                            <Collapse isOpen={this.state.collapseClosedFrom}>
+                                                    <Col className='rowsControl' sm={3}>
                                                         <Input type="text" name="closedFromyyyy"
                                                                value={this.state.closedFromyyyy}
                                                                onChange={this.handleChange}/>
                                                     </Col>
                                                     /
-                                                    <Col sm={2}>
+                                                    <Col className='rowsControl' sm={3}>
                                                         <Input type="text" name="closedFrommm"
                                                                value={this.state.closedFrommm}
                                                                onChange={this.handleChange}/>
                                                     </Col>
                                                     /
-                                                    <Col sm={2}>
+                                                    <Col className='rowsControl' sm={3}>
                                                         <Input type="text" name="closedFromdd"
                                                                value={this.state.closedFromdd}
                                                                onChange={this.handleChange}/>
                                                     </Col>
-                                                </FormGroup>
                                             </Collapse>
 
-                                            <FormGroup row>
-                                                <Label for="dateClosed" sm={2}>Till</Label>
-                                                <Col sm={{size: 10}}>
+                                                <Label for="dateClosed" sm={1}>-</Label>
+                                                <Col className='boxControl' sm={{size: 2}}>
                                                     {' '}<Input type="checkbox"
                                                                 onClick={this.toggleCollapseClosedTill}/>{' '}
                                                     Now
                                                 </Col>
-                                            </FormGroup>
 
-                                            <Collapse sm={20} isOpen={this.state.collapseClosedTill}>
-                                                <FormGroup row>
-                                                    <Col sm={2}>
+                                            <Collapse isOpen={this.state.collapseClosedTill}>
+                                                    <Col className='rowsControl' sm={3}>
                                                         <Input type="text" name="closedTillyyyy"
                                                                value={this.state.closedTillyyyy}
                                                                onChange={this.handleChange}/>
                                                     </Col>
                                                     /
-                                                    <Col sm={2}>
+                                                    <Col className='rowsControl' sm={3}>
                                                         <Input type="text" name="closedTillmm"
                                                                value={this.state.closedTillmm}
                                                                onChange={this.handleChange}/>
                                                     </Col>
                                                     /
-                                                    <Col sm={2}>
+                                                    <Col className='rowsControl' sm={3}>
                                                         <Input type="text" name="closedTilldd"
                                                                value={this.state.closedTilldd}
                                                                onChange={this.handleChange}/>
                                                     </Col>
-                                                </FormGroup>
                                             </Collapse>
-
+                                            </FormGroup>
                                         </Collapse>
 
 
@@ -1671,6 +1585,9 @@ class SearchBar extends React.Component {
                                                     </Dropdown>
                                                 </Col>
                                             </div>
+                                            <div className="btn-toolbar">
+                                                {this.displaySelectedStateButtons()}
+                                            </div>
                                         </FormGroup>
 
                                         <FormGroup row>
@@ -1690,6 +1607,9 @@ class SearchBar extends React.Component {
                                                         </DropdownMenu>
                                                     </Dropdown>
                                                 </Col>
+                                            </div>
+                                            <div className="btn-toolbar">
+                                                {this.displaySelectedSchedButtons()}
                                             </div>
                                         </FormGroup>
 
@@ -1979,18 +1899,21 @@ class Dashboard extends React.Component {
     }
 
     render() {
+        isAdministrator = this.props['isAdmin']; //setting it as a global variable is faster than setting a state, thus eliminating
+        // the async bug
+
         return (
             <div>
                 <div>
                     <SearchBar/>
-                    <ResultsTable results={records} loadingText="Loading results..." noDataText="No results found" onClick={this.rowSelect.bind(this)}/>
+                    <ResultsTable  results={records} loadingText="Loading results..." noDataText="No results found" onClick={this.rowSelect.bind(this)}/>
                 </div>
             </div>
         );
     }
 }
-
-/*TODO: add
+/*
+TODO: add
 <ResultsTable results={th} addToRecordLabels={this.props.addToRecordLabels} addToEndTabLabels={this.props.addToEndTabLabels} addToContainerReports={this.props.addToContainerReports} addToEnclosureReports={this.props.addToEnclosureReports}/>
 between <SearchBar />
 and </div>
