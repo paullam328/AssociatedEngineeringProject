@@ -1,6 +1,7 @@
 package com.duke.controller;
 
 import com.duke.Dao.LocationsDao;
+import org.apache.commons.lang3.text.WordUtils;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -43,15 +44,22 @@ public class LocationsController {
             String newName = jsonObj.getString("addLocationsName").trim();
             String newCode = jsonObj.getString("addLocationsCode").trim();
 
+
             if (newName.length() < 1 && newCode.length() < 1) {
                 // input too short
                 // return 400
                 return new ResponseEntity<String>("400  Input too short.", HttpStatus.BAD_REQUEST);
             } else {
+                newName = WordUtils.capitalizeFully(newName);
+                newCode = newCode.toLowerCase();
+
                 boolean isCreated = locationsDao.addLocation(newName, newCode);
 
                 if (isCreated) {
-                    return new ResponseEntity<String>("200  New role added.", HttpStatus.OK);
+                    JSONObject obj = new JSONObject();
+                    List<JSONObject> results = locationsDao.getAllLocations();
+                    obj.put("results", results);
+                    return new ResponseEntity<String>(obj.toString(), HttpStatus.OK);
                 } else {
                     return new ResponseEntity<String>("403  Fobidden. User doesn't have permission for this request.", HttpStatus.FORBIDDEN);
                 }
@@ -132,12 +140,18 @@ public class LocationsController {
                 // return 400
                 return new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
             } else {
+                newLocationsName = WordUtils.capitalizeFully(newLocationsCode);
+                newLocationsCode = newLocationsCode.toLowerCase();
+
                 boolean isUpdated = locationsDao.updateLocation(newLocationsName, newLocationsCode, locationsId);
 
                 System.out.println("isUpdated: " + isUpdated);
 
                 if (isUpdated) {
-                    return new ResponseEntity<String>("200  Location updated.", HttpStatus.OK);
+                    JSONObject obj = new JSONObject();
+                    List<JSONObject> results = locationsDao.getAllLocations();
+                    obj.put("results", results);
+                    return new ResponseEntity<String>(obj.toString(), HttpStatus.OK);
                 } else {
                     return new ResponseEntity<String>("403  Fobidden. User doesn't have permission for this request.", HttpStatus.FORBIDDEN);
                 }
@@ -177,7 +191,10 @@ public class LocationsController {
             System.out.println("isUpdated: " + isDeleted);
 
             if (isDeleted) {
-                return new ResponseEntity<String>("200  Location deleted.", HttpStatus.OK);
+                JSONObject obj = new JSONObject();
+                List<JSONObject> results = locationsDao.getAllLocations();
+                obj.put("results", results);
+                return new ResponseEntity<String>(obj.toString(), HttpStatus.OK);
             } else {
                 return new ResponseEntity<String>("403  Fobidden. User doesn't have permission for this request.", HttpStatus.FORBIDDEN);
             }

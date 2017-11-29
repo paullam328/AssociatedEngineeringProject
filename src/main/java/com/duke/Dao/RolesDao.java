@@ -70,8 +70,8 @@ public class RolesDao {
             List<JSONObject> jsonList = jdbcTemplate.query(sql, new RowMapper<JSONObject>() {
                 public JSONObject mapRow(ResultSet resultSet, int Id) throws SQLException {
                     JSONObject obj = new JSONObject();
-                    obj.put("rolesId", resultSet.getInt("Id"));
-                    obj.put("rolesName", resultSet.getString("Name"));
+                    obj.put("ID Roles", resultSet.getInt("Id"));
+                    obj.put("Roles Name", resultSet.getString("Name"));
 
                     return obj;
                 }

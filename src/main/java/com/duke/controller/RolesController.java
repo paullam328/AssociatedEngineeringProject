@@ -1,6 +1,7 @@
 package com.duke.controller;
 
 import com.duke.Dao.RolesDao;
+import org.apache.commons.lang3.text.WordUtils;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -38,17 +39,22 @@ public class RolesController {
         try {
 
             JSONObject jsonObj = new JSONObject(params);
-            String newName = jsonObj.getString("addRolesName").trim();
+            String newName = jsonObj.getString("addRolesName").trim();      // trim leading and trailing whitespace
 
             if (newName.length() < 1) {
                 // input too short
                 // return 400
                 return new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
             } else {
+                newName = WordUtils.capitalizeFully(newName);       // capitalize 1st letter of each word
                 boolean isCreated = rolesDao.addRole(newName);
 
                 if (isCreated) {
-                    return new ResponseEntity<String>("200  New role added.", HttpStatus.OK);
+                    JSONObject obj = new JSONObject();
+                    List<JSONObject> results = rolesDao.getAllRoles();
+                    obj.put("results", results);
+
+                    return new ResponseEntity<String>(obj.toString(), HttpStatus.OK);
                 } else {
                     return new ResponseEntity<String>("403  Forbidden. User doesn't have permission for this request.", HttpStatus.FORBIDDEN);
                 }
@@ -124,21 +130,22 @@ public class RolesController {
             String newRolesName = jsonObj.getString("updateRolesName").trim();
 
             if (newRolesName.length() < 1) {
-                System.out.println("BAD REQUEST");
                 // input too short
                 // return 400
-                return new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<String>("400 Role name is too short.", HttpStatus.BAD_REQUEST);
             } else {
-                System.out.println("SENT");
+                newRolesName = WordUtils.capitalizeFully(newRolesName);       // capitalize 1st letter of each word
                 boolean isUpdated = rolesDao.updateRole(newRolesName, rolesId);
 
                 System.out.println("isUpdated: " + isUpdated);
 
                 if (isUpdated) {
-                    System.out.println("OK");
-                    return new ResponseEntity<String>("200  Updated role", HttpStatus.OK);
+                    JSONObject obj = new JSONObject();
+                    List<JSONObject> results = rolesDao.getAllRoles();
+                    obj.put("results", results);
+
+                    return new ResponseEntity<String>(obj.toString(), HttpStatus.OK);
                 } else {
-                    System.out.println("FORBIDDEN");
                     return new ResponseEntity<String>("403  Forbidden. User doesn't have permission for this request.", HttpStatus.FORBIDDEN);
                 }
             }
@@ -176,7 +183,11 @@ public class RolesController {
             System.out.println("isDeleted: " + isDeleted);
 
             if (isDeleted) {
-                return new ResponseEntity<String>("200  Deleted role.", HttpStatus.OK);
+                JSONObject obj = new JSONObject();
+                List<JSONObject> results = rolesDao.getAllRoles();
+                obj.put("results", results);
+
+                return new ResponseEntity<String>(obj.toString(), HttpStatus.OK);
             } else {
                 return new ResponseEntity<String>("403  Fobidden. User doesn't have permission for this request.", HttpStatus.FORBIDDEN);
             }

@@ -54,6 +54,7 @@ function globalUpdate(response) {
     dashGlobal.update();
 }
 
+
 class BoxRow extends React.Component {
     render() {
         const box = this.props.box;
@@ -149,6 +150,7 @@ class ResultsTable extends React.Component {
 	        ),
 	        maxWidth: 60
         }];
+
         if (this.props.results.length > 0) {
             for (let key in this.props.results[0]) {
                 if (this.props.results[0].hasOwnProperty(key) && !key.toLowerCase().endsWith("id")) {
@@ -321,7 +323,9 @@ class SearchBar extends React.Component {
 
             //isAdministration: this.props['isAdmin'],
 
-            userType: {}
+            userType: {},
+
+            selectedTab: ''
 
             //serverLocationDropDown: []
 
@@ -441,6 +445,7 @@ class SearchBar extends React.Component {
      * @param tabNum
      */
     populateConfigureTab(tabNum) {
+        console.log("selected tab: " + this.state.selectedTab);
         //console.log("in populateConfigureTab()");
         //console.log("tabNum: " + tabNum)
 
@@ -449,13 +454,12 @@ class SearchBar extends React.Component {
         let url;
 
         if (tabNum === '4') {
+
             url = "/roles/";
 
-        } else if (tabNum == '5') {
+        } else if (tabNum === '5') {
             url = "/locations/";
         }
-
-        //console.log(server + url);
 
         this.sendHttpCall(method, server + url, json).then(function (result) {
             globalUpdate(result);
@@ -468,7 +472,7 @@ class SearchBar extends React.Component {
      * --------------------------------
      */
 
-    addRole() {
+    addRole(event) {
         //console.log("in addRole()");
 
         let json = {addRolesName: this.state.addRolesName};
@@ -479,9 +483,10 @@ class SearchBar extends React.Component {
         this.sendHttpCall(method, server + url, json).then(function (result) {
             globalUpdate(result);
         });
+        event.preventDefault();
     }
 
-    updateRole() {
+    updateRole(event) {
         //console.log("in updateRole()");
         let json = {updateRolesId: this.state.updateRolesId, updateRolesName: this.state.updateRolesName};
         let url = "/roles/";
@@ -490,9 +495,11 @@ class SearchBar extends React.Component {
         this.sendHttpCall(method, server + url, json).then(function (result) {
             globalUpdate(result);
         });
+
+        event.preventDefault();
     }
 
-    deleteRole() {
+    deleteRole(event) {
         //console.log("in deleteRole()");
         let json = {deleteRolesId: this.state.deleteRolesId};
         //console.log(JSON.stringify(json));
@@ -503,6 +510,7 @@ class SearchBar extends React.Component {
             globalUpdate(result);
 
         });
+        event.preventDefault();
     }
 
     /**
@@ -512,7 +520,7 @@ class SearchBar extends React.Component {
      */
 
     // TODO: add location doesn't work b/c locations.id doesn't auto increment
-    addLocation() {
+    addLocation(event) {
         //console.log("in addLocation()");
 
         let json = {addLocationsName: this.state.addLocationsName, addLocationCode: this.state.addLocationsCode};
@@ -523,9 +531,10 @@ class SearchBar extends React.Component {
         this.sendHttpCall(method, server + url, json).then(function (result) {
             globalUpdate(result);
         });
+        event.preventDefault();
     }
 
-    updateLocation() {
+    updateLocation(event) {
         //console.log("in updateLocation()");
         let json = {
             updateLocationsId: this.state.updateLocationsId,
@@ -538,9 +547,10 @@ class SearchBar extends React.Component {
         this.sendHttpCall(method, server + url, json).then(function (result) {
             globalUpdate(result);
         });
+        event.preventDefault();
     }
 
-    deleteLocation() {
+    deleteLocation(event) {
         //console.log("in deleteLocation()");
         let json = {deleteLocationsId: this.state.deleteLocationsId};
         //console.log(JSON.stringify(json));
@@ -549,13 +559,11 @@ class SearchBar extends React.Component {
 
         this.sendHttpCall(method, server + url, json).then(function (result) {
             globalUpdate(result);
-
         });
+        event.preventDefault();
     }
 
-
     handleSubmitQuickSearch(event) {
-        //console.log("SearchButtonValueIs:" + this.state.quickSearchAttr);
 
         let input = this.state.numberOrConsignmentCode.replace(" ", "");
 
@@ -587,7 +595,9 @@ class SearchBar extends React.Component {
                 globalUpdate(result);
             });
             */
+
             this.sendHttpCall("POST", server + "/records/quickSearch", {quickSearchInput: this.state.numberOrConsignmentCode}).then(function (result) {
+
                 globalUpdate(result);
             });
 
@@ -1178,7 +1188,9 @@ class SearchBar extends React.Component {
                                 className={classnames({active: this.state.activeTab === '4'})}
                                 onClick={() => {
                                     this.toggleTab('4');
+                                    this.state.selectedTab = '4';
                                     this.populateConfigureTab('4');
+
                                 }}
                             >
                                 Configure Roles
@@ -1190,6 +1202,7 @@ class SearchBar extends React.Component {
                                 className={classnames({active: this.state.activeTab === '5'})}
                                 onClick={() => {
                                     this.toggleTab('5');
+                                    this.state.selectedTab = '5';
                                     this.populateConfigureTab('5');
                                 }}
                             >
@@ -1834,7 +1847,6 @@ class SearchBar extends React.Component {
                                                 this box blank if you don't wish to update the code):</Label>
                                             <Col sm={10}>
                                                 <Input type="text" name="updateLocationsCode"
-                                                       value={this.state.updateLocationsCode}
                                                        onChange={this.handleChange}/>
                                             </Col>
 

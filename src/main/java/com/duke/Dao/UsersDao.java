@@ -75,9 +75,7 @@ public class UsersDao extends HttpServlet{
         String userid = getCurrentRemoteUser();
 
         if (userid != null) {
-            System.out.println("!!!!");
             List<JSONObject> results = getUserByUserId(userid);
-            System.out.println("***** " + results.toString());
             JSONObject obj = results.get(0);
             String userRole = obj.getString("RolesName");
 
@@ -107,9 +105,7 @@ public class UsersDao extends HttpServlet{
         String userid = getCurrentRemoteUser();
 
         if (userid != null) {
-            System.out.println("!!!!");
             List<JSONObject> results = getUserByUserId(userid);
-            System.out.println("***** " + results.toString());
             JSONObject obj = results.get(0);
             userLocation = obj.getString("LocationName");
         }

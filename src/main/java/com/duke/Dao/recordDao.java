@@ -1072,28 +1072,5 @@ public class recordDao {
             return null;
         }
     }
-
 }
-
-
-
-
-    /*
-
-    public List<JSONObject> getAllProjectClientNames() {
-        System.out.println("in getAllClientNames()");
-        final String sql = "SELECT customattributevalues.Id, customattributevalues.Value from customattributevalues WHERE  customattributevalues.AttrId = 9;";
-
-        List<JSONObject> allClients = jdbcTemplate.query(sql, new RowMapper<JSONObject>() {
-            public JSONObject mapRow(ResultSet resultSet, int Id) throws SQLException {
-                JSONObject Location = new JSONObject();
-                Location.put("CAVID", resultSet.getInt("Id"));
-                Location.put("ClientName", resultSet.getString("Value"));
-
-                return Location;
-            }
-        });
-        return allClients;
-    }
-    */
 

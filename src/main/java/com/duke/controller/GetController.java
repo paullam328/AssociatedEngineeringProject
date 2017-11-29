@@ -366,9 +366,7 @@ public class GetController {
             //
             String errorMessage = ex + " error";
             return new ResponseEntity<String>(errorMessage, HttpStatus.BAD_REQUEST);
-
         }
-
     }
 
     /**

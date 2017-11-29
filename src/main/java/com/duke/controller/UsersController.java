@@ -69,7 +69,7 @@ public class UsersController {
         try {
 
             JSONObject obj = new JSONObject();
-           String result = usersDao.getAuthorization();
+            String result = usersDao.getAuthorization();
 
             if (result.length() < 1) {
                 // no results found

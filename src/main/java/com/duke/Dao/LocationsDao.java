@@ -61,13 +61,13 @@ public class LocationsDao {
         String currentUserRole = usersDao.getAuthorization();
 
         if (currentUserRole.equals(ADMIN)) {
-            final String sql = "SELECT * FROM locations ORDER BY locations.Id ASC";
+            final String sql = "SELECT * FROM locations ORDER BY locations.Name ASC";
             List<JSONObject> jsonList = jdbcTemplate.query(sql, new RowMapper<JSONObject>() {
                 public JSONObject mapRow(ResultSet resultSet, int Id) throws SQLException {
                     JSONObject obj = new JSONObject();
-                    obj.put("locationsId", resultSet.getInt("Id"));
-                    obj.put("locationsName", resultSet.getString("Name"));
-                    obj.put("locationsCode", resultSet.getString("Code"));
+                    obj.put("ID Location", resultSet.getInt("Id"));
+                    obj.put("Location Name", resultSet.getString("Name"));
+                    obj.put("Location Code", resultSet.getString("Code"));
 
                     return obj;
                 }
