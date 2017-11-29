@@ -323,9 +323,7 @@ class SearchBar extends React.Component {
 
             //isAdministration: this.props['isAdmin'],
 
-            userType: {},
-
-            selectedTab: ''
+            userType: {}
 
             //serverLocationDropDown: []
 
@@ -445,7 +443,6 @@ class SearchBar extends React.Component {
      * @param tabNum
      */
     populateConfigureTab(tabNum) {
-        console.log("selected tab: " + this.state.selectedTab);
         //console.log("in populateConfigureTab()");
         //console.log("tabNum: " + tabNum)
 
@@ -1190,7 +1187,6 @@ class SearchBar extends React.Component {
                                 className={classnames({active: this.state.activeTab === '4'})}
                                 onClick={() => {
                                     this.toggleTab('4');
-                                    this.state.selectedTab = '4';
                                     this.populateConfigureTab('4');
 
                                 }}
@@ -1204,7 +1200,6 @@ class SearchBar extends React.Component {
                                 className={classnames({active: this.state.activeTab === '5'})}
                                 onClick={() => {
                                     this.toggleTab('5');
-                                    this.state.selectedTab = '5';
                                     this.populateConfigureTab('5');
                                 }}
                             >
