@@ -55,10 +55,10 @@ public class UsersDao extends HttpServlet{
         //String name = "ae\\goulet";
 
         // admin name:
-        //String name = "ae\\lange";
+        String name = "ae\\lange";
 
         // RMC name:
-        String name = "ae\\reichertb";
+        //String name = "ae\\reichertb";
 
         int startIndex = name.indexOf("\\") + 1;
 
