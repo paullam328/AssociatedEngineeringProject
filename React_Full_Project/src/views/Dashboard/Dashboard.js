@@ -523,8 +523,8 @@ class SearchBar extends React.Component {
     addLocation(event) {
         //console.log("in addLocation()");
 
-        let json = {addLocationsName: this.state.addLocationsName, addLocationCode: this.state.addLocationsCode};
-        //console.log(JSON.stringify(json));
+        let json = {addLocationsName: this.state.addLocationsName, addLocationsCode: this.state.addLocationsCode};
+        console.log(JSON.stringify(json));
         let url = "/locations/";
         let method = "POST";
 
@@ -541,6 +541,8 @@ class SearchBar extends React.Component {
             updateLocationsName: this.state.updateLocationsName,
             updateLocationsCode: this.state.updateLocationsCode
         };
+
+        console.log(JSON.stringify(json));
         let url = "/locations/";
         let method = "PUT";
 
@@ -1801,7 +1803,7 @@ class SearchBar extends React.Component {
                                             <Label for="addLocationsName" sm={10}>Enter the new location name:</Label>
                                             <Col sm={10}>
                                                 <Input type="text"
-                                                       name="addRolesName"
+                                                       name="addLocationsName"
                                                        value={this.state.addLocationsName}
                                                        onChange={this.handleChange}/>
                                             </Col>
@@ -1809,7 +1811,7 @@ class SearchBar extends React.Component {
                                             <Label for="addLocationsCode" sm={10}>Enter the new location code:</Label>
                                             <Col sm={10}>
                                                 <Input type="text"
-                                                       name="addRolesName"
+                                                       name="addLocationsCode"
                                                        value={this.state.addLocationsCode}
                                                        onChange={this.handleChange}/>
                                             </Col>
@@ -1835,18 +1837,17 @@ class SearchBar extends React.Component {
                                                        onChange={this.handleChange}/>
                                             </Col>
 
-                                            <Label for="updateLocationsName" sm={10}>Enter the new location name (leave
-                                                this box blank if you don't wish to update the name):</Label>
+                                            <Label for="updateLocationsName" sm={10}>Enter a new location name (or leave it blank):</Label>
                                             <Col sm={10}>
                                                 <Input type="text" name="updateLocationsName"
                                                        value={this.state.updateLocationsName}
                                                        onChange={this.handleChange}/>
                                             </Col>
 
-                                            <Label for="updateLocationsCode" sm={10}>Enter the new location code (leave
-                                                this box blank if you don't wish to update the code):</Label>
+                                            <Label for="updateLocationsCode" sm={10}>Enter a new location code (or leave it blank):</Label>
                                             <Col sm={10}>
                                                 <Input type="text" name="updateLocationsCode"
+                                                       value={this.state.updateLocationsCode}
                                                        onChange={this.handleChange}/>
                                             </Col>
 

@@ -140,7 +140,7 @@ public class LocationsController {
                 // return 400
                 return new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
             } else {
-                newLocationsName = WordUtils.capitalizeFully(newLocationsCode);
+                newLocationsName = WordUtils.capitalizeFully(newLocationsName);
                 newLocationsCode = newLocationsCode.toLowerCase();
 
                 boolean isUpdated = locationsDao.updateLocation(newLocationsName, newLocationsCode, locationsId);

@@ -132,13 +132,12 @@ public class UsersDao extends HttpServlet{
                 "LEFT JOIN userlocations ON userlocations.UserId = users.Id " +
                 "LEFT JOIN locations ON userlocations.LocationId = locations.Id " +
                 "WHERE users.UserId = ?";
-        System.out.println("1");
 
         final List<JSONObject> usersList = jdbcTemplate.query(sql, new ResultSetExtractor<List<JSONObject>>() {
 
             @Override
             public List<JSONObject> extractData(ResultSet resultSet) throws SQLException, DataAccessException {
-                System.out.println("2");
+
                 List<JSONObject> list = new ArrayList<JSONObject>();
 
                 while (resultSet.next()) {
@@ -160,7 +159,6 @@ public class UsersDao extends HttpServlet{
                 return list;
             }
         }, userId);
-        System.out.println("print: " + usersList.toString());
         return usersList;
     }
 
