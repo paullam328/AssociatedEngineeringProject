@@ -45,8 +45,13 @@ public class RolesController {
                 // return 400
                 return new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
             } else {
-                rolesDao.addRole(newName);
-                return new ResponseEntity<String>(HttpStatus.OK);
+                boolean isCreated = rolesDao.addRole(newName);
+
+                if (isCreated) {
+                    return new ResponseEntity<String>("200  New role added.", HttpStatus.OK);
+                } else {
+                    return new ResponseEntity<String>("403  Forbidden. User doesn't have permission for this request.", HttpStatus.FORBIDDEN);
+                }
             }
         } catch (Exception ex) {
             // return 400
@@ -74,7 +79,7 @@ public class RolesController {
             method = RequestMethod.GET)
     public ResponseEntity<String> searchAllRoles() {
         try {
-            System.out.println("1. In AdminController... searchAllRoles()");
+            System.out.println("In RolesController... searchAllRoles()");
 
             JSONObject obj = new JSONObject();
             List<JSONObject> results = rolesDao.getAllRoles();
@@ -119,16 +124,22 @@ public class RolesController {
             String newRolesName = jsonObj.getString("updateRolesName").trim();
 
             if (newRolesName.length() < 1) {
+                System.out.println("BAD REQUEST");
                 // input too short
                 // return 400
                 return new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
             } else {
+                System.out.println("SENT");
                 boolean isUpdated = rolesDao.updateRole(newRolesName, rolesId);
+
                 System.out.println("isUpdated: " + isUpdated);
+
                 if (isUpdated) {
-                    return new ResponseEntity<String>(HttpStatus.OK);
+                    System.out.println("OK");
+                    return new ResponseEntity<String>("200  Updated role", HttpStatus.OK);
                 } else {
-                    return new ResponseEntity<String>(HttpStatus.NOT_FOUND);
+                    System.out.println("FORBIDDEN");
+                    return new ResponseEntity<String>("403  Forbidden. User doesn't have permission for this request.", HttpStatus.FORBIDDEN);
                 }
             }
         } catch (Exception ex) {
@@ -160,13 +171,14 @@ public class RolesController {
             JSONObject jsonObj = new JSONObject(params);
             String rolesId = jsonObj.getString("deleteRolesId").trim();
 
-            boolean isUpdated = rolesDao.deleteRole(rolesId);
-            System.out.println("isUpdated: " + isUpdated);
+            boolean isDeleted = rolesDao.deleteRole(rolesId);
 
-            if (isUpdated) {
-                return new ResponseEntity<String>(HttpStatus.OK);
+            System.out.println("isDeleted: " + isDeleted);
+
+            if (isDeleted) {
+                return new ResponseEntity<String>("200  Deleted role.", HttpStatus.OK);
             } else {
-                return new ResponseEntity<String>(HttpStatus.NOT_FOUND);
+                return new ResponseEntity<String>("403  Fobidden. User doesn't have permission for this request.", HttpStatus.FORBIDDEN);
             }
         } catch (Exception ex) {
             // return 400

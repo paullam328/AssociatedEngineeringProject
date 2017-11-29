@@ -26,11 +26,10 @@ public class UsersDao extends HttpServlet{
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
-
-    private String ADMIN = "Administrator";
-    private String RMC = "Records Management Clerk";
-    private String REG_USER = "Regular User";
-    private String DENIED = "Access Denied";
+    public String ADMIN = "Administrator";
+    public String RMC = "Records Management Clerk";
+    public String REG_USER = "Regular User";
+    public String DENIED = "Access Denied";
 
     /**
      * For user authorization.
@@ -51,7 +50,15 @@ public class UsersDao extends HttpServlet{
         System.out.println("in getCurrentRemoteUser()");
         // TODO: Use HttpServlet to get remote user. Uncomment first line below for project handin.
         // String username = request.getRemoteUser();
-        String name = "ae\\lange";
+
+        // access denied name:
+        //String name = "ae\\goulet";
+
+        // admin name:
+        //String name = "ae\\lange";
+
+        // RMC name:
+        String name = "ae\\reichertb";
 
         int startIndex = name.indexOf("\\") + 1;
 
@@ -73,18 +80,41 @@ public class UsersDao extends HttpServlet{
             System.out.println("***** " + results.toString());
             JSONObject obj = results.get(0);
             String userRole = obj.getString("RolesName");
+
            if (userRole == "NA") {
+               System.out.println("userRole: " + REG_USER);
                return REG_USER;
            } else {
-               System.out.println(userRole);
+               System.out.println("userRole: " + userRole);
                return userRole;
            }
         } else {
             // user doesn't have permission to access the app
+            System.out.println("userRole: " + DENIED);
             return DENIED;
         }
     }
 
+    /**
+     * Get current remote user's location.
+     *
+     * @return
+     */
+
+    public String getUserLocation() {
+        System.out.println("in getUserLocation()");
+        String userLocation = "NA";
+        String userid = getCurrentRemoteUser();
+
+        if (userid != null) {
+            System.out.println("!!!!");
+            List<JSONObject> results = getUserByUserId(userid);
+            System.out.println("***** " + results.toString());
+            JSONObject obj = results.get(0);
+            userLocation = obj.getString("LocationName");
+        }
+        return userLocation;
+    }
 
     /**
      * Return  user's user, role, and location info by UserId.

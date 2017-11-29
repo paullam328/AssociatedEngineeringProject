@@ -35,7 +35,7 @@ public class LocationsDao {
      * @param newName - new location name to be inserted
      * @param newCode - new location code to be inserted
      */
-    public void addLocation(String newName, String newCode) {
+    public boolean addLocation(String newName, String newCode) {
         System.out.println("in addLocation()");
         String currentUserRole = usersDao.getAuthorization();
         System.out.println("currentUserRole: " + currentUserRole);
@@ -43,8 +43,10 @@ public class LocationsDao {
         if (currentUserRole.equals(ADMIN)) {
             final String sql = "INSERT INTO locations (locations.Name, locations.Code) VALUES (?, ?)";
             jdbcTemplate.update(sql, newName, newCode);
+            return true;
         } else {
             // user doesn't have permission to add role
+            return false;
         }
     }
 

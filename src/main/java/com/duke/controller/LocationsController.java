@@ -46,10 +46,15 @@ public class LocationsController {
             if (newName.length() < 1 && newCode.length() < 1) {
                 // input too short
                 // return 400
-                return new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<String>("400  Input too short.", HttpStatus.BAD_REQUEST);
             } else {
-                locationsDao.addLocation(newName, newCode);
-                return new ResponseEntity<String>(HttpStatus.OK);
+                boolean isCreated = locationsDao.addLocation(newName, newCode);
+
+                if (isCreated) {
+                    return new ResponseEntity<String>("200  New role added.", HttpStatus.OK);
+                } else {
+                    return new ResponseEntity<String>("403  Fobidden. User doesn't have permission for this request.", HttpStatus.FORBIDDEN);
+                }
             }
         } catch (Exception ex) {
             // return 400
@@ -81,7 +86,7 @@ public class LocationsController {
             if (results.size() < 1) {
                 // no results found
                 // return 404
-                return new ResponseEntity<String>("404  No results found", HttpStatus.NOT_FOUND);
+                return new ResponseEntity<String>("404  No results found.", HttpStatus.NOT_FOUND);
             } else {
                 // results found
                 obj.put("results", results);
@@ -128,11 +133,13 @@ public class LocationsController {
                 return new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
             } else {
                 boolean isUpdated = locationsDao.updateLocation(newLocationsName, newLocationsCode, locationsId);
+
                 System.out.println("isUpdated: " + isUpdated);
+
                 if (isUpdated) {
-                    return new ResponseEntity<String>(HttpStatus.OK);
+                    return new ResponseEntity<String>("200  Location updated.", HttpStatus.OK);
                 } else {
-                    return new ResponseEntity<String>(HttpStatus.NOT_FOUND);
+                    return new ResponseEntity<String>("403  Fobidden. User doesn't have permission for this request.", HttpStatus.FORBIDDEN);
                 }
             }
         } catch (Exception ex) {
@@ -166,13 +173,13 @@ public class LocationsController {
             JSONObject jsonObj = new JSONObject(params);
             String locationsId = jsonObj.getString("deleteLocationsId").trim();
 
-            boolean isUpdated = locationsDao.deleteLocation(locationsId);
-            System.out.println("isUpdated: " + isUpdated);
+            boolean isDeleted = locationsDao.deleteLocation(locationsId);
+            System.out.println("isUpdated: " + isDeleted);
 
-            if (isUpdated) {
-                return new ResponseEntity<String>(HttpStatus.OK);
+            if (isDeleted) {
+                return new ResponseEntity<String>("200  Location deleted.", HttpStatus.OK);
             } else {
-                return new ResponseEntity<String>(HttpStatus.NOT_FOUND);
+                return new ResponseEntity<String>("403  Fobidden. User doesn't have permission for this request.", HttpStatus.FORBIDDEN);
             }
         } catch (Exception ex) {
             // return 400
