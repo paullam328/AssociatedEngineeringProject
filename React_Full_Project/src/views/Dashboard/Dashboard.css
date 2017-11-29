@@ -19,6 +19,10 @@ div.container-fluid div div div {
     position:relative;
 }
 
+main.main div.container-fluid div div div.search-bar {
+    z-index:1;
+}
+
 div.container-fluid div div div.footerTable {
     position:relative;
     z-index:-1;
@@ -38,7 +42,30 @@ body.sidebar-fixed div.app footer.app-footer {
     margin-left: 0;
 }
 
+.btn-toolbar {
+    margin-left: 10px;
+}
 
-.selected-types {
+.selected-types,.selected-locations,.selected-classes,.selected-states,.selected-scheds {
     margin: 5px 5px 5px 5px;
+}
+
+.collapse.show .rowControl {
+    margin-left: 0;
+}
+
+
+.rowControl .rowsControl {
+    display: inline-block;
+    flex: 0 0 32%;
+    max-width: 32%;
+}
+
+.rowControl .boxControl {
+    flex: 0 0 14%;
+    max-width: 10%;
+}
+
+.collapse .rowControl .collapse {
+    width: 300px;
 }

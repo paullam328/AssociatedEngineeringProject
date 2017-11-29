@@ -26,10 +26,10 @@ public class RolesDao {
     @Autowired
     private UsersDao usersDao;
 
-    private String ADMIN = "Administrator";
-    private String RMC = "Records Management Clerk";
-    private String REG_USER = "Regular User";
-    private String DENIED = "Access Denied";
+    public String ADMIN = "Administrator";
+    public String RMC = "Records Management Clerk";
+    public String REG_USER = "Regular User";
+    public String DENIED = "Access Denied";
 
 
     /**
@@ -37,7 +37,7 @@ public class RolesDao {
      *
      * @param newName - new roles name to be inserted
      */
-    public void addRole(String newName) {
+    public boolean addRole(String newName) {
         //System.out.println("in addRole()");
         String currentUserRole = usersDao.getAuthorization();
         //System.out.println("currentUserRole: " + currentUserRole);
@@ -45,8 +45,10 @@ public class RolesDao {
         if (currentUserRole.equals(ADMIN)) {
             final String sql = "INSERT INTO roles (roles.Name) VALUES (?)";
             jdbcTemplate.update(sql, newName);
+            return true;
         } else {
             // user doesn't have permission to add role
+            return false;
 
 
         }
@@ -89,6 +91,7 @@ public class RolesDao {
      * @param id - the roles.id corresponding to the role name to be updated
      */
     public boolean updateRole(String newRoleName, String id) {
+        System.out.println("in updateRole");
         String currentUserRole = usersDao.getAuthorization();
 
         if (currentUserRole.equals(ADMIN)) {
@@ -105,6 +108,8 @@ public class RolesDao {
             return false;
         }
     }
+
+
 
     /**
      * Delete row in roles table for given roles.id.

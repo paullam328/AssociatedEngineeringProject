@@ -34,11 +34,15 @@ class Full extends Component {
         this.addToEndTabLabels = this.addToEndTabLabels.bind(this);
         this.addToContainerReports = this.addToContainerReports.bind(this);
         this.flush = this.flush.bind(this);
+
+        this.getFurtherAuthorization = this.getFurtherAuthorization.bind(this);
         this.state = {
             recordLabels: [{id:1,test:"FOR TESTING"}, {id:2,test:"FOR TESTING"},{id:3,test:"FOR TESTING"}],
             endTabLabels: [{id:1,test:"FOR TESTING"}, {id:2,test:"FOR TESTING"},{id:3,test:"FOR TESTING"}, {id:4,test:"FOR TESTING"},{id:5,test:"FOR TESTING"}, {id:6,test:"FOR TESTING"},{id:7,test:"FOR TESTING"}, {id:8,test:"FOR TESTING"}],
             containerReports: [{id:1,test:"FOR TESTING"},{id:2,test:"FOR TESTING"}],
-            colours: {}
+            colours: {},
+            authorization:false,
+            isAdmin: false
         };
     }
 
@@ -74,6 +78,10 @@ class Full extends Component {
 
     }
 
+
+    getFurtherAuthorization() {
+        return {authorization:this.state.authorization};
+    }
 
     // TODO: disallow duplicates
     addToRecordLabels(data) {
@@ -118,12 +126,13 @@ class Full extends Component {
             if (request.status >= 200 && request.status < 400) {
                 console.log("Authentication from Server:");
                 console.log(JSON.parse(request.response));
-                console.log("request.response['results']: " + JSON.parse(request.response)['results']);
+                //console.log("request.response['results']: " + JSON.parse(request.response)['results']);
                 /*if (JSON.parse(request.response)['results'] == 'Administrator') {
                     this.setState({
                         authorization: true
                     });
                 }*/
+
                 if (JSON.parse(request.response)['results'] == 'Access Denied') {
                     this.setState({
                         authorization: false
@@ -134,6 +143,19 @@ class Full extends Component {
                         authorization: true
                     });
                 }
+
+                //For admin:
+                if (JSON.parse(request.response)['results'] == 'Administrator') {
+                    this.setState({
+                        isAdmin: true
+                    });
+                }
+                else {
+                    this.setState({
+                        isAdmin: false
+                    });
+                }
+
             } else {
                 console.error('Response received and there was an error');
             }
@@ -145,10 +167,32 @@ class Full extends Component {
         request.send(); //don't forget to send the httprequest lmao
     }
 
-
+//<div>{this.props.authorization}</div>
+//<Dashboard addToRecordLabels={this.addToRecordLabels} addToEndTabLabels={this.addToEndTabLabels} addToContainerReports={this.addToContainerReports} getFurtherAuthorization={this.getFurtherAuthorization}  />
     render() {
-        console.log("this.state.authorization: "+this.state.authorization);
+        console.log("General User Authorization: " + this.state.authorization);
+        console.log("Administrator? " + this.state.isAdmin);
+
         if (this.state.authorization) {
+
+            //This line is to check for asynchronous empty output
+
+            var eliminateAsync = true;
+            while (eliminateAsync) {
+                if (this.state.isAdmin == true || this.state.isAdmin == false) {
+                    eliminateAsync = false;
+                    var getDashboard = <Route path="/dashboard" name="Dashboard"
+                                              component={() => <Dashboard addToRecordLabels={this.addToRecordLabels}
+                                                                          addToEndTabLabels={this.addToEndTabLabels}
+                                                                          addToContainerReports={this.addToContainerReports}
+                                                                          isAdmin={this.state.isAdmin}/>}/>
+                    break;
+                } else {
+                    eliminateAsync = true;
+                    var getDashboard = null;
+                }
+            }
+
             return (
                 <div className="app">
                     <Header />
@@ -158,7 +202,7 @@ class Full extends Component {
                             <Breadcrumb />
                             <Container fluid>
                                 <Switch>
-                                    <Route path="/dashboard" name="Dashboard" component={() => <Dashboard addToRecordLabels={this.addToRecordLabels} addToEndTabLabels={this.addToEndTabLabels} addToContainerReports={this.addToContainerReports}  />}/>
+                                    {getDashboard}
                                     <Route path="/components/buttons" name="Buttons" component={Buttons}/>
                                     <Route path="/components/cards" name="Cards" component={Cards}/>
                                     <Route path="/components/forms" name="Forms" component={Forms}/>
