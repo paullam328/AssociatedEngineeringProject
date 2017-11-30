@@ -22,7 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 @Repository
-public class UsersDao extends HttpServlet{
+public class UsersDao extends HttpServlet {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -33,18 +33,17 @@ public class UsersDao extends HttpServlet{
 
     /**
      * For user authorization.
-     *
+     * <p>
      * Returns the userid for the currently logged in user.
      * If no userid is found, return null.
-     *
+     * <p>
      * NOTE:
      * Using HttpRequestServlet.getRemoteUser() per discussion w/ Julin.
      * Can't test this without logging into AE, so she says it's OK
      * not to test it.
-     *
+     * <p>
      * Hardcoded userid to 'lange' for testing.
      * lange is an admin.
-
      */
     public String getCurrentRemoteUser() {
         System.out.println("in getCurrentRemoteUser()");
@@ -79,13 +78,13 @@ public class UsersDao extends HttpServlet{
             JSONObject obj = results.get(0);
             String userRole = obj.getString("RolesName");
 
-           if (userRole == "NA") {
-               System.out.println("userRole: " + REG_USER);
-               return REG_USER;
-           } else {
-               System.out.println("userRole: " + userRole);
-               return userRole;
-           }
+            if (userRole == "NA") {
+                System.out.println("userRole: " + REG_USER);
+                return REG_USER;
+            } else {
+                System.out.println("userRole: " + userRole);
+                return userRole;
+            }
         } else {
             // user doesn't have permission to access the app
             System.out.println("userRole: " + DENIED);
@@ -122,16 +121,16 @@ public class UsersDao extends HttpServlet{
         System.out.println("userid: " + userId);
         final String sql =
                 "SELECT  users.*, coalesce(roles.Id, '-1') AS rolesId, " +
-                "coalesce(roles.Name, 'NA') AS rolesName, " +
-                "coalesce(locations.Id, '-1') AS locationsId, " +
-                "coalesce(locations.Name, 'NA') AS locationsName, " +
-                "coalesce(locations.Code, 'NA') AS locationsCode " +
-                "FROM users " +
-                "LEFT JOIN userroles ON userroles.UserId = users.Id " +
-                "LEFT JOIN roles ON userroles.RoleId = roles.Id " +
-                "LEFT JOIN userlocations ON userlocations.UserId = users.Id " +
-                "LEFT JOIN locations ON userlocations.LocationId = locations.Id " +
-                "WHERE users.UserId = ?";
+                        "coalesce(roles.Name, 'NA') AS rolesName, " +
+                        "coalesce(locations.Id, '-1') AS locationsId, " +
+                        "coalesce(locations.Name, 'NA') AS locationsName, " +
+                        "coalesce(locations.Code, 'NA') AS locationsCode " +
+                        "FROM users " +
+                        "LEFT JOIN userroles ON userroles.UserId = users.Id " +
+                        "LEFT JOIN roles ON userroles.RoleId = roles.Id " +
+                        "LEFT JOIN userlocations ON userlocations.UserId = users.Id " +
+                        "LEFT JOIN locations ON userlocations.LocationId = locations.Id " +
+                        "WHERE users.UserId = ?";
 
         final List<JSONObject> usersList = jdbcTemplate.query(sql, new ResultSetExtractor<List<JSONObject>>() {
 
@@ -142,13 +141,13 @@ public class UsersDao extends HttpServlet{
 
                 while (resultSet.next()) {
                     JSONObject u = new JSONObject();
-                    u.put("UID", resultSet.getInt("users.Id"));
-                    u.put("UsersID", resultSet.getString("users.UserId"));
+                    u.put("IDUser", resultSet.getInt("users.Id"));
+                    u.put("Username", resultSet.getString("users.UserId"));
                     u.put("FirstName", resultSet.getString("users.FirstName"));
                     u.put("LastName", resultSet.getString("users.LastName"));
                     u.put("RID", resultSet.getInt("rolesId"));
                     u.put("RolesName", resultSet.getString("rolesName"));
-                    u.put("LID", resultSet.getInt("locationsId"));
+                    u.put("IDLocations", resultSet.getInt("locationsId"));
                     u.put("LocationsName", resultSet.getString("locationsName"));
                     u.put("LocationsCode", resultSet.getString("locationsCode"));
 
@@ -162,7 +161,53 @@ public class UsersDao extends HttpServlet{
         return usersList;
     }
 
+    public List<JSONObject> getAllUsers() {
+        String currentUserRole = getAuthorization();
 
+        if (currentUserRole.equals(ADMIN)) {
+            final String sql =
+                    "SELECT  users.*, coalesce(roles.Id, '-1') AS rolesId, " +
+                            "coalesce(roles.Name, 'NA') AS rolesName, " +
+                            "coalesce(locations.Id, '-1') AS locationsId, " +
+                            "coalesce(locations.Name, 'NA') AS locationsName, " +
+                            "coalesce(locations.Code, 'NA') AS locationsCode " +
+                            "FROM users " +
+                            "LEFT JOIN userroles ON userroles.UserId = users.Id " +
+                            "LEFT JOIN roles ON userroles.RoleId = roles.Id " +
+                            "LEFT JOIN userlocations ON userlocations.UserId = users.Id " +
+                            "LEFT JOIN locations ON userlocations.LocationId = locations.Id ";
+
+            final List<JSONObject> usersList = jdbcTemplate.query(sql, new ResultSetExtractor<List<JSONObject>>() {
+
+                @Override
+                public List<JSONObject> extractData(ResultSet resultSet) throws SQLException, DataAccessException {
+
+                    List<JSONObject> list = new ArrayList<JSONObject>();
+
+                    while (resultSet.next()) {
+                        JSONObject u = new JSONObject();
+                        u.put("IDUser", resultSet.getInt("users.Id"));
+                        u.put("Username", resultSet.getString("users.UserId"));
+                        u.put("FirstName", resultSet.getString("users.FirstName"));
+                        u.put("LastName", resultSet.getString("users.LastName"));
+                        //u.put("RID", resultSet.getInt("rolesId"));
+                        u.put("RolesName", resultSet.getString("rolesName"));
+                        //u.put("IDLocations", resultSet.getInt("locationsId"));
+                        u.put("LocationsName", resultSet.getString("locationsName"));
+                        u.put("LocationsCode", resultSet.getString("locationsCode"));
+
+                        list.add(u);
+                    }
+
+                    System.out.println(list);
+                    return list;
+                }
+            });
+            return usersList;
+        } else {
+        return null;
+    }
+}
 
 
 }
