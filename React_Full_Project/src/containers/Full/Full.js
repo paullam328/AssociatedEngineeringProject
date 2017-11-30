@@ -24,8 +24,8 @@ import PrintQueue from '../../components/PrintQueue/';
 // TODO: For authentication
 import Page403 from '../../views/Pages/Page403/';
 
-var server = "http://13.59.251.84:8080";
-//var server = "http://127.0.0.1:8080";
+//var server = "http://13.59.251.84:8080";
+var server = "http://127.0.0.1:8080";
 
 class Full extends Component {
     constructor(props) {
@@ -109,11 +109,11 @@ class Full extends Component {
 
     addToContainerReports(data) {
         console.log("this is running");
-
-        var newState = Object.assign({}, this.state);
-        newState["containerReports"].push(data);
-        this.setState(newState);
-        //console.log(this.state);
+        for (var i = 0; i < data.length; i++) {
+            var newState = Object.assign({}, this.state);
+            newState["containerReports"].push(data[i]);
+            this.setState(newState);
+        }
     }
 
     flush() {
@@ -122,6 +122,7 @@ class Full extends Component {
             endTabLabels: [],
             containerReports: []
         });
+        console.log("flush is running in full");
     }
 
 
@@ -308,7 +309,11 @@ class Full extends Component {
                             </Container>
                         </main>
                         {!this.state.isRegular?
-                            <PrintQueue state={this.state} flush={this.flush}/> : null
+                            <PrintQueue state={this.state} flush={this.flush}
+                                        recordLabels={this.state.recordLabels}
+                                        endTabLabels={this.state.endTabLabels}
+                                        containerReports={this.state.containerReports}
+                            /> : null
                         }
                     </div>
                     <Footer />

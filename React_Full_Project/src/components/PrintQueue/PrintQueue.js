@@ -14,6 +14,9 @@ class PrintQueue extends Component {
         this.recordLabelPrint = this.recordLabelPrint.bind(this);
         this.endTabLabelPrint = this.endTabLabelPrint.bind(this);
         this.containerReportPrint = this.containerReportPrint.bind(this);
+
+        this.showPrint = this.showPrint.bind(this);
+
         this.state = this.props.state;
         /*this.state = {
             recordLabels: [],
@@ -85,7 +88,7 @@ class PrintQueue extends Component {
                 }
             }
             //var clientName = record.clientName;      //TODO: what is this                                                          // TODO
-            var clientName = "";
+            var clientName = record.ClientName;
             var classificationPath = record.Classifications;                             // TODO
             var title = record.RecordTitle;                                                     //TODO
 
@@ -470,166 +473,189 @@ class PrintQueue extends Component {
 
         doc.setTextColor(0);
 
-        var testContainers = [{"records":[{"number": "SAS-LOP/1",
-            "typeId": 32,
-            "scheduleId":44,
-            "title":"Reichert - Runolfsson - Voluptatem quisquam",
-            "dateCreated":"2004-02-10 21:37:57",
-            "dateClosed":"2005-12-31 16:03:19",
-            "dateDestruction":"2025-12-31"
-        },
-            {"number": "20012183.00.E.05.00:01",
+        var testContainers = [{
+            "records": [{
+                "number": "SAS-LOP/1",
                 "typeId": 32,
-                "scheduleId":44,
-                "title":"ENGINEERING SERVICES - DESIGN - Design Reports - Osoyoos Indian Band - Drinking Water System Improvement Design - _ Enclosure Volume 2",
-                "dateCreated":"2004-01-10 21:47:22",
-                "dateClosed":"2005-12-31 16:03:19",
-                "dateDestruction":"2025-12-31"
+                "scheduleId": 44,
+                "title": "Reichert - Runolfsson - Voluptatem quisquam",
+                "dateCreated": "2004-02-10 21:37:57",
+                "dateClosed": "2005-12-31 16:03:19",
+                "dateDestruction": "2025-12-31"
             },
-            {"number": "20172064.00.S.04.00",
-                "typeId": 32,
-                "scheduleId":44,
-                "title":"Klocko Group - Eaque modi fugit laudantium",
-                "dateCreated":"2004-01-10 21:47:22",
-                "dateClosed":"2005-12-31 16:03:19",
-                "dateDestruction":"2025-12-31"
-            },
-            {"number": "EDM_P_2004.008",
-                "typeId": 32,
-                "scheduleId":44,
-                "title":"Halvorson, Batz and Considine - Voluptatem facere veritatis accusantium",
-                "dateCreated":"2004-01-10 21:47:22",
-                "dateClosed":"2005-12-31 16:03:19",
-                "dateDestruction":"2025-12-31"
-            },
-            {"number": "CEO-2017/019",
-                "typeId": 32,
-                "scheduleId":44,
-                "title":"Muller LLC - Inventore magnam expedita dolor aut et",
-                "dateCreated":"2016-01-27 20:08:40",
-                "dateClosed":"2005-12-31 16:03:19",
-                "dateDestruction":"2025-12-31"
-            },
-            {"number": "AGL-2006/001",
-                "typeId": 32,
-                "scheduleId":44,
-                "title":"Bradtke, Morissette and Halvorson - Ut cum velit adipisci",
-                "dateCreated":"2004-01-16 21:58:27",
-                "dateClosed":"2005-12-31 16:03:19",
-                "dateDestruction":"2025-12-31"
-            },
-            {"number": "BUR_P_2017.706",
-                "typeId": 32,
-                "scheduleId":44,
-                "title":"Kshlerin, Parisian and Runolfsson - Voluptates asperiores ducimus delectus",
-                "dateCreated":"2004-01-16 21:58:27",
-                "dateClosed":"2005-12-31 16:03:19",
-                "dateDestruction":"2025-12-31"
-            },
-            {"number": "AGL-2006/001",
-                "typeId": 32,
-                "scheduleId":44,
-                "title":"Ernser, Beahan and Rau - Iste animi voluptas est quae aut",
-                "dateCreated":"2004-01-16 21:58:27",
-                "dateClosed":"2005-12-31 16:03:19",
-                "dateDestruction":"2025-12-31"
-            },
-            {"number": "EDM-TEST-2006/001",
-                "typeId": 32,
-                "scheduleId":44,
-                "title":"Ernser, Beahan and Rau - Iste animi voluptas est quae aut, Ernser, Beahan and Rau - Iste animi voluptas est quae aut",
-                "dateCreated":"2004-02-16 21:58:27",
-                "dateClosed":"2005-12-31 16:03:19",
-                "dateDestruction":"2025-12-31"
-            }
-        ],
-            "consignmentCode":"362817350",
-            "id":11124,
-            "number":"2006/001-EDM"
+                {
+                    "number": "20012183.00.E.05.00:01",
+                    "typeId": 32,
+                    "scheduleId": 44,
+                    "title": "ENGINEERING SERVICES - DESIGN - Design Reports - Osoyoos Indian Band - Drinking Water System Improvement Design - _ Enclosure Volume 2",
+                    "dateCreated": "2004-01-10 21:47:22",
+                    "dateClosed": "2005-12-31 16:03:19",
+                    "dateDestruction": "2025-12-31"
+                },
+                {
+                    "number": "20172064.00.S.04.00",
+                    "typeId": 32,
+                    "scheduleId": 44,
+                    "title": "Klocko Group - Eaque modi fugit laudantium",
+                    "dateCreated": "2004-01-10 21:47:22",
+                    "dateClosed": "2005-12-31 16:03:19",
+                    "dateDestruction": "2025-12-31"
+                },
+                {
+                    "number": "EDM_P_2004.008",
+                    "typeId": 32,
+                    "scheduleId": 44,
+                    "title": "Halvorson, Batz and Considine - Voluptatem facere veritatis accusantium",
+                    "dateCreated": "2004-01-10 21:47:22",
+                    "dateClosed": "2005-12-31 16:03:19",
+                    "dateDestruction": "2025-12-31"
+                },
+                {
+                    "number": "CEO-2017/019",
+                    "typeId": 32,
+                    "scheduleId": 44,
+                    "title": "Muller LLC - Inventore magnam expedita dolor aut et",
+                    "dateCreated": "2016-01-27 20:08:40",
+                    "dateClosed": "2005-12-31 16:03:19",
+                    "dateDestruction": "2025-12-31"
+                },
+                {
+                    "number": "AGL-2006/001",
+                    "typeId": 32,
+                    "scheduleId": 44,
+                    "title": "Bradtke, Morissette and Halvorson - Ut cum velit adipisci",
+                    "dateCreated": "2004-01-16 21:58:27",
+                    "dateClosed": "2005-12-31 16:03:19",
+                    "dateDestruction": "2025-12-31"
+                },
+                {
+                    "number": "BUR_P_2017.706",
+                    "typeId": 32,
+                    "scheduleId": 44,
+                    "title": "Kshlerin, Parisian and Runolfsson - Voluptates asperiores ducimus delectus",
+                    "dateCreated": "2004-01-16 21:58:27",
+                    "dateClosed": "2005-12-31 16:03:19",
+                    "dateDestruction": "2025-12-31"
+                },
+                {
+                    "number": "AGL-2006/001",
+                    "typeId": 32,
+                    "scheduleId": 44,
+                    "title": "Ernser, Beahan and Rau - Iste animi voluptas est quae aut",
+                    "dateCreated": "2004-01-16 21:58:27",
+                    "dateClosed": "2005-12-31 16:03:19",
+                    "dateDestruction": "2025-12-31"
+                },
+                {
+                    "number": "EDM-TEST-2006/001",
+                    "typeId": 32,
+                    "scheduleId": 44,
+                    "title": "Ernser, Beahan and Rau - Iste animi voluptas est quae aut, Ernser, Beahan and Rau - Iste animi voluptas est quae aut",
+                    "dateCreated": "2004-02-16 21:58:27",
+                    "dateClosed": "2005-12-31 16:03:19",
+                    "dateDestruction": "2025-12-31"
+                }
+            ],
+            "consignmentCode": "362817350",
+            "id": 11124,
+            "number": "2006/001-EDM"
         },
 
-        {"records":[{"number": "SAS-LOP/1",
-            "typeId": 32,
-            "scheduleId":44,
-            "title":"Reichert - Runolfsson - Voluptatem quisquam",
-            "dateCreated":"2004-02-10 21:37:57",
-            "dateClosed":"2005-12-31 16:03:19",
-            "dateDestruction":"2025-12-31"
-        },
-            {"number": "20012183.00.E.05.00:01",
-                "typeId": 32,
-                "scheduleId":44,
-                "title":"ENGINEERING SERVICES - DESIGN - Design Reports - Osoyoos Indian Band - Drinking Water System Improvement Design - _ Enclosure Volume 2",
-                "dateCreated":"2004-01-10 21:47:22",
-                "dateClosed":"2005-12-31 16:03:19",
-                "dateDestruction":"2025-12-31"
-            },
-            {"number": "20172064.00.S.04.00",
-                "typeId": 32,
-                "scheduleId":44,
-                "title":"Klocko Group - Eaque modi fugit laudantium",
-                "dateCreated":"2004-01-10 21:47:22",
-                "dateClosed":"2005-12-31 16:03:19",
-                "dateDestruction":"2025-12-31"
-            },
-            {"number": "EDM_P_2004.008",
-                "typeId": 32,
-                "scheduleId":44,
-                "title":"Halvorson, Batz and Considine - Voluptatem facere veritatis accusantium",
-                "dateCreated":"2004-01-10 21:47:22",
-                "dateClosed":"2005-12-31 16:03:19",
-                "dateDestruction":"2025-12-31"
-            },
-            {"number": "CEO-2017/019",
-                "typeId": 32,
-                "scheduleId":44,
-                "title":"Muller LLC - Inventore magnam expedita dolor aut et",
-                "dateCreated":"2016-01-27 20:08:40",
-                "dateClosed":"2005-12-31 16:03:19",
-                "dateDestruction":"2025-12-31"
-            },
-            {"number": "AGL-2006/001",
-                "typeId": 32,
-                "scheduleId":44,
-                "title":"Bradtke, Morissette and Halvorson - Ut cum velit adipisci",
-                "dateCreated":"2004-01-16 21:58:27",
-                "dateClosed":"2005-12-31 16:03:19",
-                "dateDestruction":"2025-12-31"
-            },
-            {"number": "BUR_P_2017.706",
-                "typeId": 32,
-                "scheduleId":44,
-                "title":"Kshlerin, Parisian and Runolfsson - Voluptates asperiores ducimus delectus",
-                "dateCreated":"2004-01-16 21:58:27",
-                "dateClosed":"2005-12-31 16:03:19",
-                "dateDestruction":"2025-12-31"
-            },
-            {"number": "AGL-2006/001",
-                "typeId": 32,
-                "scheduleId":44,
-                "title":"Ernser, Beahan and Rau - Iste animi voluptas est quae aut",
-                "dateCreated":"2004-01-16 21:58:27",
-                "dateClosed":"2005-12-31 16:03:19",
-                "dateDestruction":"2025-12-31"
-            },
-            {"number": "EDM-TEST-2006/001",
-                "typeId": 32,
-                "scheduleId":44,
-                "title":"Ernser, Beahan and Rau - Iste animi voluptas est quae aut, Ernser, Beahan and Rau - Iste animi voluptas est quae aut",
-                "dateCreated":"2004-02-16 21:58:27",
-                "dateClosed":"2005-12-31 16:03:19",
-                "dateDestruction":"2025-12-31"
-            }
-        ],
-            "consignmentCode":"DESTRUCTION CERTIFICATE 2007-001",
-            "id":10903,
-            "number":"2005/003-PER"
-        }];
+            {
+                "records": [{
+                    "number": "SAS-LOP/1",
+                    "typeId": 32,
+                    "scheduleId": 44,
+                    "title": "Reichert - Runolfsson - Voluptatem quisquam",
+                    "dateCreated": "2004-02-10 21:37:57",
+                    "dateClosed": "2005-12-31 16:03:19",
+                    "dateDestruction": "2025-12-31"
+                },
+                    {
+                        "number": "20012183.00.E.05.00:01",
+                        "typeId": 32,
+                        "scheduleId": 44,
+                        "title": "ENGINEERING SERVICES - DESIGN - Design Reports - Osoyoos Indian Band - Drinking Water System Improvement Design - _ Enclosure Volume 2",
+                        "dateCreated": "2004-01-10 21:47:22",
+                        "dateClosed": "2005-12-31 16:03:19",
+                        "dateDestruction": "2025-12-31"
+                    },
+                    {
+                        "number": "20172064.00.S.04.00",
+                        "typeId": 32,
+                        "scheduleId": 44,
+                        "title": "Klocko Group - Eaque modi fugit laudantium",
+                        "dateCreated": "2004-01-10 21:47:22",
+                        "dateClosed": "2005-12-31 16:03:19",
+                        "dateDestruction": "2025-12-31"
+                    },
+                    {
+                        "number": "EDM_P_2004.008",
+                        "typeId": 32,
+                        "scheduleId": 44,
+                        "title": "Halvorson, Batz and Considine - Voluptatem facere veritatis accusantium",
+                        "dateCreated": "2004-01-10 21:47:22",
+                        "dateClosed": "2005-12-31 16:03:19",
+                        "dateDestruction": "2025-12-31"
+                    },
+                    {
+                        "number": "CEO-2017/019",
+                        "typeId": 32,
+                        "scheduleId": 44,
+                        "title": "Muller LLC - Inventore magnam expedita dolor aut et",
+                        "dateCreated": "2016-01-27 20:08:40",
+                        "dateClosed": "2005-12-31 16:03:19",
+                        "dateDestruction": "2025-12-31"
+                    },
+                    {
+                        "number": "AGL-2006/001",
+                        "typeId": 32,
+                        "scheduleId": 44,
+                        "title": "Bradtke, Morissette and Halvorson - Ut cum velit adipisci",
+                        "dateCreated": "2004-01-16 21:58:27",
+                        "dateClosed": "2005-12-31 16:03:19",
+                        "dateDestruction": "2025-12-31"
+                    },
+                    {
+                        "number": "BUR_P_2017.706",
+                        "typeId": 32,
+                        "scheduleId": 44,
+                        "title": "Kshlerin, Parisian and Runolfsson - Voluptates asperiores ducimus delectus",
+                        "dateCreated": "2004-01-16 21:58:27",
+                        "dateClosed": "2005-12-31 16:03:19",
+                        "dateDestruction": "2025-12-31"
+                    },
+                    {
+                        "number": "AGL-2006/001",
+                        "typeId": 32,
+                        "scheduleId": 44,
+                        "title": "Ernser, Beahan and Rau - Iste animi voluptas est quae aut",
+                        "dateCreated": "2004-01-16 21:58:27",
+                        "dateClosed": "2005-12-31 16:03:19",
+                        "dateDestruction": "2025-12-31"
+                    },
+                    {
+                        "number": "EDM-TEST-2006/001",
+                        "typeId": 32,
+                        "scheduleId": 44,
+                        "title": "Ernser, Beahan and Rau - Iste animi voluptas est quae aut, Ernser, Beahan and Rau - Iste animi voluptas est quae aut",
+                        "dateCreated": "2004-02-16 21:58:27",
+                        "dateClosed": "2005-12-31 16:03:19",
+                        "dateDestruction": "2025-12-31"
+                    }
+                ],
+                "consignmentCode": "DESTRUCTION CERTIFICATE 2007-001",
+                "id": 10903,
+                "number": "2005/003-PER"
+            }];
 
+        //console.log("this.state.containerReports.length")
+        //console.log(this.state.containerReports.length);
         var count = this.state.containerReports.length;
 
+        var isBoxed = true;
 
-        function createTemplate(consignmentCode,containerNumber,page) {
+        function createTemplate(consignmentCode, containerNumber, page) {
             doc.setFontType("bold");
             doc.setFontSize(12);
             doc.text(margin, margin + 7, 'CONSIGNMENT AND CONTAINER');
@@ -650,13 +676,26 @@ class PrintQueue extends Component {
 
             doc.setFontType("bold");
             doc.setFontSize(12);
-            if (consignmentCode.length > 20) {
-                doc.setFontSize(11);
-                doc.text(width - 17, margin + 8, consignmentCode, null, null, 'right');           // consignment Code
+            //console.log("consignment code: " + consignmentCode);
+            //console.log("consignmentcode length:");
+            //console.log(consignmentCode.length);
+
+            try {
+                if (consignmentCode.length > 20) {
+                    doc.setFontSize(11);
+                    doc.text(width - 17, margin + 8, consignmentCode, null, null, 'right');           // consignment Code
+                }
+                else {
+                    doc.text(width - 39, margin + 8, consignmentCode, null, null, 'center');           // consignment Code
+                }
+            } catch (e){
+                console.log("caught error");
+                alert("Container Reports are only available for boxed records.");
+                isBoxed = false;
+                return;
             }
-            else {
-                doc.text(width - 39, margin + 8, consignmentCode, null, null, 'center');           // consignment Code
-            }
+
+
             doc.setFontSize(12);
             doc.text(width - 39, margin + 22, containerNumber, null, null, 'center');   // container ID
 
@@ -682,21 +721,70 @@ class PrintQueue extends Component {
             topAlign = 76;
         }
 
+        function groupContainersWithSameConsignmentAndBoxnumber(container) {
+            var possibleConsignments = [];
+            for (var i = 0; i < container.length; i++) {
+                if (!possibleConsignments.includes(container[i].BoxConsign)) {
+                    possibleConsignments.push(container[i].BoxConsign)
+                }
+            }
 
-        for (var w = 0; w < count; w++) {
-            var container = testContainers[w];                              // TODO
-            var recordCount = container.records.length;
-            var page = 1;
-            const containerNumber = container.number;                                                       //TODO
-            const consignmentCode = container.consignmentCode;                                             //TODO
+            var newObjs = [];
 
-            createTemplate(consignmentCode,containerNumber,page)
+            for (var j = 0; j < possibleConsignments.length; j++) {
+                var arrayOfContainersWithSameConsignment = [];
+                var boxId;
+                var boxNum;
+                for (var k = 0; k < container.length; k++) {
+                    if (possibleConsignments[j] == container[k].BoxConsign) {//just checking for consignment is gd
+                        arrayOfContainersWithSameConsignment.push(container[k]);
+                        boxId = container[k].BoxId;
+                        boxNum = container[k].BoxNumber;
+                    }
+                }
+
+                var newObj = {"records": arrayOfContainersWithSameConsignment,
+                    BoxConsign: possibleConsignments[j],
+                    BoxId: boxId,
+                    BoxNumber:boxNum};
+                newObjs.push(newObj);
+            }
+
+            return newObjs;
+        }
+
+        var original = this.state.containerReports;
+        var containers = groupContainersWithSameConsignmentAndBoxnumber(original);
+
+        for (var w = 0; w < containers.length; w++) {
+            //var container = testContainers[w];
+            var container = containers[w];
+
+            //console.log("container:");
+            //console.log(container);
+            //var recordCount = container.records.length;
+            //console.log("container length:" + container.length);
+
+            var recordCount = container.records.length; //length of array
+            var page = w + 1;
+            const containerNumber = container.BoxNumber;                                                       //TODO
+            const consignmentCode = container.BoxConsign;//TODO
+            //const destroyedAt = container.DestroyedAt;
+
+            createTemplate(consignmentCode,containerNumber,page);
+
+            if (!isBoxed) {return}
+
 
             for (var i = 0; i < recordCount; i++) {
-                var record = container.records[i];                                                                  //TODO
+                //var record = container.records[i];
+                var record = container.records[i];
                 doc.setFontStyle('bold');   // for border calculation to be accurate
                 doc.setFontSize(10);        // for border calculation to be accurate
-                var splitTitle = doc.splitTextToSize(record.title, titleWidth);                                         //TODO
+                var splitTitle = doc.splitTextToSize(record.RecordTitle, titleWidth);
+                //console.log("SplitTitle:" + splitTitle);
+                //console.log("SplitTitle length:");
+                //console.log(splitTitle.length);//TODO
                 var titleHeight = splitTitle.length * 10 * 1.13 / 72 * 25.4;
 
                 var border = topAlign + titleHeight + 9;
@@ -707,18 +795,45 @@ class PrintQueue extends Component {
                     border = topAlign + titleHeight + 9;
                 }
 
+
                 doc.setFontStyle('bold');
                 doc.setFontSize(10);
-                doc.text(titleColumnX - 10, topAlign + 2, record.number, null, null, 'right');                          //TODO
+                doc.text(titleColumnX - 10, topAlign + 2, record.RecordNumber, null, null, 'right');                          //TODO
                 doc.text(titleColumnX, topAlign, splitTitle);
-                doc.text(schedNbrColumnX + 7, topAlign + 6, record.scheduleId.toString());                              //TODO
+                doc.text(schedNbrColumnX + 7, topAlign + 6, record.ScheduleId.toString());                              //TODO
 
                 doc.setFontSize(8);
                 doc.setFontStyle('normal');
                 // TODO : time formatting
-                doc.text(titleColumnX + 35, topAlign + titleHeight, record.dateCreated); //"2015-08-06 at 10:33 AM"     //TODO
-                doc.text(titleColumnX + 35, topAlign + titleHeight + 3, record.dateClosed);                             //TODO
-                doc.text(titleColumnX + 35, topAlign + titleHeight + 6, record.dateDestruction);                        //TODO
+                doc.text(titleColumnX + 35, topAlign + titleHeight, record.CreatedAt); //"2015-08-06 at 10:33 AM"     //TODO
+                doc.text(titleColumnX + 35, topAlign + titleHeight + 3, record.ClosedAt);
+
+                let xhr = new XMLHttpRequest();
+                xhr.open("POST", "http://127.0.0.1:8080/containers/", false);
+                xhr.setRequestHeader("Content-type", "application/json");
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState === 4 && xhr.status === 200) {
+                        //console.log("xhr.responseText" + xhr.responseText);
+                        var data = JSON.parse(xhr.responseText);
+                        for (var m = 0; m < data.results.length; m++) {
+                            //console.log(data.results[m].RecordsNumber);
+                            //console.log(record.RecordNumber);
+                            //console.log(data.results[m].RecordsNumber == record.RecordNumber);
+                            if (data.results[m].RecordsNumber == record.RecordNumber) {
+                                //console.log(data.results[m].RecordsDestructionDate);
+                                doc.text(titleColumnX + 35, topAlign + titleHeight + 6, data.results[m].RecordsDestructionDate);
+                                return;
+                            }
+                        }
+                    } else if (xhr.status >= 300) {
+                        console.log("error");
+                    }
+                };
+                let body = JSON.stringify({containerNumInput: containerNumber});
+                xhr.send(body);
+
+
+                 //TODO
                 // Date headers
                 doc.setFontStyle('italic');
                 doc.text(titleColumnX + 31, topAlign + titleHeight, "Date Created",null,null,'right');
@@ -728,6 +843,7 @@ class PrintQueue extends Component {
                 topAlign = border + 7;
             }
             if (w + 1 < count) {
+                //console.log("a page is added");
                 doc.addPage();
             }
         }
@@ -949,7 +1065,7 @@ class PrintQueue extends Component {
         var recordLabels = this.state.recordLabels;
         var endTabLabels = this.state.endTabLabels;
         var containerReports = this.state.containerReports;
-        console.log(this.state);
+        //console.log(this.state);
 
         var pdfConverter = require('jspdf');
         var doc;
@@ -1009,15 +1125,21 @@ class PrintQueue extends Component {
         });
         this.hidePrint();
         this.props.flush();
+        console.log("flush is running");
     }
 
 
     render() {
 
-        var recordLabels = this.state.recordLabels;
+        var recordLabels = this.props.recordLabels;
+        var endTabLabels = this.props.endTabLabels;
+        var containerReports = this.props.containerReports;
+        /*
+        var recordLabels = this.props.recordLabels;
         var endTabLabels = this.state.endTabLabels;
-        var containerReports = this.state.containerReports;
-        console.log(this.state);
+        var containerReports = this.state.containerReports;*/
+        console.log("in render:");
+        console.log(this.state.recordLabels);
 
         const hr = <hr className="mx-3 my-0"/>;
         let recordLabelHeader = null;
@@ -1030,7 +1152,12 @@ class PrintQueue extends Component {
         var cReports = [];        //
 
 
-        if(typeof recordLabels != "undefined" && recordLabels != null && recordLabels.length > 0){
+        console.log("recordLabels.length > 0" + recordLabels.length > 0);
+        console.log("recordLabels != null" + recordLabels != null);
+        console.log('typeof recordLabels != "undefined"' + typeof recordLabels != "undefined");
+        console.log("recordLabels.length:" + recordLabels.length);
+        if(typeof recordLabels != "undefined" && recordLabels != null /*&& recordLabels.length > 0*/){
+           // console.log("is this running?");
             recordLabelHeader = <div>
                 <div className="callout m-0 py-2 text-muted text-left bg-light text-uppercase">
                     <small><b>Record Labels</b></small>
@@ -1038,6 +1165,7 @@ class PrintQueue extends Component {
                 {hr}
             </div>;
             recordLabels.forEach((record) => {
+                console.log(record);
                 rLabels.push(
                     <div key={record.id}>
                         <div className="m-1"> Row #{record.id} </div>
@@ -1083,6 +1211,9 @@ class PrintQueue extends Component {
             });
         }
 
+        console.log ("rLabels.length" + rLabels.length);
+        console.log ("cLabels.length" + cReports.length);
+        console.log ("eTabLabels.length" + eTabLabels.length);
         if (rLabels.length > 0 || eTabLabels.length > 0 || cReports.length > 0) {
             this.showPrint();
         }

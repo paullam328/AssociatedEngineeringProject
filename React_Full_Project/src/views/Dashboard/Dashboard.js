@@ -78,14 +78,20 @@ class BoxRow extends React.Component {
     }
 }
 
+
 class RecordRow extends React.Component {
     constructor(props) {
         super(props);
+        this.state = {
+            showPrintOptions: false
+        };
+
         this.togglePrintOptions = this.togglePrintOptions.bind(this);
         this.printRecordLabel = this.printRecordLabel.bind(this);
         this.printEndTabLabel = this.printEndTabLabel.bind(this);
-        this.state = {showPrintOptions: false};
+        this.printContainerReport = this.printContainerReport.bind(this);
     }
+
 
     printRecordLabel() {
         var arrayOfSelectedCompleteData = [];
@@ -96,7 +102,7 @@ class RecordRow extends React.Component {
             }
         }
         this.togglePrintOptions();
-        this.props.addToRecordLabels(arrayOfSelectedCompleteData);    // Full.addToRecordLabels() this.prop.record
+        this.props.addToRecordLabels(arrayOfSelectedCompleteData);
         selectedData = [];
     }
 
@@ -109,7 +115,20 @@ class RecordRow extends React.Component {
             }
         }
         this.togglePrintOptions();
-        this.props.addToEndTabLabels(arrayOfSelectedCompleteData);    // Full.addToRecordLabels() this.prop.record
+        this.props.addToEndTabLabels(arrayOfSelectedCompleteData);
+        selectedData = [];
+    }
+
+    printContainerReport() {
+        var arrayOfSelectedCompleteData = [];
+
+        for (var i = 0; i < data.length; i++) {
+            if (selectedData.includes(dataWithId[i]['RecordId'])) {
+                arrayOfSelectedCompleteData.push(dataWithId[i]);
+            }
+        }
+        this.togglePrintOptions();
+        this.props.addToContainerReports(arrayOfSelectedCompleteData);
         selectedData = [];
     }
 
@@ -134,6 +153,9 @@ class RecordRow extends React.Component {
                             </DropdownItem>
                             <DropdownItem>
                                 <div onClick={this.printEndTabLabel}>+ End Tab Label</div>
+                            </DropdownItem>
+                            <DropdownItem>
+                                <div onClick={this.printContainerReport}>+ Container Report</div>
                             </DropdownItem>
                         </DropdownMenu>
                     </Dropdown>
@@ -2042,7 +2064,7 @@ class Dashboard extends React.Component {
 
     rowSelect(obj)
     {
-        console.log(JSON.stringify(obj));
+        //console.log(JSON.stringify(obj));
     }
 
     render() {
