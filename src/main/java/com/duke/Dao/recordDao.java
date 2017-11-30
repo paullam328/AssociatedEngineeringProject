@@ -448,7 +448,7 @@ public class recordDao {
 
             String classname;
 
-            //String sql = "SELECT * FROM FullTextTable WHERE (rNumber LIKE ? OR bNumber LIKE ? OR rTitle LIKE ? OR bTitle LIKE ? OR nTexts LIKE ? OR bcosign LIKE ?) ";
+            /*String sql = "SELECT * FROM FullTextTable WHERE (rNumber LIKE ? OR bNumber LIKE ? OR rTitle LIKE ? OR bTitle LIKE ? OR nTexts LIKE ? OR bcosign LIKE ?) "; */
             String sql =
                     "SELECT FullTextTable.*, " +
                             "coalesce(customattributevalues.Value, 'na') AS ClientName " +
@@ -569,38 +569,47 @@ public class recordDao {
             System.out.print(sql);
             System.out.print(params);
 
-            List<JSONObject> FTresults = jdbcTemplate.query(sql, new RowMapper<JSONObject>() {
-                public JSONObject mapRow(ResultSet resultSet, int Id) throws SQLException {
-                    JSONObject FTresult = new JSONObject();
-                    FTresult.put("RecordId", resultSet.getInt("rid"));
-                    FTresult.put("RecordConsign", resultSet.getString("rconsign"));
-                    FTresult.put("CreatedAt", resultSet.getDate("rCreatedAt"));
-                    FTresult.put("ClosedAt", resultSet.getDate("rClosedAt"));
-                    FTresult.put("RecordNumber", resultSet.getString("rNumber"));
-                    FTresult.put("RecordTitle", resultSet.getString("rTitle"));
-                    FTresult.put("UpdatedAt", resultSet.getDate("rUpdatedAt"));
-                    FTresult.put("BoxId", resultSet.getInt("bid"));
-                    FTresult.put("BoxConsign", resultSet.getString("bcosign"));
-                    FTresult.put("BoxTitle", resultSet.getString("bTitle"));
-                    FTresult.put("BoxNumber", resultSet.getString("bNumber"));
-                    FTresult.put("NoteId", resultSet.getInt("nid"));
-                    FTresult.put("Notes", resultSet.getString("nTexts"));
-                    FTresult.put("LocationId", resultSet.getInt("lid"));
-                    FTresult.put("LocationName", resultSet.getString("lName"));
-                    FTresult.put("TypeId", resultSet.getInt("rtid"));
-                    FTresult.put("TypeName", resultSet.getString("rtName"));
-                    FTresult.put("Classifications", resultSet.getString("classList"));
-                    FTresult.put("StateId", resultSet.getInt("rsid"));
-                    FTresult.put("StateName", resultSet.getString("rsName"));
-                    FTresult.put("ScheduleId", resultSet.getInt("rscid"));
-                    FTresult.put("ScheduleName", resultSet.getString("rscName"));
-                    FTresult.put("ClientName", resultSet.getString("ClientName"));
+            final List<JSONObject> recordList = jdbcTemplate.query(sql, new ResultSetExtractor<List<JSONObject>>() {
 
-//                System.out.print(records);
-                    return FTresult;
+                @Override
+                public List<JSONObject> extractData(ResultSet resultSet) throws SQLException, DataAccessException {
+
+                    List<JSONObject> list = new ArrayList<JSONObject>();
+
+                    while (resultSet.next()) {
+                        JSONObject FTresult = new JSONObject();
+                        FTresult.put("RecordId", resultSet.getInt("rid"));
+                        FTresult.put("RecordConsign", resultSet.getString("rconsign"));
+                        FTresult.put("CreatedAt", resultSet.getDate("rCreatedAt"));
+                        FTresult.put("ClosedAt", resultSet.getDate("rClosedAt"));
+                        FTresult.put("RecordNumber", resultSet.getString("rNumber"));
+                        FTresult.put("RecordTitle", resultSet.getString("rTitle"));
+                        FTresult.put("UpdatedAt", resultSet.getDate("rUpdatedAt"));
+                        FTresult.put("BoxId", resultSet.getInt("bid"));
+                        FTresult.put("BoxConsign", resultSet.getString("bcosign"));
+                        FTresult.put("BoxTitle", resultSet.getString("bTitle"));
+                        FTresult.put("BoxNumber", resultSet.getString("bNumber"));
+                        FTresult.put("NoteId", resultSet.getInt("nid"));
+                        FTresult.put("Notes", resultSet.getString("nTexts"));
+                        FTresult.put("LocationId", resultSet.getInt("lid"));
+                        FTresult.put("LocationName", resultSet.getString("lName"));
+                        FTresult.put("TypeId", resultSet.getInt("rtid"));
+                        FTresult.put("TypeName", resultSet.getString("rtName"));
+                        FTresult.put("Classifications", resultSet.getString("classList"));
+                        FTresult.put("StateId", resultSet.getInt("rsid"));
+                        FTresult.put("StateName", resultSet.getString("rsName"));
+                        FTresult.put("ScheduleId", resultSet.getInt("rscid"));
+                        FTresult.put("ScheduleName", resultSet.getString("rscName"));
+                        FTresult.put("ClientName", resultSet.getString("ClientName"));
+
+                        list.add(FTresult);
+                    }
+
+                    System.out.println(list);
+                    return list;
                 }
             }, params);
-            return FTresults;
+            return recordList;
         } else {
             return null;
         }
