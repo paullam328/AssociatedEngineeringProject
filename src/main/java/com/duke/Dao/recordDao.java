@@ -448,8 +448,13 @@ public class recordDao {
 
             String classname;
 
-            String sql = "SELECT * FROM FullTextTable WHERE (rNumber LIKE ? OR bNumber LIKE ? OR rTitle LIKE ? OR bTitle LIKE ? OR nTexts LIKE ? OR bcosign LIKE ?) ";
-
+            //String sql = "SELECT * FROM FullTextTable WHERE (rNumber LIKE ? OR bNumber LIKE ? OR rTitle LIKE ? OR bTitle LIKE ? OR nTexts LIKE ? OR bcosign LIKE ?) ";
+            String sql =
+                    "SELECT FullTextTable.*, " +
+                            "coalesce(customattributevalues.Value, 'na') AS ClientName " +
+                            "FROM FullTextTable " +
+                            "LEFT JOIN customattributevalues on customattributevalues.RecordId = FullTextTable.rid AND customattributevalues.AttrId = 9 " +
+                            "WHERE (rNumber LIKE ? OR bNumber LIKE ? OR rTitle LIKE ? OR bTitle LIKE ? OR nTexts LIKE ? OR bcosign LIKE ?) ";
 
             if (filters.has("CreatedStart")) {
 
@@ -589,6 +594,7 @@ public class recordDao {
                     FTresult.put("StateName", resultSet.getString("rsName"));
                     FTresult.put("ScheduleId", resultSet.getInt("rscid"));
                     FTresult.put("ScheduleName", resultSet.getString("rscName"));
+                    FTresult.put("ClientName", resultSet.getString("ClientName"));
 
 //                System.out.print(records);
                     return FTresult;

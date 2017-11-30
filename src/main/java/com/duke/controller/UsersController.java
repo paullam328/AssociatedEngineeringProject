@@ -87,5 +87,30 @@ public class UsersController {
         }
     }
 
+    @CrossOrigin
+    @ResponseBody
+    @RequestMapping(
+            value = "/",
+            method = RequestMethod.GET)
+    public ResponseEntity<String> searchAllUsers() {
+        try {
+            JSONObject obj = new JSONObject();
+            List<JSONObject> results = usersDao.getAllUsers();
+
+            if (results.size() < 1) {
+                // no results found
+                // return 404
+                return new ResponseEntity<String>("404  No results found.", HttpStatus.NOT_FOUND);
+            } else {
+                // results found
+                obj.put("results", results);
+                return new ResponseEntity<String>(obj.toString(), HttpStatus.OK);
+            }
+        } catch (Exception ex) {
+            String errorMessage = ex + " error";
+            return new ResponseEntity<String>(errorMessage, HttpStatus.BAD_REQUEST);
+        }
+    }
+
 
 }
