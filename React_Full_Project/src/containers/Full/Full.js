@@ -37,12 +37,17 @@ class Full extends Component {
 
         this.getFurtherAuthorization = this.getFurtherAuthorization.bind(this);
         this.state = {
-            recordLabels: [{id:1,test:"FOR TESTING"}, {id:2,test:"FOR TESTING"},{id:3,test:"FOR TESTING"}],
-            endTabLabels: [{id:1,test:"FOR TESTING"}, {id:2,test:"FOR TESTING"},{id:3,test:"FOR TESTING"}, {id:4,test:"FOR TESTING"},{id:5,test:"FOR TESTING"}, {id:6,test:"FOR TESTING"},{id:7,test:"FOR TESTING"}, {id:8,test:"FOR TESTING"}],
-            containerReports: [{id:1,test:"FOR TESTING"},{id:2,test:"FOR TESTING"}],
+            //recordLabels: [{id:1,test:"FOR TESTING"}, {id:2,test:"FOR TESTING"},{id:3,test:"FOR TESTING"}],
+            recordLabels: [],
+            //endTabLabels: [{id:1,test:"FOR TESTING"}, {id:2,test:"FOR TESTING"},{id:3,test:"FOR TESTING"}, {id:4,test:"FOR TESTING"},{id:5,test:"FOR TESTING"}, {id:6,test:"FOR TESTING"},{id:7,test:"FOR TESTING"}, {id:8,test:"FOR TESTING"}],
+            endTabLabels: [],
+            //containerReports: [{id:1,test:"FOR TESTING"},{id:2,test:"FOR TESTING"}],
+            containerReports: [],
             colours: {},
             authorization:false,
-            isAdmin: false
+            isAdmin: false,
+            isRMC: false,
+            isRegular: false
         };
     }
 
@@ -85,20 +90,26 @@ class Full extends Component {
 
     // TODO: disallow duplicates
     addToRecordLabels(data) {
-        var newState = Object.assign({}, this.state); // Clone the state obj in newState
-        newState["recordLabels"].push(data);             // modify newState
-        this.setState(newState);
-        //console.log(this.state);
+        //console.log("this is running with data:" + data);
+
+        for (var i = 0; i < data.length; i++) {
+            var newState = Object.assign({}, this.state); // Clone the state obj in newState
+            newState["recordLabels"].push(data[i]);             // modify newState
+            this.setState(newState);
+        }
     }
 
     addToEndTabLabels(data) {
-        var newState = Object.assign({}, this.state);
-        newState["endTabLabels"].push(data);
-        this.setState(newState);
-        //console.log(this.state);
+        for (var i = 0; i < data.length; i++) {
+            var newState = Object.assign({}, this.state);
+            newState["endTabLabels"].push(data[i]);
+            this.setState(newState);
+        }
     }
 
     addToContainerReports(data) {
+        console.log("this is running");
+
         var newState = Object.assign({}, this.state);
         newState["containerReports"].push(data);
         this.setState(newState);
@@ -118,6 +129,7 @@ class Full extends Component {
 
 
 
+
     getAuthorization() {
         var request = new XMLHttpRequest();
         request.open('GET', 'http://localhost:8080/users/authorization', false);
@@ -126,12 +138,62 @@ class Full extends Component {
             if (request.status >= 200 && request.status < 400) {
                 console.log("Authentication from Server:");
                 console.log(JSON.parse(request.response));
-                //console.log("request.response['results']: " + JSON.parse(request.response)['results']);
-                /*if (JSON.parse(request.response)['results'] == 'Administrator') {
-                    this.setState({
-                        authorization: true
-                    });
-                }*/
+
+                /*
+                // TODO: For Testing Purpose
+                //var testAuthorization = {results: 'Access Denied'};
+                //var testAuthorization = {results: 'Administrator'};
+                //var testAuthorization = {results: 'Records Management Clerk'};
+                //var testAuthorization = {results: 'Regular User'};
+                //console.log(testAuthorization);
+
+                 if (testAuthorization.results == 'Access Denied') {
+                 this.setState({
+                 authorization: false
+                 });
+                 }
+                 else {
+                 this.setState({
+                 authorization: true
+                 });
+                 }
+
+                 //For admin:
+                 if (testAuthorization.results == 'Administrator') {
+                 this.setState({
+                 isAdmin: true
+                 });
+                 }
+                 else {
+                 this.setState({
+                 isAdmin: false
+                 });
+                 }
+
+                 //For RMC:
+                 if (testAuthorization.results == 'Records Management Clerk') {
+                 this.setState({
+                 isRMC: true
+                 });
+                 }
+                 else {
+                 this.setState({
+                 isRMC: false
+                 });
+                 }
+
+                 //For regular user:
+                 if (testAuthorization.results == 'Regular User') {
+                 this.setState({
+                 isRegular: true
+                 });
+                 }
+                 else {
+                 this.setState({
+                 isRegular: false
+                 });
+                 }
+*/
 
                 if (JSON.parse(request.response)['results'] == 'Access Denied') {
                     this.setState({
@@ -156,6 +218,30 @@ class Full extends Component {
                     });
                 }
 
+                //For RMC:
+                if (JSON.parse(request.response)['results'] == 'Records Management Clerk') {
+                    this.setState({
+                        isRMC: true
+                    });
+                }
+                else {
+                    this.setState({
+                        isRMC: false
+                    });
+                }
+
+                //For regular user:
+                if (JSON.parse(request.response)['results'] == 'Regular User') {
+                    this.setState({
+                        isRegular: true
+                    });
+                }
+                else {
+                    this.setState({
+                        isRegular: false
+                    });
+                }
+
             } else {
                 console.error('Response received and there was an error');
             }
@@ -170,8 +256,6 @@ class Full extends Component {
 //<div>{this.props.authorization}</div>
 //<Dashboard addToRecordLabels={this.addToRecordLabels} addToEndTabLabels={this.addToEndTabLabels} addToContainerReports={this.addToContainerReports} getFurtherAuthorization={this.getFurtherAuthorization}  />
     render() {
-        console.log("General User Authorization: " + this.state.authorization);
-        console.log("Administrator? " + this.state.isAdmin);
 
         if (this.state.authorization) {
 
@@ -179,13 +263,17 @@ class Full extends Component {
 
             var eliminateAsync = true;
             while (eliminateAsync) {
-                if (this.state.isAdmin == true || this.state.isAdmin == false) {
+                if ((this.state.isAdmin == true || this.state.isAdmin == false)
+                    && (this.state.isRMC == true || this.state.isRMC == false)
+                    && (this.state.isRegular == true || this.state.isRegular == false)) {
                     eliminateAsync = false;
                     var getDashboard = <Route path="/dashboard" name="Dashboard"
                                               component={() => <Dashboard addToRecordLabels={this.addToRecordLabels}
                                                                           addToEndTabLabels={this.addToEndTabLabels}
                                                                           addToContainerReports={this.addToContainerReports}
-                                                                          isAdmin={this.state.isAdmin}/>}/>
+                                                                          isAdmin = {this.state.isAdmin}
+                                                                          isRMC = {this.state.isRMC}
+                                                                            isRegular = {this.state.isRegular}/>}/>
                     break;
                 } else {
                     eliminateAsync = true;
@@ -219,7 +307,9 @@ class Full extends Component {
                                 </Switch>
                             </Container>
                         </main>
-                        <PrintQueue state={this.state} flush={this.flush}/>
+                        {!this.state.isRegular?
+                            <PrintQueue state={this.state} flush={this.flush}/> : null
+                        }
                     </div>
                     <Footer />
                 </div>

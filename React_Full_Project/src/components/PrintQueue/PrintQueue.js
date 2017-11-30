@@ -67,11 +67,12 @@ class PrintQueue extends Component {
 
 
         for(var i=0; i<count; i++) {
-            //var record = this.state.recordLabels[i];      // TODO UNCOMMENT WHEN NOT TESTING
-            var record = testRecords[i];
-            var location = record.locationName;                                         // TODO
-            var number = record.number;                                                           //TODO
-            var schedNum = String(record.scheduleId);                                             //TODO
+            var record = this.state.recordLabels[i];      // TODO UNCOMMENT WHEN NOT TESTING
+            //var record = testRecords[i];
+
+            var location = record.LocationName;                                         // TODO
+            var number = record.RecordNumber;                                                           //TODO
+            var schedNum = String(record.ScheduleId);                                             //TODO
             var prevVolume = "";
             if (number.charAt(19)) {
                 var volume = number.charAt(20) + number.charAt(21);
@@ -83,9 +84,10 @@ class PrintQueue extends Component {
                     prevVolume = number.substring(0,20) + prev;
                 }
             }
-            var clientName = record.clientName;                                                                // TODO
-            var classificationPath = record.classificationPath;                             // TODO
-            var title = record.title;                                                     //TODO
+            //var clientName = record.clientName;      //TODO: what is this                                                          // TODO
+            var clientName = "";
+            var classificationPath = record.Classifications;                             // TODO
+            var title = record.RecordTitle;                                                     //TODO
 
             // add a new page if over limit
             if (i % 10 === 0 && i > 0) {
@@ -408,10 +410,10 @@ class PrintQueue extends Component {
             }
             pos = (i % 6) + 1;
 
-            //var record = this.state.endTabLabels[i];      // TODO UNCOMMENT WHEN NOT TESTING
-            var record = testRecords[i];        // for testing
-            var recordNum = record.number;                                                           //TODO
-            var typeId = record.typeId;                                                           //TODO
+            var record = this.state.endTabLabels[i];      // TODO UNCOMMENT WHEN NOT TESTING
+            //var record = testRecords[i];        // for testing
+            var recordNum = record.RecordNumber;                                                           //TODO
+            var typeId = record.TypeId;                                                           //TODO
 
             switch(typeId) {
                 case 10:
@@ -1038,7 +1040,7 @@ class PrintQueue extends Component {
             recordLabels.forEach((record) => {
                 rLabels.push(
                     <div key={record.id}>
-                        <div className="m-1"> Record {record.id} </div>
+                        <div className="m-1"> Row #{record.id} </div>
                         {hr}
                     </div>
                 );
@@ -1056,7 +1058,7 @@ class PrintQueue extends Component {
             endTabLabels.forEach((record) => {
                 eTabLabels.push(
                     <div key={record.id}>
-                        <div className="m-1"> Record {record.id} </div>
+                        <div className="m-1"> Row #{record.id} </div>
                         {hr}
                     </div>
                 );

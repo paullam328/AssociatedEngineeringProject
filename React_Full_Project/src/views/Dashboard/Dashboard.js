@@ -25,6 +25,7 @@ import Page403 from '../Pages/Page403/'
 
 import Full from '../../containers/Full/'
 
+
 var responseJSON = {"results": []};
 var records = [];
 var dashGlobal = {};
@@ -35,6 +36,13 @@ var server = "http://localhost:8080";
 var name;
 
 var isAdministrator = false;
+var isRecordsManagementClerk = false
+var isRegularUser = false;
+
+var data = [];
+var dataWithId = [];
+var selectedData = [];
+
 
 function getDate(input) { //converts the JSON's string date into an array of ints, [year, month, day]
     return input.split("-", 3).map(function (x) {
@@ -80,12 +88,29 @@ class RecordRow extends React.Component {
     }
 
     printRecordLabel() {
+        var arrayOfSelectedCompleteData = [];
+
+        for (var i = 0; i < data.length; i++) {
+            if (selectedData.includes(dataWithId[i]['RecordId'])) {
+                arrayOfSelectedCompleteData.push(dataWithId[i]);
+            }
+        }
         this.togglePrintOptions();
-        this.props.addToRecordLabels(this.props.record)         // Full.addToRecordLabels()
+        this.props.addToRecordLabels(arrayOfSelectedCompleteData);    // Full.addToRecordLabels() this.prop.record
+        selectedData = [];
     }
 
     printEndTabLabel() {
-        this.props.addToEndTabLabels(this.props.record)         // Full.addToEndTabLabels()
+        var arrayOfSelectedCompleteData = [];
+
+        for (var i = 0; i < data.length; i++) {
+            if (selectedData.includes(dataWithId[i]['RecordId'])) {
+                arrayOfSelectedCompleteData.push(dataWithId[i]);
+            }
+        }
+        this.togglePrintOptions();
+        this.props.addToEndTabLabels(arrayOfSelectedCompleteData);    // Full.addToRecordLabels() this.prop.record
+        selectedData = [];
     }
 
     togglePrintOptions() {
@@ -94,12 +119,11 @@ class RecordRow extends React.Component {
         });
     }
 
-    render() {
-        const record = this.props.record;
 
+    render() {
         return (
             <tr>
-                <th>RECORD {record.id}
+                <th>Record Printing Options:
                     <Dropdown isOpen={this.state.showPrintOptions} toggle={this.togglePrintOptions}>
                         <DropdownToggle className="nav-link dropdown-toggle">
                             <i className="fa fa-print"></i>
@@ -114,18 +138,70 @@ class RecordRow extends React.Component {
                         </DropdownMenu>
                     </Dropdown>
                 </th>
-                <th>{record.number}</th>
-                <th>{record.consignmentCode}</th>
-                <th>{record.title}</th>
-                <th>{record.locationId}</th>
             </tr>
         );
     }
+    /*
+     <th>{record.number}</th>
+     <th>{record.consignmentCode}</th>
+     <th>{record.title}</th>
+     <th>{record.locationId}</th>
+     */
 }
 
 //animated fadeIn
 class ResultsTable extends React.Component {
+
+    constructor(props) {
+        super(props);
+
+        this.state = { selected: {}, selectAll: 0};
+
+        this.toggleRow = this.toggleRow.bind(this);
+    }
+
+    toggleRow(RecordId) {
+        const newSelected = Object.assign({}, this.state.selected);//assign selected
+        newSelected[RecordId] = !this.state.selected[RecordId];
+        this.setState({
+            selected: newSelected,
+            selectAll: 2
+        });
+
+        if (selectedData.includes(RecordId)) {
+            selectedData.splice(selectedData.indexOf(RecordId), 1)
+        } else {
+            selectedData.push(RecordId);
+        }
+    }
+
+
+    toggleSelectAll() {
+        let newSelected = {};
+
+        if (this.state.selectAll === 0) {
+            data.forEach(x => {
+                newSelected[x.RecordId] = true;
+            });
+        }
+
+        this.setState({
+            selected: newSelected,
+            selectAll: this.state.selectAll === 0 ? 1 : 0
+        });
+
+        selectedData.push(RecordId);
+    }
+
     render() {
+
+        data = this.props.results;
+        dataWithId = data;
+        for (var i = 0; i < dataWithId.length; i++) {
+            var dataReinsert = dataWithId[i];
+            dataWithId[i].id = i+1; //so row number starts from 1
+        }
+
         if (this === undefined || this.props === undefined || this.props.results === undefined) {
             return (
                 <div className="footerTable">
@@ -140,18 +216,48 @@ class ResultsTable extends React.Component {
                 </div>
             );
         }
-        let columns = [{
-	        header: '',
-	        accessor: 'editButton',
-	        render: (value) => (
-                <button onClick={this.props.onClick.bind(this, value)}>
-                    click me!
-                </button>
-	        ),
-	        maxWidth: 60
-        }];
 
-        if (this.props.results.length > 0) {
+
+        let columns =
+            (isRecordsManagementClerk || isAdministrator) ?
+            [{
+            id: "checkbox",
+            accessor: "",
+            Cell: ({ original }) => {
+                //console.log("original is:");
+                //console.log(original);
+                return (
+                    <input
+                        type="checkbox"
+                        className="checkbox"
+                        checked={this.state.selected[original.RecordId] === true}
+                        onChange={() => this.toggleRow(original.RecordId)}
+                    />
+                );
+            },
+            Header: x => {
+                return (
+                    <input
+                        type="checkbox"
+                        className="checkbox"
+                        checked={this.state.selectAll === 1}
+                        ref={input => {
+                            //console.log("input is:");
+                            //console.log(input);
+
+                            if (input) {
+                                input.indeterminate = this.state.selectAll === 2;
+                            }
+                        }}
+                        onChange={() => this.toggleSelectAll()}
+                    />
+                );
+            },
+            sortable: false,
+            width: 45
+        }]: [];
+
+        /*if (this.props.results.length > 0) {
             for (let key in this.props.results[0]) {
                 if (this.props.results[0].hasOwnProperty(key) && !key.toLowerCase().endsWith("id")) {
                     columns.push({
@@ -160,17 +266,50 @@ class ResultsTable extends React.Component {
                     });
                 }
             }
+        }*/
+
+
+
+        if (dataWithId.length > 0) {
+            for (let key in dataWithId[0]) {
+                if (dataWithId[0].hasOwnProperty(key)) {
+                    if (key == "id") {
+                        columns.push({
+                            "Header": "Row #",
+                            "accessor": key
+                        });
+                    }
+                }
+            }
+            for (let key in dataWithId[0]) {
+                if (dataWithId[0].hasOwnProperty(key)) {
+                    if (!key.toLowerCase().endsWith("id") && key != "id") {
+                        columns.push({
+                            "Header": key.replace(/([A-Z]+)/g, " $1").replace(/([A-Z][a-z])/g, " $1"),
+                            "accessor": key
+                        });
+                    }
+                }
+
+            }
         }
 
         let that = this;
+
+        //that.props.results
         return (
             <div>
+                {!isRegularUser ?
+                    <RecordRow addToRecordLabels={this.props.addToRecordLabels}
+                               addToEndTabLabels={this.props.addToEndTabLabels}
+                               addToContainerReports={this.props.addToContainerReports}/> : null
+                }
                 <Row>
                     <Col>
                         <Card>
                             <CardBlock className="card-body">
                                 <ReactTable
-                                    data={that.props.results}
+                                    data={data}
                                     columns={columns}
                                 />
                             </CardBlock>
@@ -1909,12 +2048,21 @@ class Dashboard extends React.Component {
     render() {
         isAdministrator = this.props['isAdmin']; //setting it as a global variable is faster than setting a state, thus eliminating
         // the async bug
+        isRecordsManagementClerk = this.props['isRMC'];
+        isRegularUser = this.props['isRegular'];
 
         return (
             <div>
                 <div>
                     <SearchBar/>
-                    <ResultsTable  results={records} loadingText="Loading results..." noDataText="No results found" onClick={this.rowSelect.bind(this)}/>
+                    <ResultsTable  results={records}
+                                   loadingText="Loading results..."
+                                   noDataText="No results found"
+                                   onClick={this.rowSelect.bind(this)}
+
+                                   addToRecordLabels={this.props.addToRecordLabels}
+                                   addToEndTabLabels={this.props.addToEndTabLabels}
+                                   addToContainerReports={this.props.addToContainerReports}/>
                 </div>
             </div>
         );
