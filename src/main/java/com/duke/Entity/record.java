@@ -35,11 +35,12 @@ public class record {
     private java.sql.Timestamp containersUpdatedAt;
 
     private String RecordType;
+    private String function;
 
 
 
 
-    public record(String CustomerType, int id, int AttrId, int RecordId, String Value, String title, String number, int scheduleId, int typeId, int stateId, int containerId, int locationId, Timestamp createdAt, Timestamp updatedAt, Timestamp closedAt, String consignmentCode, String recordStateName, String locationName, String notesText, String CustomerName, String clientName, Timestamp containersCreatedAt, Integer containersId, String containersNumber, String containersTitle, Timestamp containersUpdatedAt, String recordType){
+    public record(String CustomerType, int id, int AttrId, int RecordId, String Value, String title, String number, int scheduleId, int typeId, int stateId, int containerId, int locationId, Timestamp createdAt, Timestamp updatedAt, Timestamp closedAt, String consignmentCode, String recordStateName, String locationName, String notesText, String CustomerName, String clientName, Timestamp containersCreatedAt, Integer containersId, String containersNumber, String containersTitle, Timestamp containersUpdatedAt, String recordType, String function){
         this.id= id;
         this.AttrId = AttrId;
         this.RecordId=RecordId;
@@ -67,6 +68,7 @@ public class record {
         this.containersUpdatedAt = containersUpdatedAt;
         this.CustomerType = CustomerType;
         RecordType = recordType;
+        this.function = function;
     }
 
     // default constructor
@@ -283,5 +285,13 @@ public class record {
 
     public void setRecordType(String recordType) {
         RecordType = recordType;
+    }
+
+    public String getFunction() {
+        return function;
+    }
+
+    public void setFunction(String function) {
+        this.function = function;
     }
 }
